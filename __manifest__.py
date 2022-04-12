@@ -10,7 +10,7 @@
         'portal',
         'product',
     ],
-    'author': 'ISC Alexis Cruz',
+    'author': 'ISC Alexis Cruz A',
     'category': 'Cuentas Por Pagar (Interfaz Contpaqi, TTs)',
     'website': 'https://www.bmavocados.com',
     'summary': 'Cuentas Por Pagar Mod',
