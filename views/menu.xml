@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="action_open_cuentas_por_pagar_contratos" model="ir.actions.act_window">
+        <field name="name">Contratos compra - venta</field>
+        <field name="res_model">contratos_compra_venta</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_open_cuentas_por_pagar_tipo_contrato" model="ir.actions.act_window">
+        <field name="name">Tipos de contrato</field>
+        <field name="res_model">tipo_contrato</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_open_cuentas_por_pagar_pais" model="ir.actions.act_window">
+        <field name="name">Pais</field>
+        <field name="res_model">pais</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_open_cuentas_por_pagar_estado" model="ir.actions.act_window">
+        <field name="name">Estado</field>
+        <field name="res_model">estado</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_open_cuentas_por_pagar_ciudad" model="ir.actions.act_window">
+        <field name="name">Ciudad</field>
+        <field name="res_model">ciudad</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_open_cuentas_por_pagar_localidad" model="ir.actions.act_window">
+        <field name="name">Localidad</field>
+        <field name="res_model">localidad</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_open_cuentas_por_pagar_huertas" model="ir.actions.act_window">
+        <field name="name">Huertas</field>
+        <field name="res_model">huertas</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_open_cuentas_por_pagar_lotes" model="ir.actions.act_window">
+        <field name="name">Lotes</field>
+        <field name="res_model">lotes</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_open_cuentas_por_pagar_cortes" model="ir.actions.act_window">
+        <field name="name">Cortes</field>
+        <field name="res_model">cortes</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+         <record id="action_open_cuentas_por_pagar_lote_account_move_line" model="ir.actions.act_window">
+        <field name="name">Lotes Linea - Facturas</field>
+        <field name="res_model">lotes_account_move_line</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <!-- menus horizontales -->
+    <menuitem id="menu_principal_cuentas_por_pagar" name="Cuentas por pagar"/>
+    <menuitem id="menu_horizontal_cuentas_por_pagar" name="Opciones" parent="menu_principal_cuentas_por_pagar"/>
+    <menuitem id="menu_horizontal_cuentas_por_pagar_catalogo" name="Catalogos"
+              parent="menu_principal_cuentas_por_pagar"/>
+    <menuitem id="menu_horizontal_cuentas_por_pagar_interfaz" name="Interfaz"
+              parent="menu_principal_cuentas_por_pagar"/>
+    <menuitem id="menu_horizontal_cuentas_por_pagar_descarga" name="Descarga De Datos"
+              parent="menu_principal_cuentas_por_pagar"/>
+
+    <!-- menus verticales -->
+    <menuitem id="menu_vertical_cuentas_por_pagar_contratos" name="Contratos" parent="menu_horizontal_cuentas_por_pagar"
+              action="action_open_cuentas_por_pagar_contratos"/>
+    <menuitem id="menu_vertical_cuentas_por_pagar_tipo_contrato" name="Tipos De Contratos"
+              parent="menu_horizontal_cuentas_por_pagar" action="action_open_cuentas_por_pagar_tipo_contrato"/>
+    <menuitem id="menu_vertical_cuentas_por_pagar_pais" name="Pais" parent="menu_horizontal_cuentas_por_pagar_catalogo"
+              action="action_open_cuentas_por_pagar_pais"/>
+    <menuitem id="menu_vertical_cuentas_por_pagar_estado" name="Estado"
+              parent="menu_horizontal_cuentas_por_pagar_catalogo" action="action_open_cuentas_por_pagar_estado"/>
+    <menuitem id="menu_vertical_cuentas_por_pagar_ciudad" name="Ciudad"
+              parent="menu_horizontal_cuentas_por_pagar_catalogo" action="action_open_cuentas_por_pagar_ciudad"/>
+    <menuitem id="menu_vertical_cuentas_por_pagar_localidad" name="Localidad"
+              parent="menu_horizontal_cuentas_por_pagar_catalogo" action="action_open_cuentas_por_pagar_localidad"/>
+    <menuitem id="menu_vertical_cuentas_por_pagar_huertas" name="Huertas"
+              parent="menu_horizontal_cuentas_por_pagar_catalogo" action="action_open_cuentas_por_pagar_huertas"/>
+    <menuitem id="menu_vertical_cuentas_por_pagar_lotes" name="Lotes"
+              parent="menu_horizontal_cuentas_por_pagar_interfaz" action="action_open_cuentas_por_pagar_lotes"/>
+
+    <menuitem id="menu_vertical_cuentas_por_pagar_cortes" name="Cortes"
+              parent="menu_horizontal_cuentas_por_pagar_interfaz" action="action_open_cuentas_por_pagar_cortes"/>
+
+
+        <menuitem id="menu_vertical_cuentas_por_pagar_lotes_account_move_line" name="Lotes Lineas Facturas"
+              parent="menu_horizontal_cuentas_por_pagar_interfaz" action="action_open_cuentas_por_pagar_lote_account_move_line"/>
+    <menuitem id="menu_vertical_cuentas_por_pagar_lotes_descarga" name="Descarga de lotes"
+              parent="menu_horizontal_cuentas_por_pagar_descarga" action="action_open_lotes_descarga_wizard"/>
+    <menuitem id="menu_vertical_cuentas_por_pagar_cortes_descarga" name="Descarga de cortes"
+              parent="menu_horizontal_cuentas_por_pagar_descarga" action="action_open_cortes_descarga_wizard"/>
+    <menuitem id="menu_vertical_cuentas_por_pagar_cfdis_descarga" name="Descarga de cfdis"
+              parent="menu_horizontal_cuentas_por_pagar_descarga" action="action_open_cfdis_descarga_wizard"/>
+
+
+</odoo>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="view_cortesx" model="ir.ui.view">
+        <field name="name">Cortes</field>
+        <field name="model">cortes</field>
+        <field name="arch" type='xml'>
+
+            <form>
+
+                <header>
+                    <button name="calcularCuadrillasExtra" type="object" string="Cuadrilla Extra"
+                            class="oe_highlight" invisible="0" confirm="¿Seguro que deseas crear cuadrillas extras?"/>
+                    <button name="open_wizard_entrada_kilogramos" type="object" string="Ajuste"
+                            class="oe_highlight" invisible="0" confirm="¿Deseas realizar un ajuste?"/>
+                    <button name="add_salida_falso" type="object" string="Salida en falso"
+                            class="oe_highlight" invisible="0" confirm="¿Deseas integrar una salida en falso?"/>
+                </header>
+                <sheet>
+                    <!-- <center>
+                         <h1 style="color : red">
+                             TITULO!!!
+
+                         </h1>
+                     </center> -->
+                    <widget name="web_ribbon" title="Archivado" bg_color="bg-danger"
+                            attrs="{'invisible': [('active','=',True)]}"/>
+
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="id_acuerdo" readonly="1"/>
+                            <field name="id_orden_corte" readonly="1"/>
+                            <field name="nombre_productor" readonly="1"/>
+                            <field name="sader" readonly="1"/>
+                            <field name="fecha" readonly="1"/>
+                            <field name="poblacion" readonly="1"/>
+                            <field name="tipo_corte" readonly="1"/>
+                            <field name="transportista" readonly="1"/>
+                            <field name="empresa_corte" readonly="1"/>
+                            <field name="jefe_acopio" readonly="1"/>
+                            <field name="candado" readonly="1"/>
+                            <field name="cajas_entregadas" readonly="1"/>
+                            <field name="peso_neto" readonly="1"/>
+                            <field name="peso_productor" readonly="1"/>
+
+                            <field name="bico" readonly="1"/>
+                            <field name="ticket" readonly="1"/>
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="kilogramos_ajuste" readonly="1"/>
+
+                        </group>
+                        <group>
+                            <field name="cuadrilla"/>
+                        </group>
+                    </group>
+                </sheet>
+
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+
+                <script>
+
+                    console.log('Hi World')
+                </script>
+            </form>
+
+        </field>
+    </record>
+    <!--  Vista tree    -->
+    <record id="view_cortesp_tree" model="ir.ui.view">
+
+        <field name="name">Cortes Treex View</field>
+        <field name="model">cortes</field>
+        <field name="arch" type="xml">
+
+            <tree string="Cortes Tree" multi_edit="1" limit="500">
+                <header>
+                    <button name="calcularCuadrillasExtra" type="object" string="Cuadrilla Extra"
+                            class="oe_highlight" invisible="0" confirm="¿Seguro que deseas crear cuadrillas extras?"/>
+                    <button name="open_wizard_entrada_kilogramos" type="object" string="Ajuste"
+                            class="oe_highlight" invisible="0" confirm="¿Deseas realizar un ajuste?"/>
+
+                </header>
+                <field name="name" readonly="1"/>
+                <field name="nombre_productor" readonly="1"/>
+                <field name="sader" readonly="1"/>
+                <field name="fecha" readonly="1"/>
+                <field name="poblacion" readonly="1"/>
+                <field name="empresa_corte"/>
+                <field name="peso_productor" sum="Kilogramos"/>
+                <field name="cajas_entregadas"/>
+                <field name="kilogramos_ajuste" readonly="1" sum="Total"/>
+                <field name="total_ajuste" sum="Total Ajuste"/>
+                <field name="total_importe" sum="Importe"/>
+                <field name="cuadrilla"/>
+                <field name="cuadrilla" readonly="1" widget="many2many_tags"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_cortes_search" model="ir.ui.view">
+        <field name="name">cortes.search</field>
+        <field name="model">cortes</field>
+        <field name="arch" type="xml">
+
+            <search string="Busqueda cortes">
+                <field name="name" string="Cadenas Numericas"
+                       filter_domain="['|',('name', 'ilike', self),('peso_productor','ilike',self)]"/>
+                <field name="nombre_productor" string="Cadenas de Texto Search"
+                       filter_domain="['|',('nombre_productor', 'ilike', self),('sader','ilike',self)]"/>
+            </search>
+
+        </field>
+    </record>
+
+</odoo>
+

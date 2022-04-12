@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+      <record id="view_res_partner_sat" model="ir.ui.view">
+        <field name="name">view.res.partner.sat</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+                <!-- Se coloca el uuid despues de el @name=id -->
+                <xpath expr="//notebook//page[@name='internal_notes']" position="after">
+                    <page string="Adjuntos SAT">
+                   <group>
+                    <field name="es_opinion_cumplimiento" string="OCOF" optional="show" widget="boolean_toggle"/>
+                    <field name="opinion_cumplimiento" attrs="{'invisible': [('es_opinion_cumplimiento' , '=' ,False)]}"/>
+                    </group>
+                    <group>
+                    <field name="es_ine" widget="boolean_toggle"/>
+                    <field name="ine" attrs="{'invisible': [('es_ine' , '=' ,False)]}"/>
+                    </group>
+                    <group>
+                    <field name="es_cif" widget="boolean_toggle"/>
+                    <field name="cif_partner_rel" attrs="{'invisible': [('es_cif' , '=' ,False)]}"/>
+                    </group>
+                    </page>
+                </xpath>
+
+
+        </field>
+    </record>
+</odoo>
