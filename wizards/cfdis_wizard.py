@@ -13,6 +13,8 @@ class CfdisWizard(models.TransientModel):
 
     fecha_final = fields.Date(string='Fecha Final')
 
+    uuid_search = fields.Char(string='Uuid',default='')
+
 
     def method_a(self):
         self.env['account.move'].download_data()

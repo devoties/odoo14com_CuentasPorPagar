@@ -10,6 +10,7 @@
                       <!-- <field name="name"/> -->
                        <field name="fecha_inicial"/>
                        <field name="fecha_final"/>
+                       <field name="uuid_search"/>
                    </group>
                    <footer>
                        <button name="create" string="Guardar" type="object" invisible="1"/>

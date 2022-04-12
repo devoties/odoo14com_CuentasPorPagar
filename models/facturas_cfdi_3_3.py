@@ -311,12 +311,14 @@ class FacturaCfdi(models.Model):
             # lote_inicial_object.search([],order='name')
             i.fecha_inicial
             i.fecha_final
+            i.uuid_search
 
         #establezco que descargare tod0 menos lo que tenga aplicacion de anticipos que son las NOTAS DE CREDITO
         cfdis_objeto = session.query(CfdisContpaqiData).filter(
             CfdisContpaqiData.fecha.cast(Date).between(i.fecha_inicial, i.fecha_final)). \
             filter(CfdisContpaqiData.rfc_emisor!='BAM170904DM5'). \
-        filter(CfdisContpaqiData.rfc_receptor == 'BAM170904DM5').filter(CfdisContpaqiData.forma_de_pago_desc!='Aplicación de anticipos').all()
+        filter(CfdisContpaqiData.rfc_receptor == 'BAM170904DM5').filter(CfdisContpaqiData.forma_de_pago_desc!='Aplicación de anticipos').\
+            filter(CfdisContpaqiData.uuid.like(f'%{i.uuid_search}%')).all()
 
 
         #este objecto filtra por adquisicion de mercacias para despues ser llamado por un metodo que registre a los proveedores
@@ -414,7 +416,9 @@ class FacturaCfdi(models.Model):
 
                 global tax_signed
                 if record.total != record.subtotal:
-                    tax_signed = record.subtotal * 0.0125
+                    tax_signed = record.total - record.subtotal
+                    if (tax_signed < 0):
+                        tax_signed = tax_signed * (-1)
                 if record.total == record.subtotal:
                     tax_signed = 0
 
@@ -428,13 +432,13 @@ class FacturaCfdi(models.Model):
                                                 'quantity': 1,
                                                 'tax_exigible': True,
                                                 'exclude_from_invoice_tab': True,
-                                                # 'price_unit':tax_signed * (-1),
-                                                'debit': 0,
-                                                'credit': tax_signed,
-                                                # 'balance': tax_signed * (-1),
-                                                # 'amount_currency': tax_signed * (-1),
-                                                # 'price_subtotal': tax_signed * (-1),
-                                                # 'price_total': tax_signed * (-1),
+                                                #'price_unit':tax_signed,
+                                                'debit': tax_signed,
+                                                'credit': 0,
+                                                #'balance': tax_signed,
+                                                #'amount_currency': tax_signed,
+                                                #'price_subtotal': tax_signed,
+                                                #'price_total': tax_signed,
                                                 'currency_id': 33,
                                                 'product_uom_id': None,
                                                 'parent_state': 'draft',
@@ -452,7 +456,7 @@ class FacturaCfdi(models.Model):
                                                 }
                     crear_conceptos_isr = self.env['account.move.line'].with_context(check_move_validity=False).create(
                         recordConceptosObjectISR)
-
+                #revisado bien
                 #diccionario de linea de factura balanceo
                 recordConceptosBalanceo = {'move_id':comprobantes_objeto.id,
                                            'journal_id': 2,
