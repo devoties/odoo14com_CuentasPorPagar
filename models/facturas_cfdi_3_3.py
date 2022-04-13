@@ -129,6 +129,7 @@ class Session():
 
         # Modelo de odoo
 class FacturaCfdi(models.Model):
+
     _inherit = 'account.move'
 
     uuid = fields.Char(string='UUID')
@@ -239,6 +240,7 @@ class FacturaCfdi(models.Model):
 
 
 
+
 # Cambios en el One2many de lotes
     @api.onchange('lotes_cfdi_relacionn')
     def _onchange_cfdis_lotes(self):
@@ -311,7 +313,10 @@ class FacturaCfdi(models.Model):
             # lote_inicial_object.search([],order='name')
             i.fecha_inicial
             i.fecha_final
-            i.uuid_search
+
+
+
+
 
         #establezco que descargare tod0 menos lo que tenga aplicacion de anticipos que son las NOTAS DE CREDITO
         cfdis_objeto = session.query(CfdisContpaqiData).filter(

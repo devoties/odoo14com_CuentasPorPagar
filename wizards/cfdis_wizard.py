@@ -5,6 +5,7 @@ from odoo import fields, models, api
 
 class CfdisWizard(models.TransientModel):
 
+
     _name = "cfdis_wizard"
 
     #_inherit = 'account.move'
@@ -13,7 +14,7 @@ class CfdisWizard(models.TransientModel):
 
     fecha_final = fields.Date(string='Fecha Final')
 
-    uuid_search = fields.Char(string='Uuid',default='')
+    uuid_search = fields.Char(string='Uuid')
 
 
     def method_a(self):
