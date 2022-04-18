@@ -420,10 +420,16 @@ class FacturaCfdi(models.Model):
                 comprobantes_objeto = self.env['account.move'].create(recordObject)
 
                 global tax_signed
+                global tax_signed_2
+                global tax_signed_3
+                tax_signed_2 = True
+                tax_signed_3 = False
                 if record.total != record.subtotal:
                     tax_signed = record.total - record.subtotal
                     if (tax_signed < 0):
                         tax_signed = tax_signed * (-1)
+                        tax_signed_2 = False
+                        tax_signed_3 = True
                 if record.total == record.subtotal:
                     tax_signed = 0
 
@@ -437,9 +443,10 @@ class FacturaCfdi(models.Model):
                                                 'quantity': 1,
                                                 'tax_exigible': True,
                                                 'exclude_from_invoice_tab': True,
+                                                #no se ocupan los comentados ya que son computados
                                                 #'price_unit':tax_signed,
-                                                'debit': tax_signed,
-                                                'credit': 0,
+                                                'debit': tax_signed if tax_signed_2 else 0,
+                                                'credit': tax_signed if tax_signed_3 else 0,
                                                 #'balance': tax_signed,
                                                 #'amount_currency': tax_signed,
                                                 #'price_subtotal': tax_signed,
