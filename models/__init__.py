@@ -26,6 +26,7 @@ from . import cif
 from . import lotes_cfdis_rel
 from . import lotes_account_move_line
 from . import recepciones_lotes
-#from . import account_payment_extends
+from . import account_payment_extends
 from . import account_invoice_sat_catalogue
 from . import product_product_extends
+from . import pagos_layout

@@ -25,3 +25,4 @@ access_lotes_cfdi_user,access_lotes_cfdi_user,model_lotes_cfdi,,1,1,1,1
 access_lotes_account_move_line_user,access_lotes_account_move_line_user,model_lotes_account_move_line,,1,1,1,1
 access_cuadrillas_kilogramos_user,access_cuadrillas_kilogramos_user,model_cuadrillas_kilogramos,,1,1,1,1
 access_stock_sat_catalogue_user,access_stock_sat_catalogue_user,model_stock_sat_catalogue,,1,1,1,1
+access_pagos_layout_user,access_pagos_layout_user,model_pagos_layout,,1,1,1,1

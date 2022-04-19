@@ -306,7 +306,7 @@ class FacturaCfdi(models.Model):
 
         products_obj = self.env['product.template']
 
-        MXN = self.env['res.currency'].search([('name', '=', 'MXN')])
+        moneda_obj = self.env['res.currency'].search([('name', '=', 'MXN')])
 
         for i in rango_cfdis_obj.search([], order='id desc', limit=1):
             # ordenar por nombre
@@ -323,7 +323,7 @@ class FacturaCfdi(models.Model):
             CfdisContpaqiData.fecha.cast(Date).between(i.fecha_inicial, i.fecha_final)). \
             filter(CfdisContpaqiData.rfc_emisor!='BAM170904DM5'). \
         filter(CfdisContpaqiData.rfc_receptor == 'BAM170904DM5').filter(CfdisContpaqiData.forma_de_pago_desc!='Aplicación de anticipos').\
-            filter(CfdisContpaqiData.uuid.like(f'%{i.uuid_search}%')).all()
+            all()
 
 
         #este objecto filtra por adquisicion de mercacias para despues ser llamado por un metodo que registre a los proveedores
@@ -415,6 +415,8 @@ class FacturaCfdi(models.Model):
                                 'tipo_comprobante_desc': record.tipo_comprobante_desc,
                                 'num_cuenta': record.num_cuenta,
                                 'state':'draft',
+                                'currency_id':self.env['res.currency'].search([('name', '=', record.moneda)]).id,
+
 
                                 }
                 comprobantes_objeto = self.env['account.move'].create(recordObject)
@@ -451,7 +453,7 @@ class FacturaCfdi(models.Model):
                                                 #'amount_currency': tax_signed,
                                                 #'price_subtotal': tax_signed,
                                                 #'price_total': tax_signed,
-                                                'currency_id': 33,
+                                                'currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id,
                                                 'product_uom_id': None,
                                                 'parent_state': 'draft',
                                                 'company_currency_id': 33,
@@ -482,7 +484,7 @@ class FacturaCfdi(models.Model):
                                            'amount_currency':record.total * (-1),
                                            'price_subtotal':record.total * (-1),
                                            'price_total':record.total * (-1),
-                                           'currency_id':33,
+                                           'currency_id':self.env['res.currency'].search([('name', '=', record.moneda)]).id,
                                            'partner_id':line.id,
                                            'product_uom_id':None,
                                            'product_id':None,
@@ -536,7 +538,7 @@ class FacturaCfdi(models.Model):
                                           'amount_currency':w.importe,
                                           'price_subtotal':w.importe,
                                           'price_total':w.importe-tax_signed,
-                                          'currency_id':33,
+                                          'currency_id':self.env['res.currency'].search([('name', '=', record.moneda)]).id,
                                           'product_uom_id':1,
                                           'parent_state':'draft',
                                           'company_currency_id':33,
@@ -635,7 +637,7 @@ class FacturaCfdi(models.Model):
                                             'amount_currency': rec_notas_credito[0].total,
                                             'price_subtotal': rec_notas_credito[0].total * (-1),
                                             'price_total': rec_notas_credito[0].total * (-1),
-                                            'currency_id': 33,
+                                            'currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id,
                                             'partner_id': line_contact_nc.id,
                                             'product_uom_id': None,
                                             'product_id': None,
@@ -689,7 +691,7 @@ class FacturaCfdi(models.Model):
                                               'amount_currency': line_nc.importe * (-1),
                                               'price_subtotal': line_nc.importe,
                                               'price_total': line_nc.importe,
-                                              'currency_id': 33,
+                                              'currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id,
                                               'product_uom_id': 1,
                                               'parent_state': 'draft',
                                               'company_currency_id': 33,

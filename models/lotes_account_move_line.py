@@ -49,6 +49,7 @@ class LotesCfdi(models.Model):
     es_opinion = fields.Char(string='OPINION',compute='get_aditional_data')
     es_ine = fields.Boolean(string='INE',compute='get_aditional_data')
     es_cif = fields.Char(string='CIF',compute='get_aditional_data')
+    estatus_layout = fields.Char(string='Estatus Layout')
 
 
 

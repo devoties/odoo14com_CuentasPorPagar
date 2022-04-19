@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_pagos_layout" model="ir.ui.view">
+        <field name="name">Pagos Layout x View</field>
+        <field name="model">pagos_layout</field>
+        <field name="arch" type="xml">
+
+            <form>
+                <header>
+                <button name="confirmLayout" string="Confirmar Layout" type="object" class="oe_highlight"/>
+                    <button name="export_txt_layout" string="Exportar TXT Layout" type="object" />
+                    <button name="printPdf" string="Imprimir PDF" type="object" class="oe_highlight"/>
+            </header>
+                <sheet>
+                     <center>
+                 <h1 style="color : red">
+                     LAYOUT PAGO
+
+                 </h1>
+             </center>
+                    <group>
+                        <group>
+                            <field name="name"/>
+
+                        </group>
+                        <group>
+                            <field name="fecha_reg"/>
+                            <field name="banco"/>
+                        </group>
+
+
+                    </group>
+                    <group>
+                        <notebook>
+
+                            <page string="Relación de pagos">
+
+                                <field name="relacion_pagos" widget="many2many"/>
+
+                            </page>
+
+                        </notebook>
+                    </group>
+                </sheet>
+            </form>
+
+        </field>
+    </record>
+
+    <record id="pagos_layout_tree" model="ir.ui.view">
+
+        <field name="name">XTree Pagos Layout View</field>
+        <field name="model">pagos_layout</field>
+        <field name="arch" type="xml">
+
+            <tree string="ine Tree">
+
+
+                <field name="name" readonly="1"/>
+                <field name="fecha_reg" readonly="1"/>
+                <field name="banco" readonly="1"/>
+
+
+            </tree>
+        </field>
+    </record>
+
+</odoo>

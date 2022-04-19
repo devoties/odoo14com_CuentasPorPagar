@@ -56,9 +56,15 @@
     </record>
 
 
-         <record id="action_open_cuentas_por_pagar_lote_account_move_line" model="ir.actions.act_window">
+    <record id="action_open_cuentas_por_pagar_lote_account_move_line" model="ir.actions.act_window">
         <field name="name">Lotes Linea - Facturas</field>
         <field name="res_model">lotes_account_move_line</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_open_cuentas_por_pagar_layout_pago" model="ir.actions.act_window">
+        <field name="name">Layout Pago</field>
+        <field name="res_model">pagos_layout</field>
         <field name="view_mode">tree,form</field>
     </record>
 
@@ -95,14 +101,18 @@
               parent="menu_horizontal_cuentas_por_pagar_interfaz" action="action_open_cuentas_por_pagar_cortes"/>
 
 
-        <menuitem id="menu_vertical_cuentas_por_pagar_lotes_account_move_line" name="Lotes Lineas Facturas"
-              parent="menu_horizontal_cuentas_por_pagar_interfaz" action="action_open_cuentas_por_pagar_lote_account_move_line"/>
+    <menuitem id="menu_vertical_cuentas_por_pagar_lotes_account_move_line" name="Lotes Lineas Facturas"
+              parent="menu_horizontal_cuentas_por_pagar_interfaz"
+              action="action_open_cuentas_por_pagar_lote_account_move_line"/>
     <menuitem id="menu_vertical_cuentas_por_pagar_lotes_descarga" name="Descarga de lotes"
               parent="menu_horizontal_cuentas_por_pagar_descarga" action="action_open_lotes_descarga_wizard"/>
     <menuitem id="menu_vertical_cuentas_por_pagar_cortes_descarga" name="Descarga de cortes"
               parent="menu_horizontal_cuentas_por_pagar_descarga" action="action_open_cortes_descarga_wizard"/>
     <menuitem id="menu_vertical_cuentas_por_pagar_cfdis_descarga" name="Descarga de cfdis"
               parent="menu_horizontal_cuentas_por_pagar_descarga" action="action_open_cfdis_descarga_wizard"/>
+
+        <menuitem id="menu_vertical_cuentas_por_pagar_layout_pago" name="Layout Pago"
+              parent="menu_horizontal_cuentas_por_pagar_interfaz" action="action_open_cuentas_por_pagar_layout_pago"/>
 
 
 </odoo>

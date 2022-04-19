@@ -14,3 +14,6 @@ class LotesCfdi(models.Model):
 
     comprobante_pago_filename = fields.Char(string='Nombre de archivo')
 
+    estatus_layout = fields.Char(string='Estatus Layout',default='notready')
+
+    relacion_layout = fields.Many2one('pagos_layout',string='Relación Layout')
