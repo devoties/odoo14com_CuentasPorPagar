@@ -1,8 +1,13 @@
 # -*- coding:utf-8 -*-how save many2many custom more data
 
 from odoo import fields, models, api
+import logging
 
-class LotesCfdi(models.Model):
+from odoo.odoo.exceptions import UserError
+
+logger = logging.getLogger(__name__)
+
+class AccountPaymentExtends(models.Model):
 
     _inherit = 'account.payment'
 
@@ -17,3 +22,13 @@ class LotesCfdi(models.Model):
     estatus_layout = fields.Char(string='Estatus Layout',default='notready')
 
     relacion_layout = fields.Many2one('pagos_layout',string='Relación Layout')
+
+    bank_id_name = fields.Many2one(related='partner_bank_id.bank_id')
+
+    def unlink(self):
+        logger.info('Se disparo la funcion unlink')
+        for record in self:
+            if record.estatus_layout == 'notready' or record.estatus_layout == None:
+                super(AccountPaymentExtends, record).unlink()
+            else:
+                raise UserError('No se puede eliminar el registro por que no se encuentra en el estado borrador')

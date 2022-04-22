@@ -7,25 +7,31 @@
 
             <form>
                 <header>
-                <button name="confirmLayout" string="Confirmar Layout" type="object" class="oe_highlight"/>
-                    <button name="export_txt_layout" string="Exportar TXT Layout" type="object" />
+                    <button name="confirmLayout" string="Confirmar Layout" type="object" class="oe_highlight"
+                            states="borrador"/>
+                    <button name="export_txt_layout" string="Exportar TXT Layout" type="object"/>
                     <button name="printPdf" string="Imprimir PDF" type="object" class="oe_highlight"/>
-            </header>
+                    <button string="Cancelar" type="object" name="cancelar_layout" states="validado"/>
+                    <field name="state" widget="statusbar" statusbar_visible="borrador,validado"/>
+                </header>
                 <sheet>
-                     <center>
-                 <h1 style="color : red">
-                     LAYOUT PAGO
+                    <center>
+                        <h1 style="color : red">
+                            LAYOUT PAGO
 
-                 </h1>
-             </center>
+                        </h1>
+                    </center>
+
                     <group>
                         <group>
                             <field name="name"/>
+
 
                         </group>
                         <group>
                             <field name="fecha_reg"/>
                             <field name="banco"/>
+                            <field name="layout_type_bank"/>
                         </group>
 
 
@@ -35,7 +41,7 @@
 
                             <page string="Relación de pagos">
 
-                                <field name="relacion_pagos" widget="many2many"/>
+                                <field name="relacion_pagos" widget="many2many" mode="tree,form"/>
 
                             </page>
 

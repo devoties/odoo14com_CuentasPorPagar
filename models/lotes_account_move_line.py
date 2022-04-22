@@ -52,8 +52,6 @@ class LotesCfdi(models.Model):
     estatus_layout = fields.Char(string='Estatus Layout')
 
 
-
-
     #trae los datos documentales del proveedor a traves de la relacion factura "data_rel"
     def get_aditional_data(self):
         for line in self:
