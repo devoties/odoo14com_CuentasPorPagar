@@ -238,6 +238,8 @@ class FacturaCfdi(models.Model):
 
     nc_original_file = fields.Binary(string='Nota de credito Original')
 
+    purchase_order_rel = fields.Many2many('purchase.order', 'purchase_order_account_move_rel_2', string='Ordenes Compra')
+
 
 
 

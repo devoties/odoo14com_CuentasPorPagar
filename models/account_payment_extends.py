@@ -31,4 +31,4 @@ class AccountPaymentExtends(models.Model):
             if record.estatus_layout == 'notready' or record.estatus_layout == None:
                 super(AccountPaymentExtends, record).unlink()
             else:
-                raise UserError('No se puede eliminar el registro por que no se encuentra en el estado borrador')
+                raise UserError('No se puede eliminar el registro por que no se encuentra en el estado sin preparar')

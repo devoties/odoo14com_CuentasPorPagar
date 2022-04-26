@@ -9,6 +9,7 @@
         'mail',
         'portal',
         'product',
+        'purchase'
     ],
     'author': 'ISC Alexis Cruz A',
     'category': 'Cuentas Por Pagar (Interfaz Contpaqi, TTs)',
@@ -53,5 +54,6 @@
         'wizards/corte_cuadrillas_ajuste_view.xml',
         'views/product_product_extends.xml',
         'views/product_product_sat_catalogue_view.xml',
+        'views/purchase_order_extends_view.xml',
     ],
 }

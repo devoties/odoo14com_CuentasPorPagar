@@ -70,7 +70,7 @@
 
 
     <!-- menus horizontales -->
-    <menuitem id="menu_principal_cuentas_por_pagar" name="Cuentas por pagar"/>
+    <menuitem id="menu_principal_cuentas_por_pagar" name="Cuentas por pagar" web_icon="cuentas_por_pagar,static/description/icon.png"/>
     <menuitem id="menu_horizontal_cuentas_por_pagar" name="Opciones" parent="menu_principal_cuentas_por_pagar"/>
     <menuitem id="menu_horizontal_cuentas_por_pagar_catalogo" name="Catalogos"
               parent="menu_principal_cuentas_por_pagar"/>
