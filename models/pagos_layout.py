@@ -42,7 +42,7 @@ class PagosLayout(models.Model):
         print('Validate')
         x=self.relacion_pagos.move_id
         for line in x:
-            print(line)
+            print(line.id)
 
 
 
