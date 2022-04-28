@@ -1,8 +1,8 @@
 # -*- coding:utf-8 -*-
-
+import base64
 from odoo import fields, models, api
 import logging
-from datetime import datetime
+from datetime import datetime, date
 from odoo.odoo.exceptions import UserError, ValidationError
 
 logger = logging.getLogger(__name__)
@@ -11,7 +11,7 @@ class PagosLayout(models.Model):
 
     name = fields.Char(string='Referencia')
 
-    fecha_reg = fields.Datetime(string='Fecha Layout')
+    fecha_reg = fields.Datetime(string='Fecha Layout',default=datetime.now())
 
     banco = fields.Many2one(comodel_name='res.bank',string='Banco Origen')
 
@@ -23,9 +23,13 @@ class PagosLayout(models.Model):
                                        ('bbva_a_mismo_banco','Bbva Mismo Banco')
                                    ],default='santander_a_mismo_banco',copy=False)
 
-    relacion_pagos = fields.One2many('account.payment','relacion_layout')
+    relacion_pagos = fields.One2many('account.payment','relacion_layout',size=64)
 
-    txt_layout = fields.Binary(string='Txt Layout')
+    layout_name = fields.Char(string='Contenedor de layout',size=64,default='layout.txt')
+
+    txt_layout_file = fields.Binary(string='Archivo de layout',readonly=True)
+
+    fecha_mod_layout = fields.Datetime(string='Fecha Cr/Mod Layout TXT',readonly=True)
 
     state = fields.Selection(selection=[
         ('borrador', 'Borrador'),
@@ -33,6 +37,13 @@ class PagosLayout(models.Model):
         ('cancelado','Cancelado')
 
     ], default='borrador', string='Estados', copy=False)
+
+    def delete_edit_validate(self):
+        print('Validate')
+        x=self.relacion_pagos.move_id
+        for line in x:
+            print(line)
+
 
 
 
@@ -50,7 +61,8 @@ class PagosLayout(models.Model):
             pago_id.write({'estatus_layout': 'notready'})
             self.env.cr.commit()
 
-
+    def default_bank(self):
+        self.banco = self.env['res.bank'].search([('name', '=', 'SANTANDER')], limit=1).id
 
     @api.model
     def create(self, variables):
@@ -66,16 +78,29 @@ class PagosLayout(models.Model):
 
 
     def export_txt_layout(self):
-        print('Layout TXT')
-        for line in self.relacion_pagos:
-            dic = {'partner_id':line.partner_id.name,
-                   'partner_bank_id':line.partner_bank_id.acc_number,
-                   'importe':line.amount,
-                   'concepto':line.move_id,
-                   'date':line.date.strftime('%Y-%m-%d')}
+        if self.layout_type_bank == 'santander_a_mismo_banco':
+           print('Layout TXT')
+           file_layout_txt = open("odoo/addons_custom/cuentas_por_pagar/temp/layout_santander_mismo_banco.txt", "w+")
+           for line in self.relacion_pagos:
+               dic = str(line.partner_id.name) + " " + str(line.partner_bank_id.acc_number) + " " + str(line.amount) + " " + str(line.move_id.uuid) +\
+                             " " + line.date.strftime('%d%m%Y') + f"\n"
+               print(dic)
+               file_layout_txt.write(dic)
 
-            print(dic)
+           file_layout_txt.close()
 
+           file_layout_txt = open("odoo/addons_custom/cuentas_por_pagar/temp/layout_santander_mismo_banco.txt", "rb+")
+           out = file_layout_txt.read()
+
+           file_layout_txt.close()
+
+           self.txt_layout_file = base64.b64encode(out)
+
+           self.layout_name = 'layout_santander_mismo_banco.txt'
+
+           self.write({'txt_layout_file': base64.b64encode(out), 'layout_name': 'layout_santander_mismo_banco.txt'})
+
+           self.fecha_mod_layout = datetime.now()
 
 
 
