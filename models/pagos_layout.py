@@ -4,9 +4,10 @@ from odoo import fields, models, api
 import logging
 from datetime import datetime, date
 from odoo.odoo.exceptions import UserError, ValidationError
-
 logger = logging.getLogger(__name__)
+
 class PagosLayout(models.Model):
+
     _name = "pagos_layout"
 
     name = fields.Char(string='Referencia')
@@ -39,10 +40,17 @@ class PagosLayout(models.Model):
     ], default='borrador', string='Estados', copy=False)
 
     def delete_edit_validate(self):
-        print('Validate')
-        x=self.relacion_pagos.move_id
-        for line in x:
-            print(line.id)
+        invoices_from_payment = self.relacion_pagos
+        print('primer dato',invoices_from_payment)
+        for line_payment in invoices_from_payment:
+            print(line_payment.id)
+            self._cr.execute('select name,id,ref,state,uuid FROM account_move where payment_id=%s'%(line_payment.id))
+            result = self._cr.fetchall()
+            print(result)
+
+
+
+
 
 
 
