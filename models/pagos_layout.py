@@ -9,12 +9,13 @@ logger = logging.getLogger(__name__)
 class PagosLayout(models.Model):
 
     _name = "pagos_layout"
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
 
-    name = fields.Char(string='Referencia')
+    name = fields.Char(string='Referencia',copy=False,tracking=True,track_visibility='always',stored=True)
 
-    fecha_reg = fields.Datetime(string='Fecha Layout',default=datetime.now())
+    fecha_reg = fields.Datetime(string='Fecha Layout',default=datetime.now(),tracking=True,track_visibility='always',stored=True)
 
-    banco = fields.Many2one(comodel_name='res.bank',string='Banco Origen')
+    banco = fields.Many2one(comodel_name='res.bank',string='Banco Origen',tracking=True,track_visibility='always',stored=True)
 
     layout_type_bank = fields.Selection(string='Tipo de layout',
                                    selection=[
@@ -22,31 +23,46 @@ class PagosLayout(models.Model):
                                        ('santander_a_mismo_banco','Santander A Mismo Banco'),
                                        ('bbva_a_multiples_bancos','Bbva Multiples Bancos'),
                                        ('bbva_a_mismo_banco','Bbva Mismo Banco')
-                                   ],default='santander_a_mismo_banco',copy=False)
+                                   ],default='santander_a_mismo_banco',copy=False,tracking=True,track_visibility='always',stored=True)
 
-    relacion_pagos = fields.One2many('account.payment','relacion_layout',size=64)
+    relacion_pagos = fields.One2many('account.payment','relacion_layout',size=64,tracking=True,track_visibility='always',stored=True)
 
-    layout_name = fields.Char(string='Contenedor de layout',size=64,default='layout.txt')
+    layout_name = fields.Char(string='Contenedor de layout',size=64,default='layout.txt',tracking=True,track_visibility='always',stored=True)
 
-    txt_layout_file = fields.Binary(string='Archivo de layout',readonly=True)
+    txt_layout_file = fields.Binary(string='Archivo de layout',tracking=True,track_visibility='always',stored=True)
 
-    fecha_mod_layout = fields.Datetime(string='Fecha Cr/Mod Layout TXT',readonly=True)
+    fecha_mod_layout = fields.Datetime(string='Fecha Cr/Mod Layout TXT',tracking=True,track_visibility='always',stored=True)
 
     state = fields.Selection(selection=[
         ('borrador', 'Borrador'),
         ('validado', 'Validado'),
         ('cancelado','Cancelado')
 
-    ], default='borrador', string='Estados', copy=False)
+    ], default='borrador', string='Estados', copy=False,tracking=True,track_visibility='always',stored=True)
 
     def delete_edit_validate(self):
         invoices_from_payment = self.relacion_pagos
-        print('primer dato',invoices_from_payment)
+        #print('primer dato',invoices_from_payment)
         for line_payment in invoices_from_payment:
-            print(line_payment.id)
-            self._cr.execute('select name,id,ref,state,uuid FROM account_move where payment_id=%s'%(line_payment.id))
-            result = self._cr.fetchall()
-            print(result)
+            #print(line_payment.id)
+            result = self.env['account.move'].search([('payment_id', '=', line_payment.id)]).ref
+            #self._cr.execute('select ref FROM account_move where payment_id=%s'%(line_payment.id))
+            #result = self._cr.fetchall()
+            row_separator = ' '
+            if result.count(row_separator) == 0:
+                print('Fac Individuales: ')
+                print(result)
+                result = result
+            if result.count(row_separator) > 0:
+               print('Fac separadas: ')
+               print(result.replace(' ', '\n'))
+               result = result.replace(' ', '\n')
+
+
+
+
+
+
 
 
 
