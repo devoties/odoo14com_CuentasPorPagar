@@ -13,6 +13,7 @@
                             <field name="name"/>
                             <field name="lotes_fecha_recepcion"/>
                             <field name="lotes_nombre_productor"/>
+
                             <field name="abono_kilogramos"/>
                             <field name="abono_importe"/>
                             <field name="lotes_saldo_pendiente"/>
@@ -21,6 +22,7 @@
                             <field name="lotes_sader"/>
                             <field name="lotes_precio_unitario"/>
                             <field name="lotes_observaciones"/>
+                            <field name="lotes_sader_code"/>
                         </group>
                         <group>
                         </group>
@@ -60,6 +62,8 @@
                 <field name="lotes_kilogramos" sum="Lotes Kg"/>
                 <field name="lotes_importe" sum="Lotes Importe"/>
                 <field name="lotes_sader"/>
+                <field name="lotes_sader_code"/>
+
                 <field name="lotes_precio_unitario"/>
                 <field name="folio" optional="hide"/>
                 <field name="serie" optional="hide"/>

@@ -35,8 +35,9 @@
                             <field name="name" readonly="1"/>
                             <field name="id_credito_mov" readonly="1"/>
                             <field name="id_partner" readonly="1"/>
-
+                            <field name="jefe_acopio" readonly="1"/>
                             <field name="sader" readonly="1"/>
+                            <field name="sader_code" readonly="1"/>
                             <field name="clave" readonly="1"/>
                             <field name="fecha" readonly="1"/>
                             <field name="tipo_movimiento" readonly="1"/>
@@ -145,8 +146,10 @@
                 <field name="name" readonly="1"/>
                 <field name="fecha" readonly="1" optional="show"/>
                 <field name="id_partner" readonly="1" optional="show"/>
+                <field name="jefe_acopio" readonly="1"/>
 
                 <field name="sader" readonly="1" optional="show"/>
+                <field name="sader_code" readonly="1" optional="show"/>
                 <field name="tipo_movimiento" readonly="1" optional="show"/>
                 <field name="cantidad" readonly="1" optional="show" sum="Kilogramos"/>
                 <field name="kilogramos_abonados_v" optional="show"/>
@@ -191,7 +194,7 @@
 
                  <separator/>
                     <filter string="Pagado" name="estado_pago" domain="[('lotes_detalle.estado_factura', '=', 'paid')]" help="Lotes pagados"/>
-                    <filter string="No Pagado" name="estado_pago" domain="[('lotes_detalle.estado_factura', '=', 'not_paid')]" help="Lotes pagados"/>
+                    <filter string="No Pagado" name="estado_pago" domain="['|',('lotes_detalle.estado_factura', '=', 'not_paid'),('lotes_detalle','=',False)]" help="Lotes pagados"/>
                     <filter string="No Cancelados" name="estado_factura" domain="[('lotes_detalle.estado_pago', '!=', 'cancel')]"
                             help="Lotes que no estan cancelados"/>
                     <filter string="Cancelado" name="estado_factura" domain="[('lotes_detalle.estado_pago', '=', 'cancel')]"

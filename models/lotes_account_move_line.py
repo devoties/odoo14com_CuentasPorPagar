@@ -4,7 +4,7 @@ from time import strftime
 
 from odoo import fields, models, api
 import pandas as pd
-from datetime import date
+from datetime import date,timedelta
 
 class LotesCfdi(models.Model):
     _name = "lotes_account_move_line"
@@ -24,6 +24,8 @@ class LotesCfdi(models.Model):
     lotes_kilogramos = fields.Float(string='Kilogramos Lote',related='name.cantidad',compute='_compute_kg_pendientes')
     lotes_importe = fields.Float(string='Importe Lote',related='name.importe')
     lotes_sader = fields.Many2one(string='Sader',related='name.sader')
+    lotes_sader_code = fields.Char(string='Sader Codigo', related='name.sader.sader')
+    lotes_jefe_acopio = fields.Many2one(string='Jefe Acopio', related='name.jefe_acopio')
     #verificar_contrato
     lotes_sader_contrato = fields.One2many(string='Contratos', related='name.sader.contrato_terceros_lista')
     lotes_precio_unitario = fields.Float(string='Precio Unitario Lote',related='name.precio_u')
@@ -63,14 +65,16 @@ class LotesCfdi(models.Model):
             status = ''
             for linx in x:
                 mes_contrato = linx.strftime('%b')
-                if mes_factura >= mes_contrato:
+                print('Diferencia')
+                print((fecha_factura-linx).days)
+                if mes_factura == mes_contrato or int(((fecha_factura-linx).days)) < 0 or int(((fecha_factura-linx).days)) <= (90):
                     contador_vigencias = contador_vigencias + 1
                     if contador_vigencias == 0:
                         status = 'VENCIDO'
                     if contador_vigencias > 0:
                         status = 'VIGENTE'
 
-                if mes_factura < mes_contrato:
+                else:
                     contador_vigencias = contador_vigencias + 0
                     if contador_vigencias == 0:
                         status = 'VENCIDO'
@@ -92,14 +96,16 @@ class LotesCfdi(models.Model):
             status = ''
             for linx in qty_cifs:
                 mes_contrato = linx.strftime('%b')
-                if mes_factura >= mes_contrato:
+                print('Otro parametro que ocupo ver')
+                print(mes_contrato)
+                if mes_factura == mes_contrato or int(((fecha_factura-linx).days)) < 0 or int(((fecha_factura-linx).days)) <= (90):
                     contador_vigencias = contador_vigencias + 1
                     if contador_vigencias == 0:
                         status = 'VENCIDO'
                     if contador_vigencias > 0:
                         status = 'VIGENTE'
 
-                if mes_factura < mes_contrato:
+                else:
                     contador_vigencias = contador_vigencias + 0
                     if contador_vigencias == 0:
                         status = 'VENCIDO'

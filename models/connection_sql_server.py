@@ -132,6 +132,8 @@ class Lotes(models.Model):
 
     sader = fields.Many2one(String='Sader',comodel_name='huertas')
 
+    sader_code = fields.Char(String='Sader Codigo', related='sader.sader')
+
     fecha = fields.Date(string='Fecha')
 
     tipo_movimiento = fields.Char(string='Tipo de movimiento')
