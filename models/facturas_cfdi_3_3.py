@@ -337,8 +337,7 @@ class FacturaCfdi(models.Model):
 
         #Este query relaciona las NOTAS DE CREDITO con el UUID de los CFDI Relacionados.
         cfdi_notas_credito_object = session.query(CfdisContpaqiData,CfdiRelacionados).filter(CfdisContpaqiData.fecha.cast(Date).between(i.fecha_inicial,i.fecha_final)). \
-            filter(or_(CfdisContpaqiData.uso_cfdi == 'G02',CfdisContpaqiData.uso_cfdi == 'G01')). \
-        filter(or_(CfdisContpaqiData.forma_de_pago_desc == 'Aplicación de anticipos',CfdisContpaqiData.forma_de_pago_desc=='Transferencia electrónica de fondos')).\
+        filter(CfdiRelacionados.tipo_relacion_desc != 'Sustitución de los CFDI previos').\
             filter(CfdisContpaqiData.tipo_comprobante == 'E').filter(CfdisContpaqiData.guid_document == CfdiRelacionados.guid_document).all()
 
 
@@ -563,6 +562,8 @@ class FacturaCfdi(models.Model):
                 # calcular conceptos de NOTAS DE CREDITO
         for rec_notas_credito in cfdi_notas_credito_object:
             global recordObjectNotasCredito
+            print('NOTAZ DE KREDITO')
+            print(rec_notas_credito)
 
             if self.env['account.move'].search_count([('uuid', '=', rec_notas_credito[0].uuid)]) >= 1:
                 print('Cfdi repetido')

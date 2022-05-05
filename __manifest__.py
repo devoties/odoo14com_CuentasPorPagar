@@ -9,7 +9,7 @@
         'mail',
         'portal',
         'product',
-        'purchase'
+        'purchase',
     ],
     'author': 'ISC Alexis Cruz A',
     'category': 'Cuentas Por Pagar (Interfaz Contpaqi, TTs)',

@@ -66,8 +66,9 @@ class LotesCfdi(models.Model):
             for linx in x:
                 mes_contrato = linx.strftime('%b')
                 print('Diferencia')
-                print((fecha_factura-linx).days)
-                if mes_factura == mes_contrato or int(((fecha_factura-linx).days)) < 0 or int(((fecha_factura-linx).days)) <= (90):
+                diff = int((pd.to_datetime(fecha_factura) - pd.to_datetime(linx)).days)
+                print(diff)
+                if mes_factura == mes_contrato or diff < 0 or diff <= (90):
                     contador_vigencias = contador_vigencias + 1
                     if contador_vigencias == 0:
                         status = 'VENCIDO'
@@ -98,7 +99,10 @@ class LotesCfdi(models.Model):
                 mes_contrato = linx.strftime('%b')
                 print('Otro parametro que ocupo ver')
                 print(mes_contrato)
-                if mes_factura == mes_contrato or int(((fecha_factura-linx).days)) < 0 or int(((fecha_factura-linx).days)) <= (90):
+                print('Diferencia')
+                diff = int((pd.to_datetime(fecha_factura) - pd.to_datetime(linx)).days)
+                print(diff)
+                if mes_factura == mes_contrato or diff < 0 or diff <= (90):
                     contador_vigencias = contador_vigencias + 1
                     if contador_vigencias == 0:
                         status = 'VENCIDO'
