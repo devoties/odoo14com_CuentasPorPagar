@@ -325,7 +325,7 @@ class FacturaCfdi(models.Model):
             CfdisContpaqiData.fecha.cast(Date).between(i.fecha_inicial, i.fecha_final)). \
             filter(CfdisContpaqiData.rfc_emisor!='BAM170904DM5'). \
         filter(CfdisContpaqiData.rfc_receptor == 'BAM170904DM5').filter(CfdisContpaqiData.forma_de_pago_desc!='Aplicación de anticipos').\
-            all()
+            filter(CfdisContpaqiData.uso_cfdi != 'G02').all()
 
 
         #este objecto filtra por adquisicion de mercacias para despues ser llamado por un metodo que registre a los proveedores
@@ -465,9 +465,9 @@ class FacturaCfdi(models.Model):
                                                 'company_id': 1,
                                                 'account_root_id': 54048,
                                                 'sequence': 10,
-                                                'tax_repartition_line_id': 50,
-                                                'tax_line_id': 13,
-                                                'tax_group_id': 1,
+                                                #'tax_repartition_line_id': 50,
+                                                #'tax_line_id': 13,
+                                                #'tax_group_id': 1,
                                                 }
                     crear_conceptos_isr = self.env['account.move.line'].with_context(check_move_validity=False).create(
                         recordConceptosObjectISR)
@@ -561,15 +561,18 @@ class FacturaCfdi(models.Model):
 
                 # calcular conceptos de NOTAS DE CREDITO
         for rec_notas_credito in cfdi_notas_credito_object:
+            global variable_prueba
             global recordObjectNotasCredito
             print('NOTAZ DE KREDITO')
-            print(rec_notas_credito)
+
 
             if self.env['account.move'].search_count([('uuid', '=', rec_notas_credito[0].uuid)]) >= 1:
                 print('Cfdi repetido')
             if self.env['account.move'].search_count([('uuid', '=', rec_notas_credito[0].uuid)]) == 0:
-             for line_uuid in cfdi_obj.search([('uuid','=',rec_notas_credito[1].uuid)]):
-                 print('etapa de busqueda')
+             #for line_uuid in cfdi_obj.search([('uuid','=',rec_notas_credito[1].uuid)]):
+                 #print('etapa de busqueda')
+
+             variable_prueba = cfdi_obj.search([('uuid','=',rec_notas_credito[1].uuid)])
                 # este arreglo busca y obtiene el id del proveedor
              for line_contact_nc in contactos_obj.search([('vat', '=', rec_notas_credito[0].rfc_emisor)]):
                  #diccionario encabezado del tipo nota de credito
@@ -621,13 +624,14 @@ class FacturaCfdi(models.Model):
                                  'payment_reference':'',
                                  'journal_id': 2,
                                  #'payment_id': 16,
-                                 'reversed_entry_id': line_uuid.id,
+                                 'reversed_entry_id': variable_prueba.id,
                                  'payment_state':'not_paid',
                                  'sequence_number':2,
                                  }
                  #objeto que asigna el metodo para registrar el diccionario
                  notas_credito_objeto = self.env['account.move'].create(recordObjectNotasCredito)
                  # diccionario de linea de notas de credito balanceo
+                 #este esta bien.
                  recordConceptosNcBalanceo = {'move_id': notas_credito_objeto.id,
                                             'journal_id': 2,
                                             'account_id': 18,
@@ -679,6 +683,44 @@ class FacturaCfdi(models.Model):
                          crear_productos_nc = self.env['product.template'].create(response_products_nc)
                          self.env.cr.commit()
 
+                     #nueva linea tax
+                     if rec_notas_credito[0].total != rec_notas_credito[0].subtotal:
+                         recordConceptosTaxLineObject = {'move_id': notas_credito_objeto.id,
+                                                     'product_id': self.env['product.template'].search([('name', '=', line_nc.descripcion)]).id,
+                                                     'account_id': 15,
+                                                     'journal_id': 2,
+                                                     'quantity': line_nc.cantidad,
+                                                     'tax_exigible': False,
+                                                     'exclude_from_invoice_tab': True,
+                                                     'price_unit': rec_notas_credito[0].total - rec_notas_credito[0].subtotal,
+                                                     'debit': 0,
+                                                     'credit': rec_notas_credito[0].total - rec_notas_credito[0].subtotal,
+                                                     'balance': (rec_notas_credito[0].total - rec_notas_credito[0].subtotal) * (-1),
+                                                     'amount_currency': (rec_notas_credito[0].total - rec_notas_credito[0].subtotal) * (-1),
+                                                     'price_subtotal': (rec_notas_credito[0].total - rec_notas_credito[0].subtotal),
+                                                     'price_total': (rec_notas_credito[0].total - rec_notas_credito[0].subtotal),
+                                                     'currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id,
+                                                     'product_uom_id': 1,
+                                                     'parent_state': 'draft',
+                                                     'company_currency_id': 33,
+                                                     'partner_id': line_contact_nc.id,
+                                                     'company_id': 1,
+                                                     'account_root_id': 49049,
+                                                     'sequence': 10,
+                                                     'amount_residual':(rec_notas_credito[0].total - rec_notas_credito[0].subtotal) * (-1),
+                                                     'amount_residual_currency':(rec_notas_credito[0].total - rec_notas_credito[0].subtotal) * (-1),
+
+                                                     }
+
+                     print('Vuelta')
+                     print(line_nc.importe)
+                     print(rec_notas_credito[0].total - rec_notas_credito[0].subtotal)
+                     notas_credito_detalle_tax_objeto = self.env['account.move.line'].with_context(
+                         check_move_validity=False).create(recordConceptosTaxLineObject)
+                     self.env.cr.commit()
+                     #nueva linea tax fin
+
+                     #Revisar
                      #diccionario detalle de nota de credito
                      recordConceptosNcObject = {'move_id': notas_credito_objeto.id,
                                               'product_id': self.env['product.template'].search([('name','=',line_nc.descripcion)]).id,
@@ -693,7 +735,7 @@ class FacturaCfdi(models.Model):
                                               'balance': line_nc.importe * (-1),
                                               'amount_currency': line_nc.importe * (-1),
                                               'price_subtotal': line_nc.importe,
-                                              'price_total': line_nc.importe,
+                                              'price_total': rec_notas_credito[0].total,
                                               'currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id,
                                               'product_uom_id': 1,
                                               'parent_state': 'draft',
@@ -709,5 +751,8 @@ class FacturaCfdi(models.Model):
 
                  notas_credito_detalle_objeto = self.env['account.move.line'].create(recordConceptosNcObject)
                  self.env.cr.commit()
+
+
+
         session.close()
         engine.dispose()
