@@ -99,6 +99,9 @@ class CfdisContpaqiData(Base):
     num_cuenta = Column('NumCta', String(500))
 
 
+
+
+
 class Session():
     def session(engine):
         Session = sessionmaker(bind=engine)
@@ -316,10 +319,6 @@ class FacturaCfdi(models.Model):
             i.fecha_inicial
             i.fecha_final
 
-
-
-
-
         #establezco que descargare tod0 menos lo que tenga aplicacion de anticipos que son las NOTAS DE CREDITO
         cfdis_objeto = session.query(CfdisContpaqiData).filter(
             CfdisContpaqiData.fecha.cast(Date).between(i.fecha_inicial, i.fecha_final)). \
@@ -425,6 +424,7 @@ class FacturaCfdi(models.Model):
                 global tax_signed
                 global tax_signed_2
                 global tax_signed_3
+                #variables de control
                 tax_signed_2 = True
                 tax_signed_3 = False
                 if record.total != record.subtotal:
@@ -505,9 +505,6 @@ class FacturaCfdi(models.Model):
                 cfdi_conceptos_object = session.query(Conceptos.guid_document,Conceptos.cantidad,Conceptos.valor_unitario,Conceptos.importe,Conceptos.descripcion).filter(
                     Conceptos.guid_document == get_record_guid_document).all()
                 print(recordObject)
-                id_producto_default = self.env['product.product'].search([('name','=','AGUACATE HASS')],limit=1)
-
-
 
                 #diccionario de linea de factura principal|
                 for w in cfdi_conceptos_object:
@@ -630,66 +627,49 @@ class FacturaCfdi(models.Model):
                                  }
                  #objeto que asigna el metodo para registrar el diccionario
                  notas_credito_objeto = self.env['account.move'].create(recordObjectNotasCredito)
+                 #self.env.cr.commit()
+
                  # diccionario de linea de notas de credito balanceo
                  #este esta bien.
-                 recordConceptosNcBalanceo = {'move_id': notas_credito_objeto.id,
-                                            'journal_id': 2,
-                                            'account_id': 18,
-                                            'account_root_id': 50048,
-                                            'quantity': 1,
-                                            'price_unit': rec_notas_credito[0].total * (-1),
-                                            'debit': rec_notas_credito[0].total,
-                                            'credit': 0,
-                                            'balance': rec_notas_credito[0].total,
-                                            'amount_currency': rec_notas_credito[0].total,
-                                            'price_subtotal': rec_notas_credito[0].total * (-1),
-                                            'price_total': rec_notas_credito[0].total * (-1),
-                                            'currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id,
-                                            'partner_id': line_contact_nc.id,
-                                            'product_uom_id': None,
-                                            'product_id': None,
-                                            'tax_base_amount': 0,
-                                            'tax_exigible': True,
-                                            'amount_residual': rec_notas_credito[0].total,
-                                            'amount_residual_currency': rec_notas_credito[0].total,
-                                            'exclude_from_invoice_tab': True,
-                                            'parent_state': 'draft',
-                                            'company_id': 1,
-                                            'company_currency_id': 33,
-                                            'sequence': 10,
+                 recordConceptosNcBalanceo = {'move_id': notas_credito_objeto.id, #revisado
+                                            'journal_id': 2, #revisado
+                                            'account_id': 18, #revisado
+                                            'account_root_id': 50048, #revisado
+                                            'quantity': 1, #revisado
+                                            'price_unit': rec_notas_credito[0].total * (-1), #revisado
+                                            'debit': rec_notas_credito[0].total, #revisado
+                                            'credit': 0, #revisado
+                                            'balance': rec_notas_credito[0].total, #revisado
+                                            'amount_currency': rec_notas_credito[0].total, #revisado
+                                            'price_subtotal': rec_notas_credito[0].total * (-1), #revisado
+                                            'price_total': rec_notas_credito[0].total * (-1), #revisado
+                                            'currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id, #revisado
+                                            'partner_id': line_contact_nc.id, # revisado
+                                            'product_uom_id': None, #revisado
+                                            'product_id': None, #revisado
+                                            'tax_base_amount': 0, #revisado
+                                            'tax_exigible': True, #revisado
+                                            'amount_residual': rec_notas_credito[0].total, #revisado
+                                            'amount_residual_currency': rec_notas_credito[0].total, #revisado
+                                            'exclude_from_invoice_tab': True, #revisado
+                                            'parent_state': 'draft', #revisado
+                                            'company_id': 1, #revisado
+                                            'company_currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id, #revisado
+                                            'sequence': 10 #revisado
                                             }
                  crear_conceptos_principal_balanceo_nc = self.env['account.move.line'].with_context(
                      check_move_validity=False).create(recordConceptosNcBalanceo)
+                 self.env.cr.commit()
 
-                 #aqui empieza el detalle de la nc
-                 get_record_guid_document_nc = recordObjectNotasCredito.get('guid_document')
-                 cfdi_conceptos_object_nc = session.query(Conceptos.guid_document, Conceptos.cantidad,
-                                                       Conceptos.valor_unitario, Conceptos.importe,Conceptos.descripcion).filter(
-                     Conceptos.guid_document == get_record_guid_document_nc).all()
-                 print(recordObjectNotasCredito)
-                 id_producto_default_nc = self.env['product.product'].search([('name', '=', 'AGUACATE HASS')], limit=1)
-                 for line_nc in cfdi_conceptos_object_nc:
-                     global response_products_nc
-                     response_products_nc = ''
-                     response_products_nc = {'name': line_nc.descripcion,
-                                          'check_metodo_descarga_masiva': 'DM',
-                                          }
-                     # lo agregue para buscar el producto y si existe lo selecciono sino lo creo
-                     if self.env['product.template'].search_count([('name', '=', line_nc.descripcion)]) >= 1:
-                         print('Este producto ya existe')
-                         print(self.env['product.template'].search_count([('name', '=', line_nc.descripcion)]))
-                     if self.env['product.template'].search_count([('name', '=', line_nc.descripcion)]) == 0:
-                         print('El producto no existe')
-                         crear_productos_nc = self.env['product.template'].create(response_products_nc)
-                         self.env.cr.commit()
+                 # alexis
+                 # nueva linea tax
 
-                     #nueva linea tax
-                     if rec_notas_credito[0].total != rec_notas_credito[0].subtotal:
-                         recordConceptosTaxLineObject = {'move_id': notas_credito_objeto.id,
-                                                     'product_id': self.env['product.template'].search([('name', '=', line_nc.descripcion)]).id,
+                 if rec_notas_credito[0].total != rec_notas_credito[0].subtotal:
+                     recordConceptosTaxLineObject = {'move_id': notas_credito_objeto.id,
+                                                     'product_id': None,
                                                      'account_id': 15,
                                                      'journal_id': 2,
-                                                     'quantity': line_nc.cantidad,
+                                                     'quantity': 1,
                                                      'tax_exigible': False,
                                                      'exclude_from_invoice_tab': True,
                                                      'price_unit': rec_notas_credito[0].total - rec_notas_credito[0].subtotal,
@@ -702,44 +682,85 @@ class FacturaCfdi(models.Model):
                                                      'currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id,
                                                      'product_uom_id': 1,
                                                      'parent_state': 'draft',
-                                                     'company_currency_id': 33,
+                                                     'company_currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id,
                                                      'partner_id': line_contact_nc.id,
                                                      'company_id': 1,
                                                      'account_root_id': 49049,
                                                      'sequence': 10,
-                                                     'amount_residual':(rec_notas_credito[0].total - rec_notas_credito[0].subtotal) * (-1),
-                                                     'amount_residual_currency':(rec_notas_credito[0].total - rec_notas_credito[0].subtotal) * (-1),
+                                                     'amount_residual': (rec_notas_credito[0].total - rec_notas_credito[0].subtotal) * (-1),
+                                                     'amount_residual_currency': (rec_notas_credito[0].total -rec_notas_credito[0].subtotal) * (-1),
+                                                     'tax_base_amount': rec_notas_credito[0].subtotal,
+                                                     'tax_group_id':3,
+                                                     'tax_line_id':10,
+                                                     'tax_repartition_line_id':44,
 
                                                      }
 
-                     print('Vuelta')
-                     print(line_nc.importe)
-                     print(rec_notas_credito[0].total - rec_notas_credito[0].subtotal)
-                     notas_credito_detalle_tax_objeto = self.env['account.move.line'].with_context(
-                         check_move_validity=False).create(recordConceptosTaxLineObject)
-                     self.env.cr.commit()
-                     #nueva linea tax fin
+
+
+                 notas_credito_detalle_tax_objeto = self.env['account.move.line'].with_context(
+                     check_move_validity=False).create(recordConceptosTaxLineObject)
+                 print('Sin iva')
+                 print(notas_credito_detalle_tax_objeto.tax_base_amount)
+                 #self.env.cr.commit()
+                 # nueva linea tax fin
+
+
+
+
+                 #aqui empieza el detalle de la nc
+                 get_record_guid_document_nc = recordObjectNotasCredito.get('guid_document')
+                 cfdi_conceptos_object_nc = session.query(Conceptos.guid_document, Conceptos.cantidad,
+                                                       Conceptos.valor_unitario, Conceptos.importe,Conceptos.descripcion).filter(
+                     Conceptos.guid_document == get_record_guid_document_nc).all()
+                 print(recordObjectNotasCredito)
+
+                 for line_nc_prueba in cfdi_conceptos_object_nc:
+                     print('Lista de productos')
+                     print(line_nc_prueba.descripcion)
+
+                     global response_products_nc
+                     response_products_nc = ''
+                     response_products_nc = {'name': line_nc_prueba.descripcion,
+                                          'check_metodo_descarga_masiva': 'DM',
+                                          }
+                     # lo agregue para buscar el producto y si existe lo selecciono sino lo creo
+                     if self.env['product.template'].search_count([('name', '=', line_nc_prueba.descripcion)]) >= 1:
+                         print('Este producto ya existe')
+                         print(self.env['product.template'].search_count([('name', '=', line_nc_prueba.descripcion)]))
+                     if self.env['product.template'].search_count([('name', '=', line_nc_prueba.descripcion)]) == 0:
+                         print('El producto no existe')
+                         crear_productos_nc = self.env['product.template'].create(response_products_nc)
+                         self.env.cr.commit()
+                     #Datos de cada producto/servicio
 
                      #Revisar
                      #diccionario detalle de nota de credito
+                     global discount_mod
+                     discount_mod = 0.0
+                     if (((line_nc_prueba.cantidad * line_nc_prueba.valor_unitario) - (line_nc_prueba.importe)) / (line_nc_prueba.importe)) < 0:
+                         discount_mod = ((((line_nc_prueba.cantidad * line_nc_prueba.valor_unitario) - (line_nc_prueba.importe)) / (line_nc_prueba.importe)) * (100)) * (-1)
+                     if (((line_nc_prueba.cantidad * line_nc_prueba.valor_unitario) - (line_nc_prueba.importe)) / (line_nc_prueba.importe)) == 0:
+                         discount_mod = 0.0
+
                      recordConceptosNcObject = {'move_id': notas_credito_objeto.id,
-                                              'product_id': self.env['product.template'].search([('name','=',line_nc.descripcion)]).id,
+                                              'product_id': self.env['product.template'].search([('name','=',line_nc_prueba.descripcion)]).id,
                                               'account_id': 34,
                                               'journal_id': 2,
-                                              'quantity': line_nc.cantidad,
-                                              'tax_exigible': True,
+                                              'quantity': line_nc_prueba.cantidad,
+                                              'tax_exigible': False,
                                               'exclude_from_invoice_tab': False,
-                                              'price_unit': line_nc.valor_unitario,
+                                              'price_unit': line_nc_prueba.valor_unitario,
                                               'debit': 0,
-                                              'credit': line_nc.importe,
-                                              'balance': line_nc.importe * (-1),
-                                              'amount_currency': line_nc.importe * (-1),
-                                              'price_subtotal': line_nc.importe,
-                                              'price_total': rec_notas_credito[0].total,
+                                              'credit': line_nc_prueba.importe,
+                                              'balance': line_nc_prueba.importe * (-1),
+                                              'amount_currency': line_nc_prueba.importe * (-1),
+                                              'price_subtotal': line_nc_prueba.importe,
+                                              #'price_total': line_nc.importe,
                                               'currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id,
                                               'product_uom_id': 1,
                                               'parent_state': 'draft',
-                                              'company_currency_id': 33,
+                                              'company_currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id,
                                               'partner_id': line_contact_nc.id,
                                               'tax_base_amount': 0,
                                               'amount_residual': 0,
@@ -747,10 +768,33 @@ class FacturaCfdi(models.Model):
                                               'company_id': 1,
                                               'account_root_id': 54048,
                                               'sequence': 10,
+                                              'discount': discount_mod
                                               }
+                     print('RECORDS LINEA CONCEPTOS NC')
+                     print(recordConceptosNcObject)
 
-                 notas_credito_detalle_objeto = self.env['account.move.line'].create(recordConceptosNcObject)
-                 self.env.cr.commit()
+                     notas_credito_detalle_objeto = self.env['account.move.line'].with_context(
+                     check_move_validity=False).create(recordConceptosNcObject)
+                     self.env.cr.commit()
+
+
+                 #Descarga de pagos (REP'S)
+        cfdis_objeto_pago = session.query(CfdisContpaqiData).filter(
+                     CfdisContpaqiData.fecha.cast(Date).between(i.fecha_inicial, i.fecha_final)). \
+                     filter(CfdisContpaqiData.rfc_emisor != 'BAM170904DM5'). \
+                     filter(CfdisContpaqiData.rfc_receptor == 'BAM170904DM5').filter(
+                     CfdisContpaqiData.tipo_documento == 'Pago').all()
+
+        for cfdi_pago in cfdis_objeto_pago:
+            print('Pagos')
+            print(cfdi_pago.guid_document)
+            print(cfdi_pago.uuid)
+            print(cfdi_pago.nombre_emisor)
+
+
+
+
+
 
 
 
