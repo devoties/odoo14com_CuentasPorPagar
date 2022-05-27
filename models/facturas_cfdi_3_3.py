@@ -30,6 +30,24 @@ class CfdiRelacionados(Base):
     tipo_relacion = Column('TipoRelacion',String(500))
     tipo_relacion_desc = Column('TipoRelacionDesc',String(500))
 
+class PagosDocRel(Base):
+    __tablename__ = 'View_Pagos'
+    guid_document = Column('GuidDocument',String(500),primary_key=True)
+    id_pago = Column('IdPago',String(500))
+    id_documento = Column('IdDocumento',String(500))
+    serie = Column('Serie',String(500))
+    folio = Column('Folio',String(500))
+    moneda_dr = Column('MonedaDr',String(500))
+    moneda_dr_desc = Column('MonedaDRDesc',String(500))
+    tipo_cambio_dr = Column('TipoCambioDr',String(500))
+    metodo_pago_dr = Column('MetodoDePagoDr',String(500))
+    metodo_pago_dr_desc = Column('MetodoDePagoDrDesc',String(500))
+    num_parcialidad = Column('NumParcialidad',Integer)
+    imp_saldo_ant = Column('ImpSaldoAnt',Float)
+    imp_pagado = Column('ImpPagado',Float)
+    imp_saldo_insoluto = Column('ImpSaldoInsoluto',Float)
+    fecha = Column('FechaPago',DateTime)
+
 
 class Conceptos(Base):
     __tablename__ = 'Conceptos'
@@ -241,10 +259,76 @@ class FacturaCfdi(models.Model):
 
     nc_original_file = fields.Binary(string='Nota de credito Original')
 
-    purchase_order_rel = fields.Many2many('purchase.order', 'purchase_order_account_move_rel_2', string='Ordenes Compra')
+    purchase_order_rel = fields.Many2many('purchase.order', 'purchase_order_account_move_rel_3', string='Ordenes Compra')
+
+    rep_rel = fields.One2many('pagos_doctos_rel','account_move_pagos_rel',string='Relación de REPS')
+
+    x_field = fields.Many2many(comodel_name='account.payment',compute='retreivePayment',string='Pagoz',related='')
+
+    recn = fields.Char(compute='acount_paym_ivoice', string="Pagos")
 
 
+    #funcion que regresa los pagos
+    def acount_paym_ivoice(self):
+       for r in self:
+        pagos_ids = []
+        r._cr.execute('''
+                           SELECT id from account_payment 
+                            ''')
+        query_res = r._cr.dictfetchall()
 
+        # idss = (1, 2, 3, 4, 5, 6, 7)
+
+        for pys in query_res:
+            pagos_ids.append(pys['id'])
+        ids_payments_all = tuple(pagos_ids)
+
+        r._cr.execute('''
+                SELECT
+                    payment.id AS pay,
+                    ARRAY_AGG(DISTINCT invoice.id) AS invoice_ids,
+    				invoice.id,
+    				invoice.date AS fechax,
+                    invoice.move_type AS tipo
+                FROM account_payment payment
+                JOIN account_move move ON move.id = payment.move_id
+                JOIN account_move_line line ON line.move_id = move.id
+                JOIN account_partial_reconcile part ON
+                    part.debit_move_id = line.id
+                    OR
+                    part.credit_move_id = line.id
+                JOIN account_move_line counterpart_line ON
+                    part.debit_move_id = counterpart_line.id
+                    OR
+                    part.credit_move_id = counterpart_line.id
+                JOIN account_move invoice ON invoice.id = counterpart_line.move_id
+                JOIN account_account account ON account.id = line.account_id
+                WHERE account.internal_type IN ('receivable', 'payable')
+                    AND payment.id IN %(pays)s
+                    AND line.id != counterpart_line.id
+                    AND invoice.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')
+                	AND invoice.id = %(account_move_ids)s
+    			GROUP BY pay, tipo, invoice.id, fechax
+    			ORDER BY pay DESC
+                ''', {
+            'pays': ids_payments_all,
+            'account_move_ids': r.id,
+        })
+        query_res = r._cr.dictfetchall()
+        pagos_ids_all = []
+
+        for res in query_res:
+            #self.recn = res['fechax']
+            x = res['fechax']
+            x.strftime("%b %d %Y")
+            pagos_ids_all.append(x)
+        x_date = pagos_ids_all
+        x_date = str(x_date).replace('datetime.date','')
+        x_date = str(x_date).replace('[', '')
+        x_date = str(x_date).replace(']', '')
+        x_date = str(x_date).replace(',','-')
+        x_date = str(x_date).replace(' ','')
+        self.recn = x_date
 
 # Cambios en el One2many de lotes
     @api.onchange('lotes_cfdi_relacionn')
@@ -324,7 +408,7 @@ class FacturaCfdi(models.Model):
             CfdisContpaqiData.fecha.cast(Date).between(i.fecha_inicial, i.fecha_final)). \
             filter(CfdisContpaqiData.rfc_emisor!='BAM170904DM5'). \
         filter(CfdisContpaqiData.rfc_receptor == 'BAM170904DM5').filter(CfdisContpaqiData.forma_de_pago_desc!='Aplicación de anticipos').\
-            filter(CfdisContpaqiData.uso_cfdi != 'G02').all()
+            filter(CfdisContpaqiData.uso_cfdi != 'G02').filter(CfdisContpaqiData.tipo_documento != 'Pago').all()
 
 
         #este objecto filtra por adquisicion de mercacias para despues ser llamado por un metodo que registre a los proveedores
@@ -560,7 +644,6 @@ class FacturaCfdi(models.Model):
         for rec_notas_credito in cfdi_notas_credito_object:
             global variable_prueba
             global recordObjectNotasCredito
-            print('NOTAZ DE KREDITO')
 
 
             if self.env['account.move'].search_count([('uuid', '=', rec_notas_credito[0].uuid)]) >= 1:
@@ -661,7 +744,6 @@ class FacturaCfdi(models.Model):
                      check_move_validity=False).create(recordConceptosNcBalanceo)
                  self.env.cr.commit()
 
-                 # alexis
                  # nueva linea tax
 
                  if rec_notas_credito[0].total != rec_notas_credito[0].subtotal:
@@ -698,11 +780,8 @@ class FacturaCfdi(models.Model):
 
 
 
-                 notas_credito_detalle_tax_objeto = self.env['account.move.line'].with_context(
-                     check_move_validity=False).create(recordConceptosTaxLineObject)
-                 print('Sin iva')
-                 print(notas_credito_detalle_tax_objeto.tax_base_amount)
-                 #self.env.cr.commit()
+                     notas_credito_detalle_tax_objeto = self.env['account.move.line'].with_context(check_move_validity=False).create(recordConceptosTaxLineObject)
+                     self.env.cr.commit()
                  # nueva linea tax fin
 
 
@@ -777,21 +856,37 @@ class FacturaCfdi(models.Model):
                      check_move_validity=False).create(recordConceptosNcObject)
                      self.env.cr.commit()
 
-
                  #Descarga de pagos (REP'S)
-        cfdis_objeto_pago = session.query(CfdisContpaqiData).filter(
-                     CfdisContpaqiData.fecha.cast(Date).between(i.fecha_inicial, i.fecha_final)). \
-                     filter(CfdisContpaqiData.rfc_emisor != 'BAM170904DM5'). \
-                     filter(CfdisContpaqiData.rfc_receptor == 'BAM170904DM5').filter(
-                     CfdisContpaqiData.tipo_documento == 'Pago').all()
+        cfdis_objeto_pago = session.query(PagosDocRel).filter(
+            PagosDocRel.fecha.cast(Date).between(i.fecha_inicial, i.fecha_final)).all()
 
         for cfdi_pago in cfdis_objeto_pago:
             print('Pagos')
-            print(cfdi_pago.guid_document)
-            print(cfdi_pago.uuid)
-            print(cfdi_pago.nombre_emisor)
 
+            if self.env['pagos_doctos_rel'].search_count([('id_pago', '=', str(cfdi_pago.id_pago))]) > 0:
+                print('EL FOLIO DE PAGO YA EXISTE')
 
+            if self.env['pagos_doctos_rel'].search_count([('id_pago', '=', str(cfdi_pago.id_pago))]) == 0:
+                dic_cfdi_pago = {'name': str(cfdi_pago.guid_document),
+                                 'id_pago': cfdi_pago.id_pago,
+                                 'id_documento': cfdi_pago.id_documento,
+                                 'serie': cfdi_pago.serie,
+                                 'folio': cfdi_pago.folio,
+                                 'moneda_dr': cfdi_pago.moneda_dr,
+                                 'moneda_dr_desc': cfdi_pago.moneda_dr_desc,
+                                 'tipo_cambio_dr': cfdi_pago.tipo_cambio_dr,
+                                 'metodo_pago_dr': cfdi_pago.metodo_pago_dr,
+                                 'metodo_pago_dr_desc': cfdi_pago.metodo_pago_dr_desc,
+                                 'num_parcialidad': cfdi_pago.num_parcialidad,
+                                 'imp_saldo_ant': cfdi_pago.imp_saldo_ant,
+                                 'imp_pagado': cfdi_pago.imp_pagado,
+                                 'imp_saldo_insoluto': cfdi_pago.imp_saldo_insoluto,
+                                 'fecha':cfdi_pago.fecha,
+                                 'account_move_pagos_rel':self.env['account.move'].search([('uuid', 'ilike', str(cfdi_pago.id_documento))]).id}
+                print(dic_cfdi_pago)
+
+                cfdi_rep_record = self.env['pagos_doctos_rel'].create(dic_cfdi_pago)
+                self.env.cr.commit()
 
 
 

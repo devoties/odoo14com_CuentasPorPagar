@@ -31,3 +31,6 @@ from . import account_invoice_sat_catalogue
 from . import product_product_extends
 from . import pagos_layout
 from . import purchase_order_extends
+from . import cfdi_reps
+from . import cfdi_reps_detail
+from . import pagos_doctos_rel

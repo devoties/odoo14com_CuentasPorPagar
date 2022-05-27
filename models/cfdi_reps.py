@@ -22,7 +22,7 @@ class Cif(models.Model):
 
     tipo_documento = fields.Char(string='Tipo Documento')
 
-    version = fields.Char(string='')
+    version = fields.Char(string='Versión')
 
     fecha = fields.Datetime(string='Fecha')
 

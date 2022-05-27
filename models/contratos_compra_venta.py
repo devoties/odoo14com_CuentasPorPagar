@@ -59,6 +59,13 @@ class ContratosCompraVenta(models.Model):
 
     ], default='borrador', string='Estados', copy=False)
 
+    factura = fields.Many2many(
+
+        comodel_name='account.move',
+        string='Factura'
+
+    )
+
     fecha_aprobacion = fields.Datetime(string='Fecha Aprobado', copy=False)
     num_contrato = fields.Char(string='Numero de contrato',copy = False)
 

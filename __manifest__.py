@@ -55,5 +55,6 @@
         'views/product_product_extends.xml',
         'views/product_product_sat_catalogue_view.xml',
         'views/purchase_order_extends_view.xml',
+        'views/pagos_doctos_rel_view.xml',
     ],
 }

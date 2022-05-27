@@ -37,6 +37,7 @@ class LotesCfdi(models.Model):
     serie = fields.Char(related='data_rel.serie')
     folio = fields.Char(related='data_rel.folio')
     uuid = fields.Char(related='data_rel.uuid')
+    id_factura = fields.Integer(related='data_rel.id')
     id_partner = fields.Many2one(related='data_rel.partner_id',string='Emisor de factura')
     fecha_factura = fields.Date(related='data_rel.invoice_date',string='Fecha Factura')
     fecha_pago = fields.Date(related='data_rel.invoice_date_due',string='Fecha De Vencimiento')
@@ -52,6 +53,27 @@ class LotesCfdi(models.Model):
     es_ine = fields.Boolean(string='INE',compute='get_aditional_data')
     es_cif = fields.Char(string='CIF',compute='get_aditional_data')
     estatus_layout = fields.Char(string='Estatus Layout')
+    rep_imp_pagado = fields.Float(string='Imp Pagado REPS',compute='get_sum_imp_pagado')
+    rep_imp_por_pagar = fields.Float(string='Imp Por Pagar REPS',compute='get_sum_imp_pagado')
+    res = fields.Char(compute='search_date',string='Total')
+    fecha_pago_tuple = fields.Char(compute='get_payments_ids',string='Fecha Pago')
+
+    def get_payments_ids(self):
+        for l in self:
+            m = l.env['account.move'].search([('id','=',l.id_factura)]).recn
+            l.fecha_pago_tuple = m
+
+    def search_date(self):
+
+        for line in self:
+            line.res = 'x'
+            print('this')
+            print(line.data_rel)
+
+    def get_sum_imp_pagado(self):
+        for line in self:
+            sum_importe_pagado_rep = sum(line.env['pagos_doctos_rel'].search([('id_documento',"ilike",line.uuid)]).mapped('imp_pagado'))
+            line.rep_imp_pagado = sum_importe_pagado_rep
 
 
     #trae los datos documentales del proveedor a traves de la relacion factura "data_rel"
@@ -127,14 +149,19 @@ class LotesCfdi(models.Model):
 
     def get_contracts_data(self):
         for line in self:
-            busqueda_vigencias = line.env["huertas_contratos_terceros"].search_count([('huertas_contratos_terceros_huertas_rel', '=', line.name.sader.id),('fecha_vencimiento','>=',date.today())])
+            busqueda_vigencias = line.env["huertas_contratos_terceros"].search_count([('huertas_contratos_terceros_huertas_rel', '=', line.name.sader.id),('fecha_vencimiento','>=',line.lotes_fecha_recepcion),
+                                                                                      ('fecha_apertura','<=',line.lotes_fecha_recepcion)])
             x = line.env["huertas_contratos_terceros"].search(
                 [('huertas_contratos_terceros_huertas_rel', '=', line.name.sader.id),
-                 ('fecha_vencimiento', '>=', date.today())])
+                 ('fecha_vencimiento', '>=', line.lotes_fecha_recepcion),
+                 ('fecha_apertura','<=',line.lotes_fecha_recepcion)])
             print('****busqueda vigencias******')
             print(busqueda_vigencias)
             print('**********Contador de lista beneficiarios************')
             validator_count = 0
+
+
+
             for lnx in x:
                 for lnx_benef in lnx.beneficiarios:
                     if lnx_benef.id == line.data_rel.partner_id.id:
@@ -150,6 +177,8 @@ class LotesCfdi(models.Model):
                    line.estatus_contratos = 'VIGENTE'
                 else:
                     line.estatus_contratos = 'VENCIDO'
+            if line.id_partner.name == line.lotes_nombre_productor.name:
+                line.estatus_contratos = 'NO APLICA'
 
 
     def name_get(self):

@@ -27,6 +27,7 @@
                             <field name="proveedor"/>
                             <field name="fecha_contrato"/>
                             <field name="fecha_aprobacion" readonly="1"/>
+                            <field name="factura"/>
                         </group>
                         <group>
                             <field name="active" widget="boolean_toggle"/>

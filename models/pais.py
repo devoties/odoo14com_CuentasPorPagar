@@ -9,3 +9,4 @@ class Pais(models.Model):
     name = fields.Char(string='Pais')
 
     active = fields.Boolean(string='Activo',default=True)
+

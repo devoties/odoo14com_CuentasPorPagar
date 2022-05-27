@@ -144,5 +144,18 @@
 
     </record>
 
+     <record id="view_lotes_search_huertas" model="ir.ui.view">
+        <field name="name">lotes.search.huertas</field>
+        <field name="model">huertas</field>
+        <field name="arch" type="xml">
+
+            <search string="Busqueda huertas">
+                <field name="name" string="Cadenas Texto"
+                       filter_domain="['|','|',('name', 'ilike', self),('sader', 'ilike', self),('productor', 'ilike', self)]"/>
+            </search>
+
+        </field>
+    </record>
+
 
 </odoo>

@@ -91,6 +91,8 @@
                 <field name="es_opinion" optional="hide" widget="badge" decoration-danger="es_opinion == 'VENCIDO'" decoration-success="es_opinion == 'VIGENTE'"/>
                 <field name="es_ine" optional="hide" widget="boolean_toggle" readonly="False"/>
                 <field name="es_cif" optional="hide" widget="badge" decoration-danger="es_cif == 'VENCIDO'" decoration-success="es_cif == 'VIGENTE'"/>
+                <field name="rep_imp_pagado" optional="hide"/>
+                <field name="fecha_pago_tuple" optional="hide"/>
 
 
             </tree>

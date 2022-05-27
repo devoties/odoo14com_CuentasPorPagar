@@ -36,9 +36,8 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_bank_id']" position="after">
-
                 <field name="uuid"/>
-
+                <field name="recn"/>
             </xpath>
         </field>
 
@@ -194,6 +193,26 @@
             <xpath expr="//notebook//page[@id='invoice_tab']" position="after">  <!-- se tiene que buscar en el notebook el @name-->
                 <page string="Ordenes de compra">
                 <field name="purchase_order_rel" widget="many2many"/>
+
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+       <record id="account_move_payments_reps_notebook_page_view" model="ir.ui.view">
+        <!--este tambien lo puedo llamar como quiera -->
+        <field name="name">REPS Relacionados</field>
+        <!--  aqui va el nombre de la herencia del modelo-->
+        <field name="model">account.move</field>
+         <!--  buscamos en oddo ID externo y lo ponemos aqui en la ref -->
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <!-- Se coloca el uuid despues de el @name=id -->
+            <xpath expr="//notebook//page[@id='invoice_tab']" position="after">  <!-- se tiene que buscar en el notebook el @name-->
+                <page string="REPS Relacionados">
+                <field name="rep_rel" widget="many2many"/>
+
 
                 </page>
             </xpath>
