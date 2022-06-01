@@ -249,12 +249,14 @@ class LotesCfdi(models.Model):
             #Agregar resultado nulo por si el dato no existe
             amount_untaxed_calc = 0.0
             amount_total_calc = 0.0
+            impuestos_retenidos = 0.0
 
 
             if line.data_rel.id:
                 #print('SI EXISTE RELACION')
                 amount_untaxed_calc = sum(line.env["account.move"].search([('id', '=', line.data_rel.id)]).mapped('amount_untaxed'))
                 amount_total_calc = sum(line.env["account.move"].search([('id', '=', line.data_rel.id)]).mapped('amount_total'))
+                impuestos_retenidos = sum(line.env["account.move"].search([('id', '=', line.data_rel.id)]).mapped('total_impuestos_retenidos'))
 
             if not line.data_rel.id:
                 #print('NO EXISTE RELACION')
@@ -264,7 +266,7 @@ class LotesCfdi(models.Model):
             #print(amount_untaxed_calc)
             ref_impuesto = ''
             abono_importe_calc = 0.0
-
+            """
             if amount_total_calc is None:
                 ref_impuesto = ''
                 abono_importe_calc = 0
@@ -275,6 +277,19 @@ class LotesCfdi(models.Model):
                 ref_impuesto = 'ISR 1.25%'
                 abono_importe_calc = (line.abono_importe) - (line.abono_importe * 0.0125)
             if amount_total_calc == amount_untaxed_calc:
+                ref_impuesto = 'TASA 0'
+                abono_importe_calc = line.abono_importe
+            """
+            if impuestos_retenidos is None:
+                ref_impuesto = ''
+                abono_importe_calc = 0
+            if  impuestos_retenidos is None:
+                ref_impuesto = ''
+                abono_importe_calc = 0
+            if impuestos_retenidos > 0:
+                ref_impuesto = 'ISR 1.25%'
+                abono_importe_calc = (line.abono_importe) - (line.abono_importe * 0.0125)
+            if impuestos_retenidos <= 0:
                 ref_impuesto = 'TASA 0'
                 abono_importe_calc = line.abono_importe
 

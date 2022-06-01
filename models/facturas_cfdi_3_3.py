@@ -68,7 +68,7 @@ class Conceptos(Base):
 # Clase para descargar encabezados de contpaqi contabilidad
 class CfdisContpaqiData(Base):
     # Tabla comprobante contpaqi contiene las cabeceras de todos los CFDI
-    __tablename__ = 'Comprobante'
+    __tablename__ = 'Comprobantes_View'
     # todos los campos del cfdi 3.3
     uuid = Column('UUID', String(600), primary_key=True)
     guid_document = Column('GuidDocument', String(500))
@@ -115,6 +115,7 @@ class CfdisContpaqiData(Base):
     uso_cfdi_desc = Column('UsoCFDI_Desc', String(500))
     tipo_comprobante_desc = Column('TipoComprobanteDesc', String(500))
     num_cuenta = Column('NumCta', String(500))
+    tipo_relacion_desc = Column('TipoRelacionDesc',String(500))
 
 
 
@@ -259,7 +260,7 @@ class FacturaCfdi(models.Model):
 
     nc_original_file = fields.Binary(string='Nota de credito Original')
 
-    purchase_order_rel = fields.Many2many('purchase.order', 'purchase_order_account_move_rel_3', string='Ordenes Compra')
+    purchase_order_rel = fields.Many2many('purchase.order', 'purchase_order_account_move_rel_4','purchase_id','account_id', string='Ordenes Compra')
 
     rep_rel = fields.One2many('pagos_doctos_rel','account_move_pagos_rel',string='Relación de REPS')
 
@@ -288,7 +289,7 @@ class FacturaCfdi(models.Model):
                     payment.id AS pay,
                     ARRAY_AGG(DISTINCT invoice.id) AS invoice_ids,
     				invoice.id,
-    				invoice.date AS fechax,
+    				move.date AS fechax,
                     invoice.move_type AS tipo
                 FROM account_payment payment
                 JOIN account_move move ON move.id = payment.move_id
@@ -408,7 +409,10 @@ class FacturaCfdi(models.Model):
             CfdisContpaqiData.fecha.cast(Date).between(i.fecha_inicial, i.fecha_final)). \
             filter(CfdisContpaqiData.rfc_emisor!='BAM170904DM5'). \
         filter(CfdisContpaqiData.rfc_receptor == 'BAM170904DM5').filter(CfdisContpaqiData.forma_de_pago_desc!='Aplicación de anticipos').\
-            filter(CfdisContpaqiData.uso_cfdi != 'G02').filter(CfdisContpaqiData.tipo_documento != 'Pago').all()
+            filter(CfdisContpaqiData.uso_cfdi != 'G02').filter(CfdisContpaqiData.tipo_documento != 'Pago')\
+            .filter(CfdisContpaqiData.tipo_relacion_desc == None).all()
+        print('FACTURAZ VIEW')
+        print(cfdis_objeto)
 
 
         #este objecto filtra por adquisicion de mercacias para despues ser llamado por un metodo que registre a los proveedores
@@ -422,6 +426,8 @@ class FacturaCfdi(models.Model):
         cfdi_notas_credito_object = session.query(CfdisContpaqiData,CfdiRelacionados).filter(CfdisContpaqiData.fecha.cast(Date).between(i.fecha_inicial,i.fecha_final)). \
         filter(CfdiRelacionados.tipo_relacion_desc != 'Sustitución de los CFDI previos').\
             filter(CfdisContpaqiData.tipo_comprobante == 'E').filter(CfdisContpaqiData.guid_document == CfdiRelacionados.guid_document).all()
+        print('XNOTAS DE CREDITO VIEW')
+        print(cfdi_notas_credito_object)
 
 
         for record2 in cfdi_object_cat_emisores:
@@ -500,8 +506,7 @@ class FacturaCfdi(models.Model):
                                 'num_cuenta': record.num_cuenta,
                                 'state':'draft',
                                 'currency_id':self.env['res.currency'].search([('name', '=', record.moneda)]).id,
-
-
+                                'amount_untaxed_signed': record.subtotal,
                                 }
                 comprobantes_objeto = self.env['account.move'].create(recordObject)
 
@@ -726,7 +731,7 @@ class FacturaCfdi(models.Model):
                                             'amount_currency': rec_notas_credito[0].total, #revisado
                                             'price_subtotal': rec_notas_credito[0].total * (-1), #revisado
                                             'price_total': rec_notas_credito[0].total * (-1), #revisado
-                                            'currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id, #revisado
+                                            'currency_id': self.env['res.currency'].search([('name', '=', rec_notas_credito[0].moneda)]).id, #revisado
                                             'partner_id': line_contact_nc.id, # revisado
                                             'product_uom_id': None, #revisado
                                             'product_id': None, #revisado
@@ -737,7 +742,7 @@ class FacturaCfdi(models.Model):
                                             'exclude_from_invoice_tab': True, #revisado
                                             'parent_state': 'draft', #revisado
                                             'company_id': 1, #revisado
-                                            'company_currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id, #revisado
+                                            'company_currency_id': self.env['res.currency'].search([('name', '=', rec_notas_credito[0].moneda)]).id, #revisado
                                             'sequence': 10 #revisado
                                             }
                  crear_conceptos_principal_balanceo_nc = self.env['account.move.line'].with_context(
@@ -761,10 +766,10 @@ class FacturaCfdi(models.Model):
                                                      'amount_currency': (rec_notas_credito[0].total - rec_notas_credito[0].subtotal) * (-1),
                                                      'price_subtotal': (rec_notas_credito[0].total - rec_notas_credito[0].subtotal),
                                                      'price_total': (rec_notas_credito[0].total - rec_notas_credito[0].subtotal),
-                                                     'currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id,
+                                                     'currency_id': self.env['res.currency'].search([('name', '=', rec_notas_credito[0].moneda)]).id,
                                                      'product_uom_id': 1,
                                                      'parent_state': 'draft',
-                                                     'company_currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id,
+                                                     'company_currency_id': self.env['res.currency'].search([('name', '=', rec_notas_credito[0].moneda)]).id,
                                                      'partner_id': line_contact_nc.id,
                                                      'company_id': 1,
                                                      'account_root_id': 49049,
@@ -836,10 +841,10 @@ class FacturaCfdi(models.Model):
                                               'amount_currency': line_nc_prueba.importe * (-1),
                                               'price_subtotal': line_nc_prueba.importe,
                                               #'price_total': line_nc.importe,
-                                              'currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id,
+                                              'currency_id': self.env['res.currency'].search([('name', '=', rec_notas_credito[0].moneda)]).id,
                                               'product_uom_id': 1,
                                               'parent_state': 'draft',
-                                              'company_currency_id': self.env['res.currency'].search([('name', '=', record.moneda)]).id,
+                                              'company_currency_id': self.env['res.currency'].search([('name', '=', rec_notas_credito[0].moneda)]).id,
                                               'partner_id': line_contact_nc.id,
                                               'tax_base_amount': 0,
                                               'amount_residual': 0,
@@ -887,11 +892,6 @@ class FacturaCfdi(models.Model):
 
                 cfdi_rep_record = self.env['pagos_doctos_rel'].create(dic_cfdi_pago)
                 self.env.cr.commit()
-
-
-
-
-
 
         session.close()
         engine.dispose()
