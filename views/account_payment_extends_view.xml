@@ -17,6 +17,9 @@
                        optional="show"/>
                 <field name="comprobante_pago_filename" invisible="1"/>
 
+                <field name="reconciled_bill_ids" widget="many2many"/>
+                <field name="recn"/>
+
 
             </xpath>
         </field>

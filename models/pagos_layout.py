@@ -9,11 +9,12 @@ logger = logging.getLogger(__name__)
 class PagosLayout(models.Model):
 
     _name = "pagos_layout"
+
     _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
 
     name = fields.Char(string='Referencia',copy=False,tracking=True,track_visibility='always',stored=True)
 
-    fecha_reg = fields.Datetime(string='Fecha Layout',default=datetime.now(),tracking=True,track_visibility='always',stored=True)
+    fecha_reg = fields.Datetime(string='Fecha Layout',default=datetime.now(),tracking=True,track_visibility='always',stored=True,readonly=False)
 
     banco = fields.Many2one(comodel_name='res.bank',string='Banco Origen',tracking=True,track_visibility='always',stored=True)
 
@@ -29,9 +30,9 @@ class PagosLayout(models.Model):
 
     layout_name = fields.Char(string='Contenedor de layout',size=64,default='layout.txt',tracking=True,track_visibility='always',stored=True)
 
-    txt_layout_file = fields.Binary(string='Archivo de layout',tracking=True,track_visibility='always',stored=True)
+    txt_layout_file = fields.Binary(string='Archivo de layout',tracking=True,track_visibility='always',stored=True,readonly=True)
 
-    fecha_mod_layout = fields.Datetime(string='Fecha Cr/Mod Layout TXT',tracking=True,track_visibility='always',stored=True)
+    fecha_mod_layout = fields.Datetime(string='Fecha Cr/Mod Layout TXT',tracking=True,track_visibility='always',stored=True,readonly=True)
 
     state = fields.Selection(selection=[
         ('borrador', 'Borrador'),
@@ -57,18 +58,6 @@ class PagosLayout(models.Model):
                print('Fac separadas: ')
                print(result.replace(' ', '\n'))
                result = result.replace(' ', '\n')
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     def setStatusReady(self):
@@ -106,7 +95,7 @@ class PagosLayout(models.Model):
            print('Layout TXT')
            file_layout_txt = open("odoo/addons_custom/cuentas_por_pagar/temp/layout_santander_mismo_banco.txt", "w+")
            for line in self.relacion_pagos:
-               dic = str(line.partner_id.name) + " " + str(line.partner_bank_id.acc_number) + " " + str(line.amount) + " " + str(line.move_id.uuid) +\
+               dic = str(line.partner_id.name) + " " + str(line.partner_bank_id.acc_number) + " " + str(line.amount) + " " + str(line.recn) +\
                              " " + line.date.strftime('%d%m%Y') + f"\n"
                print(dic)
                file_layout_txt.write(dic)

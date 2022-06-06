@@ -1,10 +1,13 @@
 # -*- coding:utf-8 -*-how save many2many custom more data
 from datetime import datetime
 from time import strftime
-
-from odoo import fields, models, api
+import logging
+from odoo import fields, models, api, _
 import pandas as pd
 from datetime import date,timedelta
+
+from odoo.odoo.exceptions import UserError
+logger = logging.getLogger(__name__)
 
 class LotesCfdi(models.Model):
     _name = "lotes_account_move_line"
@@ -57,6 +60,40 @@ class LotesCfdi(models.Model):
     rep_imp_por_pagar = fields.Float(string='Imp Por Pagar REPS',compute='get_sum_imp_pagado')
     res = fields.Char(compute='search_date',string='Total')
     fecha_pago_tuple = fields.Char(compute='get_payments_ids',string='Fecha Pago')
+
+    def action_register_payment(self):
+        ''' Open the account.payment.register wizard to pay the selected journal entries.
+        :return: An action opening the account.payment.register wizard.
+        '''
+        return {
+            'name': _('Register Payment'),
+            'res_model': 'account.payment.register',
+            'view_mode': 'form',
+            'context': {
+                'active_model': 'account.move',
+                'active_ids': self.data_rel.ids,
+            },
+            'target': 'new',
+            'type': 'ir.actions.act_window',
+        }
+
+    def write(self, variables):
+        logger.info('write variables : {0}'.format(variables))
+        # Lee si la fecha contrato ya ha sido creada y no permite modificarla despues de haberla creado
+        if 'estado_factura' == 'paid':
+            # se manda un error
+            raise UserError('El lote no se puede editar por que ya se encuentra en estado de pagado')
+        # se graba el diccionario en la bd
+        return super(LotesCfdi, self).write(variables)
+
+    def unlink(self):
+        logger.info('Se disparo la funcion unlink')
+        for record in self:
+         if record.estado_factura == 'not_paid':
+            super(LotesCfdi, record).unlink()
+         else:
+            raise UserError('No se puede eliminar el registro por que el lote esta pagado')
+
 
     def get_payments_ids(self):
         for l in self:
@@ -118,7 +155,8 @@ class LotesCfdi(models.Model):
             contador_vigencias = 0
             status = ''
             for linx in qty_cifs:
-                mes_contrato = linx.strftime('%b')
+                mes_contrato = linx
+                mes_contrato = mes_contrato.strftime('%b')
                 print('Otro parametro que ocupo ver')
                 print(mes_contrato)
                 print('Diferencia')

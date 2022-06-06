@@ -25,6 +25,16 @@ class AccountPaymentExtends(models.Model):
 
     bank_id_name = fields.Many2one(related='partner_bank_id.bank_id')
 
+    recn = fields.Char(compute='get_invoice_reconciled_data', string="Pagos")
+
+    def get_invoice_reconciled_data(self):
+        print('')
+        for l in self:
+            print(l.reconciled_bill_ids)
+            l.recn = l.reconciled_bill_ids.uuid
+
+
+
     def unlink(self):
         logger.info('Se disparo la funcion unlink')
         for record in self:

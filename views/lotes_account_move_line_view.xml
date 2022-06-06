@@ -49,6 +49,8 @@
                             class="oe_highlight" invisible="0"/>
                     <button name="convertir_a_borrador" type="object" string="Borrador"
                             class="oe_highlight" invisible="0"/>
+                    <button name="action_register_payment" type="object" string="Register Payment"
+                            groups="account.group_account_user" invisible="0"/>
                 </header>
 
                 <field name="name"/>
@@ -76,9 +78,11 @@
                 <field name="estado_factura" optional="hide" decoration-success="estado_factura == 'paid'"
                        decoration-danger="estado_factura == 'not_paid'" widget="badge"/>
                 <field name="lotes_observaciones" optional="hide"/>
-                <field name="estado_contabilizacion" statusbar_visible="borrador,Contabilizado Lote,Contabilizado Cfdi" optional="Show"
+                <field name="estado_contabilizacion" statusbar_visible="borrador,Contabilizado Lote,Contabilizado Cfdi"
+                       optional="Show"
                        decoration-warning="estado_contabilizacion == 'Contabilizado Lote'"
-                       decoration-success="estado_contabilizacion == 'Contabilizado Cfdi'" decoration-muted="estado_contabilizacion == 'Borrador'"
+                       decoration-success="estado_contabilizacion == 'Contabilizado Cfdi'"
+                       decoration-muted="estado_contabilizacion == 'Borrador'"
                        widget="badge"/>
 
                 <field name="impuesto" optional="hide"/>
@@ -86,11 +90,13 @@
                 <field name="forma_de_pago" optional="hide"/>
                 <field name="lotes_sader_contrato" optional="hide"/>
                 <field name="es_tarjeta_apeam" widget="boolean_toggle" readonly="False"/>
-                <field name="estatus_contratos"  widget="badge" decoration-success="estatus_contratos == 'VIGENTE'"
-                decoration-danger="estatus_contratos == 'VENCIDO'" optional="hide"/>
-                <field name="es_opinion" optional="hide" widget="badge" decoration-danger="es_opinion == 'VENCIDO'" decoration-success="es_opinion == 'VIGENTE'"/>
+                <field name="estatus_contratos" widget="badge" decoration-success="estatus_contratos == 'VIGENTE'"
+                       decoration-danger="estatus_contratos == 'VENCIDO'" optional="hide"/>
+                <field name="es_opinion" optional="hide" widget="badge" decoration-danger="es_opinion == 'VENCIDO'"
+                       decoration-success="es_opinion == 'VIGENTE'"/>
                 <field name="es_ine" optional="hide" widget="boolean_toggle" readonly="False"/>
-                <field name="es_cif" optional="hide" widget="badge" decoration-danger="es_cif == 'VENCIDO'" decoration-success="es_cif == 'VIGENTE'"/>
+                <field name="es_cif" optional="hide" widget="badge" decoration-danger="es_cif == 'VENCIDO'"
+                       decoration-success="es_cif == 'VIGENTE'"/>
                 <field name="rep_imp_pagado" optional="hide"/>
                 <field name="fecha_pago_tuple" optional="hide"/>
 
@@ -100,7 +106,7 @@
     </record>
 
 
-     <record id="view_lotes_search_lotes_account_move_line" model="ir.ui.view">
+    <record id="view_lotes_search_lotes_account_move_line" model="ir.ui.view">
         <field name="name">lotes.search.lotes_account_move_line</field>
         <field name="model">lotes_account_move_line</field>
         <field name="arch" type="xml">

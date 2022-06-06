@@ -27,7 +27,7 @@
                             <field name="name"/>
                             <field name="layout_name" invisible="1"/>
                             <field name="txt_layout_file" filename="layout_name"/>
-                            <field name="fecha_mod_layout"/>
+                            <field name="fecha_mod_layout" readonly="True"/>
 
 
                         </group>
@@ -44,7 +44,7 @@
 
                             <page string="Relación de pagos">
 
-                                <field name="relacion_pagos" widget="many2many" mode="tree,form"/>
+                                <field name="relacion_pagos" widget="many2many" mode="tree,form" domain="[('estatus_layout', '!=', 'locked')]"/>
 
                             </page>
 
