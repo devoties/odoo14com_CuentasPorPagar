@@ -44,6 +44,7 @@
                        optional="show"/>
                 <field name="comprobante_pago_filename" invisible="1"/>
                 <field name="partner_bank_id" optional="show"/>
+                <field name="bank_id_name_code" optional="show"/>
 
             </field>
         </field>
@@ -66,6 +67,7 @@
                 <field name="comprobante_pago_filename" invisible="1"/>
                 <field name="partner_bank_id" optional="show"/>
                 <field name="bank_id_name" optional="show"/>
+                <field name="bank_id_name_code" optional="show"/>
 
             </field>
         </field>

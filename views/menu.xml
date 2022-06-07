@@ -68,6 +68,12 @@
         <field name="view_mode">tree,form</field>
     </record>
 
+        <record id="action_open_cuentas_por_pagar_presupuesto_pago" model="ir.actions.act_window">
+        <field name="name">Presupuesto Pagos</field>
+        <field name="res_model">presupuesto_lotes</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
 
     <!-- menus horizontales -->
     <menuitem id="menu_principal_cuentas_por_pagar" name="Cuentas por pagar" web_icon="cuentas_por_pagar,static/description/icon.png"/>
@@ -76,9 +82,10 @@
               parent="menu_principal_cuentas_por_pagar"/>
     <menuitem id="menu_horizontal_cuentas_por_pagar_interfaz" name="Interfaz"
               parent="menu_principal_cuentas_por_pagar"/>
-    <menuitem id="menu_horizontal_cuentas_por_pagar_descarga" name="Descarga De Datos"
+    <menuitem id="menu_horizontal_cuentas_por_pagar_descarga" name="Descarga de datos"
               parent="menu_principal_cuentas_por_pagar"/>
-
+    <menuitem id="menu_horizontal_programacion_pagos" name="Programación de pagos"
+              parent="menu_principal_cuentas_por_pagar"/>
     <!-- menus verticales -->
     <menuitem id="menu_vertical_cuentas_por_pagar_contratos" name="Contratos" parent="menu_horizontal_cuentas_por_pagar"
               action="action_open_cuentas_por_pagar_contratos"/>
@@ -100,9 +107,8 @@
     <menuitem id="menu_vertical_cuentas_por_pagar_cortes" name="Cortes"
               parent="menu_horizontal_cuentas_por_pagar_interfaz" action="action_open_cuentas_por_pagar_cortes"/>
 
-
     <menuitem id="menu_vertical_cuentas_por_pagar_lotes_account_move_line" name="Lotes Lineas Facturas"
-              parent="menu_horizontal_cuentas_por_pagar_interfaz"
+              parent="menu_horizontal_programacion_pagos"
               action="action_open_cuentas_por_pagar_lote_account_move_line"/>
     <menuitem id="menu_vertical_cuentas_por_pagar_lotes_descarga" name="Descarga de lotes"
               parent="menu_horizontal_cuentas_por_pagar_descarga" action="action_open_lotes_descarga_wizard"/>
@@ -112,7 +118,9 @@
               parent="menu_horizontal_cuentas_por_pagar_descarga" action="action_open_cfdis_descarga_wizard"/>
 
         <menuitem id="menu_vertical_cuentas_por_pagar_layout_pago" name="Layout Pago"
-              parent="menu_horizontal_cuentas_por_pagar_interfaz" action="action_open_cuentas_por_pagar_layout_pago"/>
+              parent="menu_horizontal_programacion_pagos" action="action_open_cuentas_por_pagar_layout_pago"/>
+            <menuitem id="menu_vertical_presupuestos_lotes" name="Presupuesto Pago"
+              parent="menu_horizontal_programacion_pagos" action="action_open_cuentas_por_pagar_presupuesto_pago"/>
 
 
 </odoo>

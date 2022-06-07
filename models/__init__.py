@@ -34,3 +34,4 @@ from . import purchase_order_extends
 from . import cfdi_reps
 from . import cfdi_reps_detail
 from . import pagos_doctos_rel
+from . import presupuesto_lotes

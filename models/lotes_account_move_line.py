@@ -13,7 +13,7 @@ class LotesCfdi(models.Model):
     _name = "lotes_account_move_line"
     _description = "Linea de factura con lotes"
     name = fields.Many2one(comodel_name='lotes',string='Lote')
-    lotes_fecha_recepcion = fields.Date(string='Fecha Recepcion',related='name.fecha')
+    lotes_fecha_recepcion = fields.Date(string='Fecha Recepcion',related='name.fecha',store=True)
     lotes_nombre_productor = fields.Many2one(related='name.id_partner')
     lotes_huerta = fields.Many2one(related='name.sader')
     abono_kilogramos = fields.Float(string='Abono Kg')
@@ -39,9 +39,9 @@ class LotesCfdi(models.Model):
     data_rel = fields.Many2one(comodel_name='account.move',string='Data Rel',index=True,required=True,readonly=True, auto_join=True, ondelete="cascade",_rec_name='uuid')
     serie = fields.Char(related='data_rel.serie')
     folio = fields.Char(related='data_rel.folio')
-    uuid = fields.Char(related='data_rel.uuid')
+    uuid = fields.Char(related='data_rel.uuid',store=True)
     id_factura = fields.Integer(related='data_rel.id')
-    id_partner = fields.Many2one(related='data_rel.partner_id',string='Emisor de factura')
+    id_partner = fields.Many2one(related='data_rel.partner_id',string='Emisor de factura',store=True)
     fecha_factura = fields.Date(related='data_rel.invoice_date',string='Fecha Factura')
     fecha_pago = fields.Date(related='data_rel.invoice_date_due',string='Fecha De Vencimiento')
     estado_pago = fields.Selection(related='data_rel.state',string='Estado Factura')
@@ -60,6 +60,21 @@ class LotesCfdi(models.Model):
     rep_imp_por_pagar = fields.Float(string='Imp Por Pagar REPS',compute='get_sum_imp_pagado')
     res = fields.Char(compute='search_date',string='Total')
     fecha_pago_tuple = fields.Char(compute='get_payments_ids',string='Fecha Pago')
+    state_special = fields.Selection(string='Estado Marca',selection=[
+        ('check_freeze', 'Congelado'),
+        ('check_freeze_invert', 'Default'),
+
+    ],copy=False, tracking=True, track_visibility='always', readonly=True,stored=True)
+
+    lotes_presupuestos_rel = fields.Many2one(comodel_name='presupuesto_lotes')
+
+    def put_check_freeze(self):
+        for l in self:
+            print('x')
+            l.state_special = 'check_freeze'
+    def put_check_freeze_invert(self):
+        for l in self:
+            l.state_special = 'check_freeze_invert'
 
     def action_register_payment(self):
         ''' Open the account.payment.register wizard to pay the selected journal entries.

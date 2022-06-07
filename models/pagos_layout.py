@@ -12,9 +12,9 @@ class PagosLayout(models.Model):
 
     _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
 
-    name = fields.Char(string='Referencia',copy=False,tracking=True,track_visibility='always',stored=True)
+    name = fields.Char(string='Referencia',copy=False,tracking=True,track_visibility='always',stored=True,required=True)
 
-    fecha_reg = fields.Datetime(string='Fecha Layout',default=datetime.now(),tracking=True,track_visibility='always',stored=True,readonly=False)
+    fecha_reg = fields.Datetime(string='Fecha Layout',default=datetime.now(),tracking=True,track_visibility='always',stored=True,readonly=False,required=True)
 
     banco = fields.Many2one(comodel_name='res.bank',string='Banco Origen',tracking=True,track_visibility='always',stored=True)
 
@@ -112,6 +112,31 @@ class PagosLayout(models.Model):
            self.layout_name = 'layout_santander_mismo_banco.txt'
 
            self.write({'txt_layout_file': base64.b64encode(out), 'layout_name': 'layout_santander_mismo_banco.txt'})
+
+           self.fecha_mod_layout = datetime.now()
+
+        if self.layout_type_bank == 'santander_multiples_bancos':
+           print('Layout TXT')
+           file_layout_txt = open("odoo/addons_custom/cuentas_por_pagar/temp/layout_santander_multiples_bancos.txt", "w+")
+           for line in self.relacion_pagos:
+               dic = "65507540168" + "     " + str(line.partner_bank_id.acc_number) + "  " + str(line.bank_id_name_code) + "     " + str(line.partner_id.name) +\
+                     "     " + str(line.amount) + "     " + str(line.recn) +\
+                             "     "  + "N" + "     "+ "1" + "\n"
+               print(dic)
+               file_layout_txt.write(dic)
+
+           file_layout_txt.close()
+
+           file_layout_txt = open("odoo/addons_custom/cuentas_por_pagar/temp/layout_santander_multiples_bancos.txt", "rb+")
+           out = file_layout_txt.read()
+
+           file_layout_txt.close()
+
+           self.txt_layout_file = base64.b64encode(out)
+
+           self.layout_name = 'layout_santander_multiples_bancos.txt'
+
+           self.write({'txt_layout_file': base64.b64encode(out), 'layout_name': 'layout_santander_multiples_bancos.txt'})
 
            self.fecha_mod_layout = datetime.now()
 

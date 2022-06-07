@@ -268,6 +268,11 @@ class FacturaCfdi(models.Model):
 
     recn = fields.Char(compute='acount_paym_ivoice', string="Pagos")
 
+    def button_cancel(self):
+        self.write({'auto_post': False, 'state': 'cancel'})
+        account_move_line_obj = self.env['lotes_account_move_line']
+        account_move_line_obj.search([('data_rel', '=', self.id)]).unlink()
+
 
     #funcion que regresa los pagos
     def acount_paym_ivoice(self):
