@@ -68,6 +68,12 @@ class LotesCfdi(models.Model):
 
     lotes_presupuestos_rel = fields.Many2one(comodel_name='presupuesto_lotes')
 
+    lotes_status_lock = fields.Selection(string='Estado De Bloqueo', selection=[
+        ('lock', 'Bloqueado'),
+        ('unlock', 'Desbloqueado'),
+
+    ], copy=False, tracking=True, track_visibility='always', readonly=True, stored=True)
+
     def put_check_freeze(self):
         for l in self:
             print('x')
@@ -98,16 +104,20 @@ class LotesCfdi(models.Model):
         if 'estado_factura' == 'paid':
             # se manda un error
             raise UserError('El lote no se puede editar por que ya se encuentra en estado de pagado')
+
+        if 'lotes_status_lock' == 'lock':
+            # se manda un error
+            raise UserError('El lote no se puede editar por que ya se encuentra en estado de presupuestado')
         # se graba el diccionario en la bd
         return super(LotesCfdi, self).write(variables)
 
     def unlink(self):
         logger.info('Se disparo la funcion unlink')
         for record in self:
-         if record.estado_factura == 'not_paid':
+         if record.estado_factura == 'not_paid' and record.lotes_status_lock == 'unlock':
             super(LotesCfdi, record).unlink()
          else:
-            raise UserError('No se puede eliminar el registro por que el lote esta pagado')
+            raise UserError('No se puede eliminar el registro por que el lote esta pagado / presupuestado')
 
 
     def get_payments_ids(self):

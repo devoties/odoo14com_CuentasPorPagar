@@ -68,15 +68,22 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-        <record id="action_open_cuentas_por_pagar_presupuesto_pago" model="ir.actions.act_window">
+    <record id="action_open_cuentas_por_pagar_presupuesto_pago" model="ir.actions.act_window">
         <field name="name">Presupuesto Pagos</field>
         <field name="res_model">presupuesto_lotes</field>
         <field name="view_mode">tree,form</field>
     </record>
 
+        <record id="action_open_cuentas_por_pagar_presupuesto_pago_flete" model="ir.actions.act_window">
+        <field name="name">Presupuesto Pagos Flete</field>
+        <field name="res_model">presupuesto_flete</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
 
     <!-- menus horizontales -->
-    <menuitem id="menu_principal_cuentas_por_pagar" name="Cuentas por pagar" web_icon="cuentas_por_pagar,static/description/icon.png"/>
+    <menuitem id="menu_principal_cuentas_por_pagar" name="Cuentas por pagar"
+              web_icon="cuentas_por_pagar,static/description/icon.png"/>
     <menuitem id="menu_horizontal_cuentas_por_pagar" name="Opciones" parent="menu_principal_cuentas_por_pagar"/>
     <menuitem id="menu_horizontal_cuentas_por_pagar_catalogo" name="Catalogos"
               parent="menu_principal_cuentas_por_pagar"/>
@@ -117,10 +124,11 @@
     <menuitem id="menu_vertical_cuentas_por_pagar_cfdis_descarga" name="Descarga de cfdis"
               parent="menu_horizontal_cuentas_por_pagar_descarga" action="action_open_cfdis_descarga_wizard"/>
 
-        <menuitem id="menu_vertical_cuentas_por_pagar_layout_pago" name="Layout Pago"
+    <menuitem id="menu_vertical_cuentas_por_pagar_layout_pago" name="Layout Pago"
               parent="menu_horizontal_programacion_pagos" action="action_open_cuentas_por_pagar_layout_pago"/>
-            <menuitem id="menu_vertical_presupuestos_lotes" name="Presupuesto Pago"
+    <menuitem id="menu_vertical_presupuestos_lotes" name="Presupuesto Pago"
               parent="menu_horizontal_programacion_pagos" action="action_open_cuentas_por_pagar_presupuesto_pago"/>
-
-
+    <menuitem id="menu_vertical_presupuestos_flete" name="Presupuesto Pago Flete"
+              parent="menu_horizontal_programacion_pagos"
+              action="action_open_cuentas_por_pagar_presupuesto_pago_flete"/>
 </odoo>

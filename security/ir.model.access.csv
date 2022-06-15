@@ -30,3 +30,4 @@ access_cfdi_reps_user,access_cfdi_reps_user,model_cfdi_reps,,1,1,1,1
 access_cfdi_reps_detail_user,access_cfdi_reps_detail_user,model_cfdi_reps_detail,,1,1,1,1
 access_pagos_doctos_rel_user,access_pagos_doctos_rel_user,model_pagos_doctos_rel,,1,1,1,1
 access_presupuesto_lotes_user,access_presupuesto_lotes_user,model_presupuesto_lotes,,1,1,1,1
+access_presupuesto_flete_user,access_presupuesto_flete_user,model_presupuesto_flete,,1,1,1,1

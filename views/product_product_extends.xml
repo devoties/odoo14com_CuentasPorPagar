@@ -10,10 +10,29 @@
             <xpath expr="//notebook//page[@name='general_information']" position="after">
                 <page string="Claves Sat">
                     <!--<field name="lotes_relacion"/>-->
-                    <field name="product_sat_catalogue" widget="many2many" domain="[('products_products_rel','=',False)]" />
+                    <field name="product_sat_catalogue" widget="many2many"
+                           domain="[('products_products_rel','=',False)]"/>
 
                 </page>
             </xpath>
+
+        </field>
+    </record>
+
+
+    <record id="view_product_viewx" model="ir.ui.view">
+        <field name="name">view.product.product</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+
+
+
+            <field name="name" readonly="1" position="before">
+                <field name="default_code" optional="show"/>
+
+
+            </field>
 
         </field>
     </record>

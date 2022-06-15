@@ -19,3 +19,5 @@ class ProductExtends(models.Model):
     unidad = fields.Char(string='Unidad')
 
     check_metodo_descarga_masiva = fields.Char(string='Check DM')
+
+
