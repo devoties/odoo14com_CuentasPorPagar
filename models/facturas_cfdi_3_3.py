@@ -268,6 +268,10 @@ class FacturaCfdi(models.Model):
 
     recn = fields.Char(compute='acount_paym_ivoice', string="Pagos")
 
+    id_pagos = fields.Char(string='Pagos',compute='acount_paym_ivoice')
+
+    layout_rel = fields.Many2one('pagos_layout',string='Relacion Layout')
+
     def button_cancel(self):
         self.write({'auto_post': False, 'state': 'cancel'})
         account_move_line_obj = self.env['lotes_account_move_line']
@@ -322,19 +326,25 @@ class FacturaCfdi(models.Model):
         })
         query_res = r._cr.dictfetchall()
         pagos_ids_all = []
+        pagos_ids_new = []
 
         for res in query_res:
             #self.recn = res['fechax']
             x = res['fechax']
+            payments_ids = res['pay']
             x.strftime("%b %d %Y")
             pagos_ids_all.append(x)
+            pagos_ids_new.append(payments_ids)
+
         x_date = pagos_ids_all
         x_date = str(x_date).replace('datetime.date','')
         x_date = str(x_date).replace('[', '')
         x_date = str(x_date).replace(']', '')
         x_date = str(x_date).replace(',','-')
         x_date = str(x_date).replace(' ','')
+
         self.recn = x_date
+        self.id_pagos = payments_ids
 
 # Cambios en el One2many de lotes
     @api.onchange('lotes_cfdi_relacionn')
@@ -415,7 +425,7 @@ class FacturaCfdi(models.Model):
             filter(CfdisContpaqiData.rfc_emisor!='BAM170904DM5'). \
         filter(CfdisContpaqiData.rfc_receptor == 'BAM170904DM5').filter(CfdisContpaqiData.forma_de_pago_desc!='Aplicación de anticipos').\
             filter(CfdisContpaqiData.uso_cfdi != 'G02').filter(CfdisContpaqiData.tipo_documento != 'Pago')\
-            .filter(CfdisContpaqiData.tipo_relacion_desc == None).all()
+            .all()
         print('FACTURAZ VIEW')
         print(cfdis_objeto)
 

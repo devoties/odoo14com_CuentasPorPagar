@@ -60,6 +60,7 @@ class LotesCfdi(models.Model):
     rep_imp_por_pagar = fields.Float(string='Imp Por Pagar REPS',compute='get_sum_imp_pagado')
     res = fields.Char(compute='search_date',string='Total')
     fecha_pago_tuple = fields.Char(compute='get_payments_ids',string='Fecha Pago')
+    id_pago = fields.Char(string='Id Pago',compute='get_payments_ids')
     state_special = fields.Selection(string='Estado Marca',selection=[
         ('check_freeze', 'Congelado'),
         ('check_freeze_invert', 'Default'),
@@ -123,7 +124,10 @@ class LotesCfdi(models.Model):
     def get_payments_ids(self):
         for l in self:
             m = l.env['account.move'].search([('id','=',l.id_factura)]).recn
+            id_pagox = l.env['account.move'].search([('id', '=', l.id_factura)]).id_pagos
             l.fecha_pago_tuple = m
+            l.id_pago = id_pagox
+
 
     def search_date(self):
 

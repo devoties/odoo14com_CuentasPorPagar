@@ -231,6 +231,7 @@ class Cortes(models.Model):
 
 
     def download_data(self):
+
         engine = Session.engine()
         session = Session.session(engine)
 

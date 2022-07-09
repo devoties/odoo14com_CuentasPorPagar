@@ -41,45 +41,6 @@ class PagosLayout(models.Model):
 
     ], default='borrador', string='Estados', copy=False,tracking=True,track_visibility='always',stored=True)
 
-    presupuestos_rel = fields.Many2one(string='Presupuesto',comodel_name='presupuesto_lotes')
-
-    invoice_aditional = fields.One2many('account.move','layout_rel',string='Facturas adicionales')
-
-    """
-(0, 0,  { values })    link to a new record that needs to be created with the given values dictionary
-(1, ID, { values })    update the linked record with id = ID (write *values* on it)
-(2, ID)                remove and delete the linked record with id = ID (calls unlink on ID, that will delete the object completely, and the link to it as well)
-(3, ID)                cut the link to the linked record with id = ID (delete the relationship between the two objects but does not delete the target object itself)
-(4, ID)                link to existing record with id = ID (adds a relationship)
-(5)                    unlink all (like using (3,ID) for all linked records)
-(6, 0, [IDs])          replace the list of linked IDs (like using (5) then (4,ID) for each ID in the list of IDs)
-    """
-    @api.onchange('presupuestos_rel')
-    def _onchange_budget(self):
-        for rec in self:
-            lines = []
-            for line in rec.presupuestos_rel.lotes_provisionados:
-                print(line.id_pago)
-                lines.append((4, int(line.id_pago)))
-            print("lines", lines)
-
-            #remueve los items del one2many
-            #rec.relacion_pagos = ([2,int(line.id_pago)])
-            #Obtiene los pagos relacionados con el presupuesto
-            rec.relacion_pagos = lines
-
-    #@api.onchange('invoice_aditional')
-    def add_payments_from_invoice(self):
-        for l in self:
-            lines = []
-            for line in l.invoice_aditional:
-                lines.append([4,int(line.id_pagos)])
-            print('X RET')
-            print(lines)
-            l.relacion_pagos = lines
-
-
-
     def delete_edit_validate(self):
         invoices_from_payment = self.relacion_pagos
         #print('primer dato',invoices_from_payment)

@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 import pandas as pd
 
-SERVER='b8970b8f20a4.sn.mynetname.net:49706'
+SERVER='192.168.88.214:49706'
 DATABASE='document_b293efb8-0254-4a13-8ab5-dd78af6bfc8b_metadata'
 DRIVER='SQL Server'
 USERNAME='sa'

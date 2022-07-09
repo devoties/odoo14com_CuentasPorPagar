@@ -16,9 +16,34 @@ class PresupuestoLotes(models.Model):
         ('validate', 'Validado'),
         ('draft', 'Borrador'),
 
-    ],copy=False, tracking=True, track_visibility='always', readonly=True,stored=True)
+    ],copy=False, tracking=True, track_visibility='always', readonly=True,stored=True,default='draft')
+
+    invoice_rel = fields.Many2one(string='Invoice Rel',related='lotes_provisionados.data_rel')
+
+    payment_rel = fields.Char(string='Payment',related='invoice_rel.recn')
+
+    payment_id_rel = fields.Char(string='Payment id',related='invoice_rel.id_pagos')
 
     budget_total = fields.Float(string='Total Presupuesto',compute='get_sum_budget')
+
+    res = fields.Char(string='Estado de pago',compute='get_payment_state',stored=True)
+
+
+    def action_register_payment(self):
+        ''' Open the account.payment.register wizard to pay the selected journal entries.
+        :return: An action opening the account.payment.register wizard.
+        '''
+        return {
+            'name': _('Register Payment'),
+            'res_model': 'account.payment.register',
+            'view_mode': 'form',
+            'context': {
+                'active_model': 'account.move',
+                'active_ids': self.invoice_rel.ids,
+            },
+            'target': 'new',
+            'type': 'ir.actions.act_window',
+        }
 
     def get_sum_budget(self):
             sum_budget = sum(self.env['lotes_account_move_line'].search([('lotes_presupuestos_rel','=',self.id)]).mapped('abono_importe_con_impuesto'))
@@ -41,3 +66,21 @@ class PresupuestoLotes(models.Model):
             res = lotes_linea_factura.search([('id','=',line.id)])
             res.write({'lotes_status_lock':'unlock'})
             self.env.cr.commit()
+
+    def get_payment_state(self):
+        for l in self:
+            print('')
+            counter_row = 0
+            counter_paid_state = 0
+            for linx in l.lotes_provisionados:
+                counter_row = counter_row + 1
+                if linx.estado_factura == 'paid':
+                    counter_paid_state = counter_paid_state + 1
+            if counter_row != counter_paid_state:
+                l.res = 'Faltantes de pago'
+            if counter_row == counter_paid_state and counter_row > 0 and counter_paid_state > 0:
+                l.res = 'Pagado Completamente'
+            if counter_row == 0 and counter_paid_state == 0:
+                l.res = 'Documento en blanco'
+
+

@@ -5,13 +5,15 @@
         <field name="name">Vista Presupuesto Lotes</field>
         <field name="model">presupuesto_lotes</field>
         <field name="arch" type='xml'>
-                <header>
-                    <button name="budget_validate" type="object" string="Validar"
-                            class="oe_highlight" invisible="0" states="draft"/>
-                    <button name="budget_draft" type="object" string="Cancelar"
-                            class="oe_highlight" invisible="0" states="validate"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,validate"/>
-                </header>
+            <header>
+                <button name="budget_validate" type="object" string="Validar"
+                        class="oe_highlight" invisible="0" states="draft"/>
+                <button name="budget_draft" type="object" string="Cancelar"
+                        class="oe_highlight" invisible="0" states="validate"/>
+                <button name="action_register_payment" type="object" string="Registrar Pago"
+                        class="oe_highlight" invisible="0" states="validate"/>
+                <field name="state" widget="statusbar" statusbar_visible="draft,validate"/>
+            </header>
             <form>
                 <sheet>
 
@@ -29,6 +31,7 @@
                         <group>
                             <field name="fecha"/>
                             <field name="budget_total"/>
+                            <field name="res"/>
 
 
                         </group>
