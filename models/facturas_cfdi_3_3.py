@@ -272,6 +272,11 @@ class FacturaCfdi(models.Model):
 
     layout_rel = fields.Many2one('pagos_layout',string='Relacion Layout')
 
+    presupuesto_lote_fac_adic_rel = fields.Many2one('presupuesto_lotes',string='Presupuesto Lote Rel')
+
+    lotes_provisionados = fields.One2many('lotes_account_move_line', 'lotes_presupuestos_rel',
+                                          string='Lotes Presupuestados')
+
     def button_cancel(self):
         self.write({'auto_post': False, 'state': 'cancel'})
         account_move_line_obj = self.env['lotes_account_move_line']
@@ -327,6 +332,7 @@ class FacturaCfdi(models.Model):
         query_res = r._cr.dictfetchall()
         pagos_ids_all = []
         pagos_ids_new = []
+        payments_ids = ''
 
         for res in query_res:
             #self.recn = res['fechax']
@@ -346,55 +352,56 @@ class FacturaCfdi(models.Model):
         self.recn = x_date
         self.id_pagos = payments_ids
 
-# Cambios en el One2many de lotes
-    @api.onchange('lotes_cfdi_relacionn')
-    def _onchange_cfdis_lotes(self):
-        # Lista vacia contenedor de ciclos
-        RowList = []
-        # funciones de calculo numerico de lotes
-        self.env['lotes_account_move_line']._compute_kg_pendientes()
-        self.env['lotes_account_move_line']._compute_abono_importe()
-        # se busca el concepto de 21 dias en odoo por medio del xml id
-        id_dias_pago = self.env.ref('account.account_payment_term_21days')
-        # ciclo recorre el One2many
-        for line in self.lotes_cfdi_relacionn:
-            # sino es falso el resultado
-            if line.name.fecha is not False:
-                # lista = pandas conversion de date.time a date (fecha de cada linea de lote)
-                my_list = pd.to_datetime(line.name.fecha).date()
-                # se agregan los resultados de las iteraciones a RowList
-                RowList.append(my_list)
-            # si es falso el resultado no hacer nada
-            if line.name.fecha is False:
-                print('Omitir')
-            if line.name.fecha == None:
-                print('Omitir')
-        # imprimir la lista en una sola linea
-        print('Antes de suma')
-        # se obtiene la fecha mas vieja de la lista y por default la fecha de la factura para evitar false's
-        oldest = pd.to_datetime(max(RowList, default=self.invoice_date)).date()
-        # se le agregarn los dias a la fecha mas vieja 21 dias
-        add_days = pd.to_datetime(oldest) + datetime.timedelta(days=id_dias_pago.line_ids.days)
-        # se formatea la variable a solo date
-        add_days = add_days.strftime("%Y-%m-%d")
-        # se imprime la fecha
-        # date vacio
-        friday_date = ''
-        print((pd.to_datetime(add_days).date()).strftime("%A"))
-        # cuando sea sabado el dia calculado regresar al viernes anterior
-        if (pd.to_datetime(add_days).date()).strftime("%A") == 'sábado':
-            friday_date = pendulum.parse(add_days).previous(pendulum.FRIDAY).strftime('%Y-%m-%d')
-        # condicional si es viernes
-        if (pd.to_datetime(add_days).date()).strftime("%A") == 'viernes':
-            # usar el dia de la suma de dias
-            friday_date = add_days
-            # sino es viernes
-        if (pd.to_datetime(add_days).date()).strftime("%A") != 'viernes' and (pd.to_datetime(add_days).date()).strftime("%A") != 'sábado':
-            # buscar el siguiente viernes
-            friday_date = pendulum.parse(add_days).next(pendulum.FRIDAY).strftime('%Y-%m-%d')
-            # se coloca la fecha calculada en la fecha de pago
-        self.invoice_date_due = friday_date
-        print(friday_date)
+        # Cambios en el One2many de lotes
+        @api.onchange('lotes_cfdi_relacionn')
+        def _onchange_cfdis_lotes(self):
+            # Lista vacia contenedor de ciclos
+            RowList = []
+            # funciones de calculo numerico de lotes
+            self.env['lotes_account_move_line']._compute_kg_pendientes()
+            self.env['lotes_account_move_line']._compute_abono_importe()
+            # se busca el concepto de 21 dias en odoo por medio del xml id
+            id_dias_pago = self.env.ref('account.account_payment_term_21days')
+            # ciclo recorre el One2many
+            for line in self.lotes_cfdi_relacionn:
+                # sino es falso el resultado
+                if line.name.fecha is not False:
+                    # lista = pandas conversion de date.time a date (fecha de cada linea de lote)
+                    my_list = pd.to_datetime(line.name.fecha).date()
+                    # se agregan los resultados de las iteraciones a RowList
+                    RowList.append(my_list)
+                # si es falso el resultado no hacer nada
+                if line.name.fecha is False:
+                    print('Omitir')
+                if line.name.fecha == None:
+                    print('Omitir')
+            # imprimir la lista en una sola linea
+            print('Antes de suma')
+            # se obtiene la fecha mas vieja de la lista y por default la fecha de la factura para evitar false's
+            oldest = pd.to_datetime(max(RowList, default=self.invoice_date)).date()
+            # se le agregarn los dias a la fecha mas vieja 21 dias
+            add_days = pd.to_datetime(oldest) + datetime.timedelta(days=id_dias_pago.line_ids.days)
+            # se formatea la variable a solo date
+            add_days = add_days.strftime("%Y-%m-%d")
+            # se imprime la fecha
+            # date vacio
+            friday_date = ''
+            print((pd.to_datetime(add_days).date()).strftime("%A"))
+            # cuando sea sabado el dia calculado regresar al viernes anterior
+            if (pd.to_datetime(add_days).date()).strftime("%A") == 'sábado':
+                friday_date = pendulum.parse(add_days).previous(pendulum.FRIDAY).strftime('%Y-%m-%d')
+            # condicional si es viernes
+            if (pd.to_datetime(add_days).date()).strftime("%A") == 'viernes':
+                # usar el dia de la suma de dias
+                friday_date = add_days
+                # sino es viernes
+            if (pd.to_datetime(add_days).date()).strftime("%A") != 'viernes' and (
+            pd.to_datetime(add_days).date()).strftime("%A") != 'sábado':
+                # buscar el siguiente viernes
+                friday_date = pendulum.parse(add_days).next(pendulum.FRIDAY).strftime('%Y-%m-%d')
+                # se coloca la fecha calculada en la fecha de pago
+            self.invoice_date_due = friday_date
+            print(friday_date)
 
 
     def download_data(self):

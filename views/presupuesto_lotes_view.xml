@@ -10,8 +10,6 @@
                         class="oe_highlight" invisible="0" states="draft"/>
                 <button name="budget_draft" type="object" string="Cancelar"
                         class="oe_highlight" invisible="0" states="validate"/>
-                <button name="action_register_payment" type="object" string="Registrar Pago"
-                        class="oe_highlight" invisible="0" states="validate"/>
                 <field name="state" widget="statusbar" statusbar_visible="draft,validate"/>
             </header>
             <form>
@@ -35,9 +33,34 @@
 
 
                         </group>
-                        <field name="lotes_provisionados" widget="many2many"/>
+
                     </group>
+
+                    <notebook>
+
+                        <page string="Lotes Provisionados">
+                            <group>
+                                <field name="lotes_provisionados" widget="many2many"/>
+                            </group>
+                        </page>
+
+                        <page string="Facturas adicionales">
+                            <group>
+                                <field name="facturas_adicionales" domain="[('move_type','=','in_invoice')]"
+                                       widget="many2many"/>
+                            </group>
+                        </page>
+
+                    </notebook>
+
                 </sheet>
+
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+
                 <script>
 
                     console.log('Hi World')

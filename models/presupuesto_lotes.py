@@ -5,6 +5,7 @@ from datetime import date,timedelta
 class PresupuestoLotes(models.Model):
     _name = "presupuesto_lotes"
     _description = "Presupuesto de lotes"
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
 
     name = fields.Char(string='Referencia de presupuesto')
 
@@ -28,6 +29,8 @@ class PresupuestoLotes(models.Model):
 
     res = fields.Char(string='Estado de pago',compute='get_payment_state',stored=True)
 
+    facturas_adicionales = fields.One2many('account.move','presupuesto_lote_fac_adic_rel')
+
 
     def action_register_payment(self):
         ''' Open the account.payment.register wizard to pay the selected journal entries.
@@ -47,7 +50,13 @@ class PresupuestoLotes(models.Model):
 
     def get_sum_budget(self):
             sum_budget = sum(self.env['lotes_account_move_line'].search([('lotes_presupuestos_rel','=',self.id)]).mapped('abono_importe_con_impuesto'))
-            self.budget_total = sum_budget
+
+            total_facturas_adicionales = 0
+            for l in self.facturas_adicionales:
+                total_facturas_adicionales = total_facturas_adicionales + l.amount_residual_signed
+            print(total_facturas_adicionales)
+            self.budget_total = sum_budget + (total_facturas_adicionales * -1)
+
 
     def budget_validate(self):
         lotes_linea_factura = self.env['lotes_account_move_line']
