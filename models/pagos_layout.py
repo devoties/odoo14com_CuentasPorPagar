@@ -43,7 +43,6 @@ class PagosLayout(models.Model):
 
     presupuestos_rel = fields.Many2one(string='Presupuesto',comodel_name='presupuesto_lotes')
 
-    invoice_aditional = fields.One2many('account.move','layout_rel',string='Facturas adicionales')
 
     """
 (0, 0,  { values })    link to a new record that needs to be created with the given values dictionary
@@ -54,8 +53,9 @@ class PagosLayout(models.Model):
 (5)                    unlink all (like using (3,ID) for all linked records)
 (6, 0, [IDs])          replace the list of linked IDs (like using (5) then (4,ID) for each ID in the list of IDs)
     """
-    @api.onchange('presupuestos_rel')
-    def _onchange_budget(self):
+
+    #@api.onchange('presupuestos_rel')
+    def onchange_budget(self):
         for rec in self:
             lines = []
             for line in rec.presupuestos_rel.lotes_provisionados:
@@ -66,17 +66,7 @@ class PagosLayout(models.Model):
             #remueve los items del one2many
             #rec.relacion_pagos = ([2,int(line.id_pago)])
             #Obtiene los pagos relacionados con el presupuesto
-            rec.relacion_pagos = lines
-
-    #@api.onchange('invoice_aditional')
-    def add_payments_from_invoice(self):
-        for l in self:
-            lines = []
-            for line in l.invoice_aditional:
-                lines.append([4,int(line.id_pagos)])
-            print('X RET')
-            print(lines)
-            l.relacion_pagos = lines
+        rec.relacion_pagos = lines
 
 
 

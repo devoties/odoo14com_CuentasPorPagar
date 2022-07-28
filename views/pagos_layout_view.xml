@@ -12,7 +12,7 @@
                     <button name="export_txt_layout" string="Exportar TXT Layout" type="object"/>
                     <button name="delete_edit_validate" string="Imprimir PDF" type="object" class="oe_highlight"/>
                     <button string="Cancelar" type="object" name="cancelar_layout" states="validado"/>
-                    <button string="Facturas adicionales" type="object" name="add_payments_from_invoice" confirm="Se generaran los pagos correspondientes a facturas adicionales
+                    <button string="Facturas adicionales" type="object" name="onchange_budget" confirm="Se generaran los pagos correspondientes a facturas adicionales
                      ¿deseas continuar?"/>
                     <field name="state" widget="statusbar" statusbar_visible="borrador,validado"/>
                 </header>
@@ -54,11 +54,7 @@
 
                                 </group>
                             </page>
-                            <page string="Facturas de anticipo o parciales">
 
-                            <field name="invoice_aditional" widget="many2many" domain="[('move_type', '=', 'in_invoice')]"/>
-
-                            </page>
                         </notebook>
                     </group>
 

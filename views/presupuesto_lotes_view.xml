@@ -10,7 +10,10 @@
                         class="oe_highlight" invisible="0" states="draft"/>
                 <button name="budget_draft" type="object" string="Cancelar"
                         class="oe_highlight" invisible="0" states="validate"/>
+                <button name="action_register_payment" type="object" string="Pagar"
+                        class="oe_highlight" invisible="0" states="validate"/>
                 <field name="state" widget="statusbar" statusbar_visible="draft,validate"/>
+
             </header>
             <form>
                 <sheet>
