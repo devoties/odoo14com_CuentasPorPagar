@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 import base64
-from odoo import fields, models, api
+from odoo import fields, models, api, _
 import logging
 from datetime import datetime, date
 from odoo.odoo.exceptions import UserError, ValidationError
@@ -43,6 +43,19 @@ class PagosLayout(models.Model):
 
     presupuestos_rel = fields.Many2one(string='Presupuesto',comodel_name='presupuesto_lotes')
 
+    total_layout = fields.Float(string='Total Layout',compute='total_calculate')
+
+
+    def total_calculate(self):
+        total_lotes = 0.0
+        for rec in self.relacion_pagos:
+            print(rec.amount)
+            total_lotes = total_lotes + rec.amount
+        self.total_layout = total_lotes
+
+
+
+
 
     """
 (0, 0,  { values })    link to a new record that needs to be created with the given values dictionary
@@ -53,6 +66,22 @@ class PagosLayout(models.Model):
 (5)                    unlink all (like using (3,ID) for all linked records)
 (6, 0, [IDs])          replace the list of linked IDs (like using (5) then (4,ID) for each ID in the list of IDs)
     """
+    def action_register_payment(self):
+        ''' Open the account.payment.register wizard to pay the selected journal entries.
+        :return: An action opening the account.payment.register wizard.
+        '''
+        return {
+            'name': _('Register Payment'),
+            'res_model': 'account.payment.register',
+            'view_mode': 'form',
+            'context': {
+                'active_model': 'account.move',
+                'active_ids': self.presupuestos_rel.lotes_provisionados.data_rel.ids,
+            },
+            'target': 'new',
+            'type': 'ir.actions.act_window',
+        }
+
 
     #@api.onchange('presupuestos_rel')
     def onchange_budget(self):
@@ -67,6 +96,18 @@ class PagosLayout(models.Model):
             #rec.relacion_pagos = ([2,int(line.id_pago)])
             #Obtiene los pagos relacionados con el presupuesto
         rec.relacion_pagos = lines
+
+    def pruebas(self):
+        for rec in self:
+            for line in rec.presupuestos_rel.facturas_adicionales:
+                print(line)
+                print(line.id_pagos)
+
+
+
+
+
+
 
 
 

@@ -130,7 +130,6 @@ class LotesCfdi(models.Model):
 
 
     def search_date(self):
-
         for line in self:
             line.res = 'x'
             print('this')

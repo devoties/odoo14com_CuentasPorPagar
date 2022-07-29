@@ -10,9 +10,13 @@
                     <button name="confirmLayout" string="Confirmar Layout" type="object" class="oe_highlight"
                             states="borrador"/>
                     <button name="export_txt_layout" string="Exportar TXT Layout" type="object"/>
-                    <button name="delete_edit_validate" string="Imprimir PDF" type="object" class="oe_highlight"/>
+                    <button name="total_calculate" string="Imprimir PDF" type="object" class="oe_highlight"/>
                     <button string="Cancelar" type="object" name="cancelar_layout" states="validado"/>
-                    <button string="Facturas adicionales" type="object" name="onchange_budget" confirm="Se generaran los pagos correspondientes a facturas adicionales
+                    <button string="Actualizar Pagos" type="object" name="onchange_budget" confirm="Se cargaran los pagos correspondientes a facturas adicionales
+                     ¿deseas continuar?"/>
+                    <button string="Pagar Lotes" type="object" name="action_register_payment" confirm="Se generaran los pagos correspondientes a facturas adicionales
+                     ¿deseas continuar?"/>
+                    <button string="Agregar Facturas adicionales" type="object" name="pruebas" confirm="Se generaran los pagos correspondientes a facturas adicionales
                      ¿deseas continuar?"/>
                     <field name="state" widget="statusbar" statusbar_visible="borrador,validado"/>
                 </header>
@@ -39,6 +43,7 @@
                             <field name="banco"/>
                             <field name="layout_type_bank"/>
                             <field name="presupuestos_rel"/>
+                            <field name="total_layout"/>
                         </group>
 
 
@@ -48,10 +53,11 @@
 
                             <page string="Relación de pagos">
                                 <group>
+                                    <group>
 
-                                <field name="relacion_pagos" widget="many2many" mode="tree,form"
-                                       domain="[('estatus_layout', '!=', 'locked')]"/>
-
+                                        <field name="relacion_pagos" widget="many2many" mode="tree,form"
+                                               domain="[('estatus_layout', '!=', 'locked')]"/>
+                                    </group>
                                 </group>
                             </page>
 

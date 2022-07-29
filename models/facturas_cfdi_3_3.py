@@ -282,7 +282,6 @@ class FacturaCfdi(models.Model):
         account_move_line_obj = self.env['lotes_account_move_line']
         account_move_line_obj.search([('data_rel', '=', self.id)]).unlink()
 
-
     #funcion que regresa los pagos
     def acount_paym_ivoice(self):
        for r in self:
