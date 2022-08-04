@@ -36,3 +36,4 @@ from . import cfdi_reps_detail
 from . import pagos_doctos_rel
 from . import presupuesto_lotes
 from . import presupuesto_flete
+from . import reporte_saldos

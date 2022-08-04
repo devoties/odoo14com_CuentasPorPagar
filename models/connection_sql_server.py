@@ -148,7 +148,7 @@ class Lotes(models.Model):
 
     precio_u = fields.Float(string='Precio Unitario')
 
-    cantidad = fields.Float(string='Kilogramos')
+    cantidad = fields.Float(string='Kilogramos',stored=True)
 
     observaciones = fields.Char(string='Observaciones')
 
@@ -203,7 +203,7 @@ class Lotes(models.Model):
         ('Contabilizado Lote', 'Contabilizado Lote'),
         ('Contabilizado Cfdi', 'Contabilizado Cfdi'),
 
-    ], default='borrador', string='Estados', copy=False,tracking=True,track_visibility='always',readonly=True,stored=True)
+    ], default='borrador', string='Estados', copy=False,tracking=True,track_visibility='always',readonly=True,store=True)
 
     estado_pago = fields.Selection(related='lotes_detalle.estado_factura',string='Estado Pago')
 
@@ -215,6 +215,8 @@ class Lotes(models.Model):
 
     estado_factura = fields.Selection(string='Estado Factura',related='lotes_detalle.estado_pago')
 
+    uuid = fields.Char(related='lotes_detalle.uuid')
+
     uuid_search = fields.Char(string='Uuid',compute='listar_datos_cfdi')
 
     serie_search = fields.Char(string='Serie', compute='listar_datos_cfdi')
@@ -224,6 +226,23 @@ class Lotes(models.Model):
     emisor_search = fields.Char(string='Emisor', compute='listar_datos_cfdi')
 
     fecha_factura_search = fields.Char(string='Fecha Factura',compute='listar_datos_cfdi')
+
+    total_lote_saldos_mod = fields.Float(string='Total Saldo')
+
+    reporte_saldos_rel = fields.Many2one('reporte_saldos',string='Reporte Saldos Rel')
+
+    estatus_pago_res = fields.Char(string='Estatus Res',compute='estatus_prov')
+
+    @api.depends('cantidad','abono')
+    def estatus_prov(self):
+        init = 0
+        for line in self:
+            init = line.cantidad - line.abono
+            if init == 0:
+               line.estatus_pago_res = 'Saldado'
+            else:
+                line.estatus_pago_res = 'Pendiente'
+
 
     @api.depends('uuid_search','serie_search','folio_search','emisor_search')
     def listar_datos_cfdi(self):

@@ -75,6 +75,8 @@ class LotesCfdi(models.Model):
 
     ], copy=False, tracking=True, track_visibility='always', readonly=True, stored=True)
 
+    reporte_saldos_lotes_line_rel = fields.Many2one('reporte_saldos',string='Reporte Saldos Lotes Line Rel')
+
     def put_check_freeze(self):
         for l in self:
             print('x')

@@ -74,9 +74,15 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-        <record id="action_open_cuentas_por_pagar_presupuesto_pago_flete" model="ir.actions.act_window">
+    <record id="action_open_cuentas_por_pagar_presupuesto_pago_flete" model="ir.actions.act_window">
         <field name="name">Presupuesto Pagos Flete</field>
         <field name="res_model">presupuesto_flete</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_open_cuentas_por_pagar_reporte_saldos" model="ir.actions.act_window">
+        <field name="name">Reporte Saldos</field>
+        <field name="res_model">reporte_saldos</field>
         <field name="view_mode">tree,form</field>
     </record>
 
@@ -131,4 +137,7 @@
     <menuitem id="menu_vertical_presupuestos_flete" name="Presupuesto Pago Flete"
               parent="menu_horizontal_programacion_pagos"
               action="action_open_cuentas_por_pagar_presupuesto_pago_flete"/>
+    <menuitem id="menu_vertical_presupuestos_flete" name="Reporte Saldos"
+              parent="menu_horizontal_programacion_pagos"
+              action="action_open_cuentas_por_pagar_reporte_saldos"/>
 </odoo>

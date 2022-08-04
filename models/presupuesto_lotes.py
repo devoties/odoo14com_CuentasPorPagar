@@ -31,6 +31,10 @@ class PresupuestoLotes(models.Model):
 
     facturas_adicionales = fields.One2many('account.move','presupuesto_lote_fac_adic_rel')
 
+    lotes_total = fields.Float(string='Total Lotes',compute='get_sum_lotes')
+
+    aditional_invoices_total = fields.Float(string='Facturas adicionales Total',compute='get_sum_aditional_invoices')
+
 
     def action_register_payment(self):
         ''' Open the account.payment.register wizard to pay the selected journal entries.
@@ -48,14 +52,27 @@ class PresupuestoLotes(models.Model):
             'type': 'ir.actions.act_window',
         }
 
-    def get_sum_budget(self):
+    def get_sum_lotes(self):
             sum_budget = sum(self.env['lotes_account_move_line'].search([('lotes_presupuestos_rel','=',self.id)]).mapped('abono_importe_con_impuesto'))
 
-            total_facturas_adicionales = 0
-            for l in self.facturas_adicionales:
-                total_facturas_adicionales = total_facturas_adicionales + l.amount_residual_signed
-            print(total_facturas_adicionales)
-            self.budget_total = sum_budget + (total_facturas_adicionales * -1)
+            self.lotes_total = sum_budget
+
+    def get_sum_aditional_invoices(self):
+        total_facturas_adicionales = 0
+        for l in self.facturas_adicionales:
+            total_facturas_adicionales = total_facturas_adicionales + l.amount_residual_signed
+        print(total_facturas_adicionales)
+        self.aditional_invoices_total = (total_facturas_adicionales * -1)
+
+    def get_sum_budget(self):
+        sum_budget = sum(self.env['lotes_account_move_line'].search([('lotes_presupuestos_rel', '=', self.id)]).mapped(
+            'abono_importe_con_impuesto'))
+
+        total_facturas_adicionales = 0
+        for l in self.facturas_adicionales:
+            total_facturas_adicionales = total_facturas_adicionales + l.amount_residual_signed
+        print(total_facturas_adicionales)
+        self.budget_total = sum_budget + (total_facturas_adicionales * -1)
 
 
     def budget_validate(self):

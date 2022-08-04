@@ -81,35 +81,104 @@ class PagosLayout(models.Model):
             'target': 'new',
             'type': 'ir.actions.act_window',
         }
+        ''' Open the account.payment.register wizard to pay the selected journal entries.
+        :return: An action opening the account.payment.register wizard.
+        '''
 
+    def action_register_payment2(self):
+        ''' Open the account.payment.register wizard to pay the selected journal entries.
+        :return: An action opening the account.payment.register wizard.
+        '''
+        return {
+            'name': _('Register Payment'),
+            'res_model': 'account.payment.register',
+            'view_mode': 'form',
+            'context': {
+                'active_model': 'account.move',
+                'active_ids': self.presupuestos_rel.facturas_adicionales.ids,
+            },
+            'target': 'new',
+            'type': 'ir.actions.act_window',
+        }
+        ''' Open the account.payment.register wizard to pay the selected journal entries.
+        :return: An action opening the account.payment.register wizard.
+        '''
 
-    #@api.onchange('presupuestos_rel')
-    def onchange_budget(self):
+    def pruebas(self):
+        for r in self:
+            pagos_ids = []
+            r._cr.execute('''
+                            SELECT id from account_payment 
+                             ''')
+            query_res = r._cr.dictfetchall()
+
+            # idss = (1, 2, 3, 4, 5, 6, 7)
+
+            for pys in query_res:
+                pagos_ids.append(pys['id'])
+            ids_payments_all = tuple(pagos_ids)
+
         for rec in self:
             lines = []
-            for line in rec.presupuestos_rel.lotes_provisionados:
-                print(line.id_pago)
-                lines.append((4, int(line.id_pago)))
-            print("lines", lines)
+            for line in rec.presupuestos_rel.facturas_adicionales:
+                lines.append(line.id)
+            print(tuple(lines))
+            tup_invoice_ids = tuple(lines)
+
+            r._cr.execute('''SELECT
+                payment.id as pay,
+                payment.amount,
+                ARRAY_AGG(DISTINCT invoice.id) AS invoice_ids,
+				invoice.id,
+				invoice.invoice_date,
+                invoice.move_type
+            FROM account_payment payment
+            JOIN account_move move ON move.id = payment.move_id
+            JOIN account_move_line line ON line.move_id = move.id
+            JOIN account_partial_reconcile part ON
+                part.debit_move_id = line.id
+                OR
+                part.credit_move_id = line.id
+            JOIN account_move_line counterpart_line ON
+                part.debit_move_id = counterpart_line.id
+                OR
+                part.credit_move_id = counterpart_line.id
+            JOIN account_move invoice ON invoice.id = counterpart_line.move_id
+            JOIN account_account account ON account.id = line.account_id
+            WHERE account.internal_type IN ('receivable', 'payable')
+                AND payment.id IN %(pays)s
+                AND line.id != counterpart_line.id
+                AND invoice.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')
+            	AND invoice.id IN %(account_move_ids)s
+			GROUP BY payment.id, invoice.move_type, invoice.id, invoice.invoice_date''', {
+                'pays': ids_payments_all,
+                'account_move_ids': tup_invoice_ids,
+            })
+            query_res = r._cr.dictfetchall()
+            pagos_ids_all = []
+            pagos_ids_new = []
+            payments_ids = ''
+            lines = []
+
+            for res in query_res:
+                payments_ids = res['pay']
+                pagos_ids_new.append(payments_ids)
+                print('Nueva Imp')
+                print(payments_ids)
+                lines.append((4, int(payments_ids)))
+        rec.relacion_pagos = lines
+
+        for recx in self:
+            linesx = []
+            for linez in recx.presupuestos_rel.lotes_provisionados:
+                print(linez.id_pago)
+                linesx.append((4, int(linez.id_pago)))
+            print("lines", linesx)
 
             #remueve los items del one2many
             #rec.relacion_pagos = ([2,int(line.id_pago)])
             #Obtiene los pagos relacionados con el presupuesto
-        rec.relacion_pagos = lines
-
-    def pruebas(self):
-        for rec in self:
-            for line in rec.presupuestos_rel.facturas_adicionales:
-                print(line)
-                print(line.id_pagos)
-
-
-
-
-
-
-
-
+        recx.relacion_pagos = linesx
 
     def delete_edit_validate(self):
         invoices_from_payment = self.relacion_pagos

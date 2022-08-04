@@ -45,6 +45,7 @@
                             <field name="importe" readonly="1"/>
                             <field name="cantidad" readonly="1"/>
                             <field name="active" widget="boolean_toggle"/>
+                            <field name="abono" readonly="1"/>
                             <!--<button string="Calcular" type="object" name="get_importe_factura" class="oe_stat_button"
                                     icon="fa-bolt"/>-->
                             <!--    <button string="Popup" type="action" name="%(action_open_lotes_descarga_wizard)d"/> -->
@@ -147,7 +148,7 @@
                 <field name="fecha" readonly="1" optional="show"/>
                 <field name="id_partner" readonly="1" optional="show"/>
                 <field name="jefe_acopio" readonly="1"/>
-
+                <field name="abono" readonly="1" optional="show"/>
                 <field name="sader" readonly="1" optional="show"/>
                 <field name="sader_code" readonly="1" optional="show"/>
                 <field name="tipo_movimiento" readonly="1" optional="show"/>
@@ -177,6 +178,9 @@
                 <field name="folio_search" optional="hide"/>
                 <field name="emisor_search" optional="hide"/>
                 <field name="fecha_factura_search" optional="hide"/>
+                <field name="total_lote_saldos_mod" optional="hide"/>
+                <field name="estatus_pago_res" optional="show"/>
+
             </tree>
         </field>
     </record>

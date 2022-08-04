@@ -12,9 +12,9 @@
                     <button name="export_txt_layout" string="Exportar TXT Layout" type="object"/>
                     <button name="total_calculate" string="Imprimir PDF" type="object" class="oe_highlight"/>
                     <button string="Cancelar" type="object" name="cancelar_layout" states="validado"/>
-                    <button string="Actualizar Pagos" type="object" name="onchange_budget" confirm="Se cargaran los pagos correspondientes a facturas adicionales
-                     ¿deseas continuar?"/>
                     <button string="Pagar Lotes" type="object" name="action_register_payment" confirm="Se generaran los pagos correspondientes a facturas adicionales
+                     ¿deseas continuar?"/>
+                     <button string="Pagar Fac Adic" type="object" name="action_register_payment2" confirm="Se generaran los pagos correspondientes a facturas adicionales
                      ¿deseas continuar?"/>
                     <button string="Agregar Facturas adicionales" type="object" name="pruebas" confirm="Se generaran los pagos correspondientes a facturas adicionales
                      ¿deseas continuar?"/>

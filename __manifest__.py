@@ -38,6 +38,7 @@
         'data/productos.xml',
         'data/secuencia.xml',
         'data/currency.xml',
+        'report/reporte_presupuesto.xml',
         'wizards/lotes_wizard.xml',
         'wizards/cortes_wizard.xml',
         'wizards/cfdis_wizard.xml',
@@ -52,10 +53,13 @@
         'views/huertas_contratos_view.xml',
         'views/lotes_account_move_line_view.xml',
         'wizards/corte_cuadrillas_ajuste_view.xml',
-        'views/product_product_extends.xml',
+        #'views/product_product_extends.xml',
         'views/product_product_sat_catalogue_view.xml',
         'views/purchase_order_extends_view.xml',
         'views/pagos_doctos_rel_view.xml',
         'views/presupuesto_lotes_view.xml',
+        'views/reporte_saldos.xml',
+        'report/reporte_saldos_pendientes.xml',
+
     ],
 }
