@@ -52,23 +52,18 @@
                                 <tbody>
                                     <!-- inicio de funcion de reoporteo-->
 
-                                    <t t-set="product_category" t-value="[]"/>
 
-                                    <t t-foreach="o.lotes_no_facturados.sorted(key=lambda b: b.id_partner.name.lower())" t-as="l">
+                                    <tr t-foreach="o.lotes_no_facturados" t-as="l">
 
-                                        <t t-set="product_category" t-value="product_category+[l.id_partner]"/>
-
-                                    </t>
-
-                                    <t t-foreach="set(product_category)" t-as="category">
-
-                                        <div>
-                                            <strong t-esc="category.name"/>
-                                        </div>
+                                        <td>
+                                            <span t-field="l.id_partner.name"/>
+                                            <span t-field="l.importe"/>
+                                        </td>
 
 
+                                    </tr>
 
-                                    </t>
+
                                     <!--Fin de reporteo-->
 
                                 </tbody>
