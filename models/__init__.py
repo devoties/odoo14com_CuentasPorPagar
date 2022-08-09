@@ -37,3 +37,4 @@ from . import pagos_doctos_rel
 from . import presupuesto_lotes
 from . import presupuesto_flete
 from . import reporte_saldos
+from . import lotes_view

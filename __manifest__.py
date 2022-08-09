@@ -60,6 +60,8 @@
         'views/presupuesto_lotes_view.xml',
         'views/reporte_saldos.xml',
         'report/reporte_saldos_pendientes.xml',
+        'report/reporte_lotes_view.xml',
+        'report/reporte_lotes_view2.xml',
 
     ],
 }

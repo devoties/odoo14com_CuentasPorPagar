@@ -86,6 +86,12 @@
         <field name="view_mode">tree,form</field>
     </record>
 
+    <record id="action_open_cuentas_por_pagar_reporte_lotes_view" model="ir.actions.act_window">
+        <field name="name">Reporte Lotes View</field>
+        <field name="res_model">lotes_viewv</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
 
     <!-- menus horizontales -->
     <menuitem id="menu_principal_cuentas_por_pagar" name="Cuentas por pagar"
@@ -140,4 +146,7 @@
     <menuitem id="menu_vertical_presupuestos_flete" name="Reporte Saldos"
               parent="menu_horizontal_programacion_pagos"
               action="action_open_cuentas_por_pagar_reporte_saldos"/>
+        <menuitem id="menu_vertical_lotes_view" name="Lotes View"
+              parent="menu_horizontal_programacion_pagos"
+              action="action_open_cuentas_por_pagar_reporte_lotes_view"/>
 </odoo>

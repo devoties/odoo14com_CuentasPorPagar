@@ -34,6 +34,48 @@ class ReporteSaldos(models.Model):
                 lines_fac.append((4,int(line_fac)))
             lx.lotes_facturados = lines_fac
 
+    def prueba_query(self):
+        print('Prueba Query')
+        function_get_report = self.env.ref['cuentas_por_pagar.lotes_view_report'].report_action(self,data=None)
+
+        return function_get_report
+
+
+class PruebaQuery(models.AbstractModel):
+      _name = 'report.cuentas_por_pagar.lotes_report_new'
+      _description = 'Reporte de saldos pendientes (Productores)'
+
+
+      @api.model
+      def _get_report_values(self,docs_ids,data=None):
+          print('Query')
+          vals = []
+          query = """SELECT res_partner.name,sum(importe),count(res_partner.name)  FROM public.lotes
+left join res_partner on public.lotes.id_partner  = res_partner.id
+group by res_partner.name
+order by res_partner.name ASC
+                     """
+
+
+          self._cr.execute(query)
+
+          result = self._cr.fetchall()
+
+          print(result)
+
+          for l in result:
+              vals.append({'name':l[0],
+                           'imp':l[1],
+                           'conteo':l[2],})
+
+          return {
+
+              'doc_ids': docs_ids,
+              'vals': vals,
+          }
+
+
+
 
 
 

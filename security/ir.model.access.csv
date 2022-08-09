@@ -32,3 +32,4 @@ access_pagos_doctos_rel_user,access_pagos_doctos_rel_user,model_pagos_doctos_rel
 access_presupuesto_lotes_user,access_presupuesto_lotes_user,model_presupuesto_lotes,,1,1,1,1
 access_presupuesto_flete_user,access_presupuesto_flete_user,model_presupuesto_flete,,1,1,1,1
 access_reporte_saldos_user,access_reporte_saldos_user,model_reporte_saldos,,1,1,1,1
+access_lotes_viewv,access_llotes_viewv,model_lotes_viewv,,1,1,1,1
