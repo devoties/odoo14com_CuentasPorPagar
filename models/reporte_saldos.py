@@ -50,10 +50,15 @@ class PruebaQuery(models.AbstractModel):
       def _get_report_values(self,docs_ids,data=None):
           print('Query')
           vals = []
-          query = """SELECT res_partner.name,sum(importe),count(res_partner.name)  FROM public.lotes
-left join res_partner on public.lotes.id_partner  = res_partner.id
-group by res_partner.name
-order by res_partner.name ASC
+          query = """ CREATE VIEW lotes_no_facturado AS SELECT res_partner.name,cast(sum(importe) as money) as importe,count(res_partner.name),
+                     case when lotes_account_move_line.name is not null then 'Facturado' else 'No Facturado' end as estatus
+                     FROM public.lotes
+                     left join res_partner on public.lotes.id_partner  = res_partner.id
+                     left join lotes_account_move_line on public.lotes.id = lotes_account_move_line.name
+                     where case when lotes_account_move_line.name is not null then 'Facturado' else 'No Facturado' end = 'No Facturado'
+                     group by res_partner.name,case when lotes_account_move_line.name is not null then 'Facturado' else 'No Facturado' end
+                     order by res_partner.name ASC;
+                     SELECT * FROM lotes_no_facturado;
                      """
 
 
@@ -75,8 +80,43 @@ order by res_partner.name ASC
           }
 
 
+class FacturadonoPagado(models.AbstractModel):
+    _name = 'report.cuentas_por_pagar.lotes_report_new_facturado_no_pagado'
+    _description = 'Reporte de facturado no pagado (Productores)'
 
+    @api.model
+    def _get_report_values(self, docs_ids, data=None):
+        print('Query')
+        vals = []
+        query = """SELECT public.lotes_account_move_line.uuid,
+                   public.res_partner.name,
+                   cast(SUM(public.account_move.amount_residual)/COUNT(public.lotes_account_move_line.uuid) as money) as saldo_pendiente,
+                   COUNT(public.lotes_account_move_line.uuid) as conteo
+                   FROM public.lotes_account_move_line
+                   left join public.lotes on public.lotes_account_move_line.name = public.lotes.id
+                   left join public.res_partner on public.lotes.id_partner = public.res_partner.id
+                   left join public.account_move on public.lotes_account_move_line.data_rel = public.account_move.id
+                   where public.account_move.amount_residual>0
+                   group by public.lotes_account_move_line.uuid,public.account_move.partner_id,public.res_partner.name
+                   order by public.res_partner.name asc
+                     """
 
+        self._cr.execute(query)
+
+        result = self._cr.fetchall()
+
+        print(result)
+
+        for l in result:
+            vals.append({'uuid': l[0],
+                         'proveedor': l[1],
+                         'saldo_pendiente': l[2], })
+
+        return {
+
+            'doc_ids': docs_ids,
+            'vals': vals,
+        }
 
 
 

@@ -149,4 +149,6 @@
         <menuitem id="menu_vertical_lotes_view" name="Lotes View"
               parent="menu_horizontal_programacion_pagos"
               action="action_open_cuentas_por_pagar_reporte_lotes_view"/>
+        <menuitem id="menu_vertical_cuentas_por_pagar_reporting_saldos" name="Reporting Saldos"
+              parent="menu_horizontal_programacion_pagos" action="action_open_reporting_saldos_wizard"/>
 </odoo>

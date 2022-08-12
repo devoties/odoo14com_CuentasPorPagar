@@ -62,6 +62,8 @@
         'report/reporte_saldos_pendientes.xml',
         'report/reporte_lotes_view.xml',
         'report/reporte_lotes_view2.xml',
+        'report/reporte_saldos_facturado_no_pagado.xml',
+        'wizards/reportes_saldos_wizard_view.xml'
 
     ],
 }

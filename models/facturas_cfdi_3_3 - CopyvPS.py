@@ -64,6 +64,8 @@ class Conceptos(Base):
     unidad = Column('Unidad',String(100))
     descripcion = Column('Descripcion',String(3000))
 
+    #####################revisado hasta aqui
+
 
 # Clase para descargar encabezados de contpaqi contabilidad
 class CfdisContpaqiData(Base):
@@ -118,7 +120,7 @@ class CfdisContpaqiData(Base):
     tipo_relacion_desc = Column('TipoRelacionDesc',String(500))
 
 
-
+#####################revisado hasta aqui
 
 
 class Session():
@@ -150,6 +152,7 @@ class Session():
         password_xml = 'HideMyPassBm123'
 
         # Modelo de odoo
+        #####################revisado hasta aqui
 class FacturaCfdi(models.Model):
 
     _inherit = 'account.move'
@@ -402,6 +405,7 @@ class FacturaCfdi(models.Model):
             self.invoice_date_due = friday_date
             print(friday_date)
 
+    #####################revisado hasta aqui
 
     def download_data(self):
         engine = Session.engine()
@@ -627,6 +631,8 @@ class FacturaCfdi(models.Model):
                  if self.env['product.template'].search_count([('name','=',w.descripcion)]) >= 1:
                     print('Este producto ya existe')
                     print(self.env['product.template'].search_count([('name', '=', w.descripcion)]))
+                 print('Numero de resultados')
+                 print(self.env['product.template'].search_count([('name', '=', w.descripcion)]))
                  if self.env['product.template'].search_count([('name','=',w.descripcion)]) == 0:
                     print('El producto no existe')
                     crear_productos = self.env['product.template'].create(response_products)

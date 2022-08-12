@@ -6,11 +6,19 @@
 
           <report
             id ="report_estado_cuenta_card"
-            string="Prueba"
+            string="No Facturado"
             model="reporte_saldos"
             report_type="qweb-pdf"
             name="cuentas_por_pagar.lotes_report_new"
             file="cuentas_por_pagar.lotes_report_new"
+        />
+              <report
+            id ="report_lotes_facturado_no_pagado"
+            string="Facturado No Pagado"
+            model="reporte_saldos"
+            report_type="qweb-pdf"
+            name="cuentas_por_pagar.lotes_report_new_facturado_no_pagado"
+            file="cuentas_por_pagar.lotes_report_new_facturado_no_pagado"
         />
 
 

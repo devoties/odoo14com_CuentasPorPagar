@@ -5,16 +5,16 @@
                 <div class="page">
                     <div class="oe_structure"/>
 
-                        <div style="text-align:center;"><h4 style="margin-bottom:16px;">Lotes View New</h4></div>
+                        <div style="text-align:center;"><h4 style="margin-bottom:16px;">No Facturado</h4></div>
 
 
                     <div class="row">
                         <table class="table table_condensed">
                             <thead>
                                 <tr>
-                                    <th style="text-align:left;"><strong>Proveedor.: </strong></th>
+                                    <th style="text-align:left;"><strong>Proveedor: </strong></th>
                                     <th style="text-align:left;"><strong>Importe: </strong></th>
-                                    <th style="text-align:left;"><strong>Conteo: </strong></th>
+                                    <th style="text-align:left;"><strong>Cant. Lotes: </strong></th>
 
                                 </tr>
                             </thead>
