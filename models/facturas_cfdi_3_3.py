@@ -415,7 +415,7 @@ class FacturaCfdi(models.Model):
 
         cfdi_obj = self.env['account.move']
 
-        products_obj = self.env['product.template']
+        products_obj = self.env['product.product']
 
         moneda_obj = self.env['res.currency'].search([('name', '=', 'MXN')])
 
@@ -626,14 +626,14 @@ class FacturaCfdi(models.Model):
                  #lo agregue para buscar el producto y si existe lo selecciono sino lo creo
                  if self.env['product.product'].search_count([('name','=',w.descripcion)]) >= 1:
                     print('Este producto ya existe')
-                    print(self.env['product.template'].search_count([('name', '=', w.descripcion)]))
+                    print(self.env['product.product'].search_count([('name', '=', w.descripcion)]))
                  if self.env['product.product'].search_count([('name','=',w.descripcion)]) == 0:
                     print('El producto no existe')
                     crear_productos = self.env['product.product'].create(response_products)
                     self.env.cr.commit()
 
                  recordConceptosObject = {'move_id':comprobantes_objeto.id,
-                                          'product_id':self.env['product.template'].search([('name','=',w.descripcion)]).id,
+                                          'product_id':self.env['product.product'].search([('name','=',w.descripcion)],limit=1).id,
                                           'account_id':34,
                                           'journal_id':2,
                                           'quantity':w.cantidad,
@@ -830,12 +830,12 @@ class FacturaCfdi(models.Model):
                                           'check_metodo_descarga_masiva': 'DM',
                                           }
                      # lo agregue para buscar el producto y si existe lo selecciono sino lo creo
-                     if self.env['product.template'].search_count([('name', '=', line_nc_prueba.descripcion)]) >= 1:
+                     if self.env['product.product'].search_count([('name', '=', line_nc_prueba.descripcion)]) >= 1:
                          print('Este producto ya existe')
-                         print(self.env['product.template'].search_count([('name', '=', line_nc_prueba.descripcion)]))
-                     if self.env['product.template'].search_count([('name', '=', line_nc_prueba.descripcion)]) == 0:
+                         print(self.env['product.product'].search_count([('name', '=', line_nc_prueba.descripcion)]))
+                     if self.env['product.product'].search_count([('name', '=', line_nc_prueba.descripcion)]) == 0:
                          print('El producto no existe')
-                         crear_productos_nc = self.env['product.template'].create(response_products_nc)
+                         crear_productos_nc = self.env['product.product'].create(response_products_nc)
                          self.env.cr.commit()
                      #Datos de cada producto/servicio
 
@@ -849,7 +849,7 @@ class FacturaCfdi(models.Model):
                          discount_mod = 0.0
 
                      recordConceptosNcObject = {'move_id': notas_credito_objeto.id,
-                                              'product_id': self.env['product.template'].search([('name','=',line_nc_prueba.descripcion)]).id,
+                                              'product_id': self.env['product.product'].search([('name','=',line_nc_prueba.descripcion)],limit=1).id,
                                               'account_id': 34,
                                               'journal_id': 2,
                                               'quantity': line_nc_prueba.cantidad,

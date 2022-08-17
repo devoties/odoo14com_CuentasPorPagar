@@ -50,7 +50,7 @@ class PruebaQuery(models.AbstractModel):
       def _get_report_values(self,docs_ids,data=None):
           print('Query')
           vals = []
-          query = """ CREATE VIEW lotes_no_facturado AS SELECT res_partner.name,cast(sum(importe) as money) as importe,count(res_partner.name),
+          query = """ SELECT res_partner.name,cast(sum(importe) as money) as importe,count(res_partner.name),
                      case when lotes_account_move_line.name is not null then 'Facturado' else 'No Facturado' end as estatus
                      FROM public.lotes
                      left join res_partner on public.lotes.id_partner  = res_partner.id
@@ -58,10 +58,7 @@ class PruebaQuery(models.AbstractModel):
                      where case when lotes_account_move_line.name is not null then 'Facturado' else 'No Facturado' end = 'No Facturado'
                      group by res_partner.name,case when lotes_account_move_line.name is not null then 'Facturado' else 'No Facturado' end
                      order by res_partner.name ASC;
-                     SELECT * FROM lotes_no_facturado;
                      """
-
-
           self._cr.execute(query)
 
           result = self._cr.fetchall()
@@ -118,6 +115,180 @@ class FacturadonoPagado(models.AbstractModel):
             'vals': vals,
         }
 
+class FacturadonopagadoDetallado(models.AbstractModel):
+    _name = 'report.cuentas_por_pagar.lotes_report_fac_no_pag_detall'
+    _description = 'Reporte de facturado no pagado detallado (Productores)'
+
+    @api.model
+    def _get_report_values(self, docs_ids, data=None):
+        print('Query')
+        vals = []
+        query = """SELECT public.lotes_account_move_line.uuid as uuid,
+                   public.lotes.name as lote,
+                   public.res_partner.name as proveedor,
+                   public.huertas.name as huerta,
+                   case when public.account_move.amount_residual < public.account_move.amount_total then
+                   (public.lotes_account_move_line.abono_kilogramos * public.lotes.precio_u)-((public.lotes_account_move_line.abono_kilogramos * public.lotes.precio_u)*(0.0125))
+                   else  public.lotes_account_move_line.abono_kilogramos * public.lotes.precio_u
+                   end as saldo_new,
+                   public.lotes_account_move_line.abono_kilogramos * public.lotes.precio_u as pago_por_lote,
+                   public.lotes_account_move_line.abono_kilogramos as kg_abono,
+                   round(cast((public.lotes.precio_u) as decimal),2) AS precio_u,
+                   case when public.account_move.amount_residual < public.account_move.amount_total then 'RET 1.25%' else 'Tasa 0' end as tipo_ret
+                   FROM public.lotes_account_move_line
+                   left join public.lotes on public.lotes_account_move_line.name = public.lotes.id
+                   left join public.res_partner on public.lotes.id_partner = public.res_partner.id
+                   left join public.account_move on public.lotes_account_move_line.data_rel = public.account_move.id
+                   left join public.huertas on public.lotes.sader = public.huertas.id
+                   where public.account_move.amount_residual>0
+                   order by public.res_partner.name,public.lotes_account_move_line.uuid,public.huertas.name asc
+                     """
+
+        self._cr.execute(query)
+
+        result = self._cr.fetchall()
+
+        print(result)
+
+        for l in result:
+            vals.append({'uuid': l[0],
+                         'lote': l[1],
+                         'proveedor': l[2],
+                         'huerta': l[3],
+                         'saldo_new': l[4],
+                         'kg_abono': l[6],
+                         'precio_u':l[7],
+                         'tipo_ret':[8]})
+
+        return {
+
+            'doc_ids': docs_ids,
+            'vals': vals,
+        }
+
+#No facturado
+
+class NofacturadoDetalle(models.AbstractModel):
+    _name = 'report.cuentas_por_pagar.lotes_report_no_fac_datall'
+    _description = 'Reporte de facturado no pagado detallado (Productores)'
+
+    @api.model
+    def _get_report_values(self, docs_ids, data=None):
+        print('Query')
+        vals = []
+        query = """select public.lotes.name as lote,
+                   public.res_partner.name as proveedor,
+                   public.huertas.sader as sader,
+                   public.lotes.fecha as fecha,
+                   public.lotes.importe as importe,
+                   public.lotes.precio_u as precio_u,
+                   public.lotes.cantidad as cantidad,
+                   public.lotes.tipo_corte as tipo_corte,
+                   public.huertas.name as huerta
+                   from public.lotes
+                   left join public.lotes_account_move_line on public.lotes.id = public.lotes_account_move_line.name
+                   left join public.huertas on public.lotes.sader = public.huertas.id
+                   left join public.res_partner on public.lotes.id_partner = public.res_partner.id
+                   where public.lotes_account_move_line.uuid is null
+                   order by public.res_partner.name,public.huertas.sader,public.lotes.fecha asc
+                     """
+
+        self._cr.execute(query)
+
+        result = self._cr.fetchall()
+
+        print(result)
+
+        for l in result:
+            vals.append({'lote': l[0],
+                         'proveedor': l[1],
+                         'sader': l[2],
+                         'fecha': l[3],
+                         'importe': l[4],
+                         'precio_u': l[5],
+                         'cantidad':l[6],
+                         'tipo_corte':l[7],
+                         'huerta':l[8]})
+
+        return {
+
+            'doc_ids': docs_ids,
+            'vals': vals,
+        }
+
+#Fin no facturaod
+
+class NfacnopagFacnopag(models.AbstractModel):
+    _name = 'report.cuentas_por_pagar.fac_no_pag_no_fac_no_pag'
+    _description = 'Reporte de facturado no pagado y no facturado no pagado (Productores)'
+
+    @api.model
+    def _get_report_values(self, docs_ids, data=None):
+        print('Query')
+        vals = []
+        # Creacion de primera vista#
+        query_create_view_no_facturado_no_pagado = """CREATE OR REPLACE VIEW public.no_facturado_no_pagado
+        AS SELECT res_partner.name,
+        sum(lotes.importe)::money AS importe
+        FROM lotes
+        LEFT JOIN res_partner ON lotes.id_partner = res_partner.id
+        LEFT JOIN lotes_account_move_line ON lotes.id = lotes_account_move_line.name
+        WHERE
+        CASE
+        WHEN lotes_account_move_line.name IS NOT NULL THEN 'Facturado'::text
+        ELSE 'No Facturado'::text
+        END = 'No Facturado'::text
+        GROUP BY res_partner.name, (
+        CASE
+        WHEN lotes_account_move_line.name IS NOT NULL THEN 'Facturado'::text
+        ELSE 'No Facturado'::text
+        END)
+        ORDER BY res_partner.name;"""
+
+        self._cr.execute(query_create_view_no_facturado_no_pagado)
+
+        #res_query_create_view_no_facturado_no_pagado = self._cr.fetchall()
+
+        #Creacion de segunda vista#
+
+        query_create_view_facturado_no_pagado = """CREATE OR REPLACE VIEW public.facturado_no_pagado
+        AS SELECT res_partner.name,
+        (sum(account_move.amount_residual) / count(res_partner.name)::numeric)::money AS importe
+        FROM lotes_account_move_line
+        LEFT JOIN lotes ON lotes_account_move_line.name = lotes.id
+        LEFT JOIN res_partner ON lotes.id_partner = res_partner.id
+        LEFT JOIN account_move ON lotes_account_move_line.data_rel = account_move.id
+        WHERE account_move.amount_residual > 0::numeric
+        GROUP BY res_partner.name;"""
+
+        self._cr.execute(query_create_view_facturado_no_pagado)
+
+        #res_query_create_view_facturado_no_pagado = self._cr.fetchall()
+
+        query = """select NAME, sum(importe) as importe from (
+                   select name as NAME,importe FROM public.facturado_no_pagado
+                   union all
+                   select name as NAME,importe from public.no_facturado_no_pagado
+                   order by name asc
+                   ) x
+                   group by NAME
+                     """
+
+        self._cr.execute(query)
+
+        result = self._cr.fetchall()
+
+        print(result)
+
+        for l in result:
+            vals.append({'NAME': l[0],
+                         'importe': l[1]})
+
+        return {
+
+            'doc_ids': docs_ids,
+            'vals': vals,
+        }
 
 
 

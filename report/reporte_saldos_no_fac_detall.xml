@@ -1,0 +1,87 @@
+<odoo>
+    <template id="lotes_report_no_fac_datall">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="oe_structure"/>
+
+                    <div style="text-align:center;">
+                        <h4 style="margin-bottom:16px;">No Facturado Detalle</h4>
+                    </div>
+
+
+                    <div class="row">
+                        <table class="table table_condensed">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;">
+                                        <strong>Lote.:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>Proveedor:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>Sader.:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>Fecha:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>Importe:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>Precio U:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>Cantidad:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>Tipo Corte:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>Huerta:</strong>
+                                    </th>
+
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="vals" t-as="o">
+                                    <td>
+                                        <span t-esc="o['lote']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o['proveedor']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o['sader']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o['fecha']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o['importe']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o['precio_u']"/>
+                                    </td>
+                                                                        <td>
+                                        <span t-esc="o['cantidad']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o['tipo_corte']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o['huerta']"/>
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

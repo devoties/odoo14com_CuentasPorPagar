@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-              <report
-            id ="report_estado_cuenta_card_2"
+   <!-- <report
+            id="report_estado_cuenta_card_2"
             string="No Facturado"
             model="reportes_saldos_wizard"
             report_type="qweb-pdf"
             name="cuentas_por_pagar.lotes_report_new"
             file="cuentas_por_pagar.lotes_report_new"
-        />
-              <report
-            id ="report_lotes_facturado_no_pagado_2"
+    />
+    <report
+            id="report_lotes_facturado_no_pagado_2"
             string="Facturado No Pagado"
             model="reportes_saldos_wizard"
             report_type="qweb-pdf"
             name="cuentas_por_pagar.lotes_report_new_facturado_no_pagado"
             file="cuentas_por_pagar.lotes_report_new_facturado_no_pagado"
-        />
+    />
+
+    -->
     <record id="view_reporting_saldos_form" model="ir.ui.view">
         <field name="name">Vista Reportes Saldos</field>
         <field name="model">reportes_saldos_wizard</field>
@@ -27,7 +29,11 @@
 
                     </group>
                     <footer>
-                        <button name="print" string="Ejecutar" type="object" />
+                        <button name="print_no_facturado" string="Reporte No Facturado" type="object"/>
+                        <button name="print_facturado_no_pagado" string="Reporte Facturado No Pagado" type="object"/>
+                        <button name="print3" string="Reporte Fac No Pag - No Fac No Pag" type="object"/>
+                        <button name="print_fact_no_pagado_datelle" string="Reporte Fac No Pag Detalle" type="object"/>
+                        <button name="print_no_fac_datelle" string="Reporte No Fac Detalle" type="object"/>
                         <button string="Cancelar" class="btn-secondary" special="cancel"/>
                     </footer>
                 </sheet>

@@ -63,7 +63,10 @@
         'report/reporte_lotes_view.xml',
         'report/reporte_lotes_view2.xml',
         'report/reporte_saldos_facturado_no_pagado.xml',
-        'wizards/reportes_saldos_wizard_view.xml'
+        'report/reporte_saldos_fac_no_pagado_no_fac_no_pagado.xml',
+        'report/reporte_saldos_no_pagado_facturado_detalle.xml',
+        'wizards/reportes_saldos_wizard_view.xml',
+        'report/reporte_saldos_no_fac_detall.xml',
 
     ],
 }

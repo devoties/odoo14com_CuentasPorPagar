@@ -1,0 +1,74 @@
+<odoo>
+    <template id="lotes_report_fac_no_pag_detall">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="oe_structure"/>
+
+                    <div style="text-align:center;">
+                        <h4 style="margin-bottom:16px;">Facturado No Pagado Detalle</h4>
+                    </div>
+
+
+                    <div class="row">
+                        <table class="table table_condensed">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;">
+                                        <strong>UUID.:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>LOTE:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>PROVEEDOR.:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>HUERTA:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>SALDO PENDIENTE.:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>KILOGRAMOS ABONO:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>PRECIO U.:</strong>
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="vals" t-as="o">
+                                    <td>
+                                        <span t-esc="o['uuid']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o['lote']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o['proveedor']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o['huerta']"/>
+                                    </td>
+
+                                    <td>
+                                        <span t-esc="o['kg_abono']"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o['precio_u']" t-options="{'widget': 'float' , 'precision': 2}"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o['saldo_new']"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>
