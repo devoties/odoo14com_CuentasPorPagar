@@ -11,6 +11,7 @@
                 <field name="es_caratura_estado_cuenta" widget="boolean_toggle"/>
                 <field name="caratula_estado_cuenta" filename="caratula_estado_cuenta_filename" attrs="{'invisible': [('es_caratura_estado_cuenta' , '=' ,False)]}"/>
                 <field name="caratula_estado_cuenta_filename" invisible="1"/>
+                <field name="check" widget="toggle"/>
             </xpath>
 
         </field>

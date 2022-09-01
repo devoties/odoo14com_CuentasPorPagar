@@ -38,6 +38,7 @@
             <xpath expr="//field[@name='partner_bank_id']" position="after">
                 <field name="uuid"/>
                 <field name="recn"/>
+                <field name="id_pagos_x"/>
             </xpath>
         </field>
 

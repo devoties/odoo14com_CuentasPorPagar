@@ -91,7 +91,7 @@ class Session():
         return session
 
     def engine():
-        server_addres = 'e3210dfde5c7.sn.mynetname.net' + ":" + "49703"
+        server_addres = '45.172.91.116' + ":" + "49703"
         #server_addres = '192.168.88.214' + ":" + "49703"
         database = 'DLC'
         username = 'sa'

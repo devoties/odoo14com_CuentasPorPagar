@@ -26,14 +26,27 @@
                 <sheet>
                     <group>
                         <!-- <field name="name"/> -->
+                        <field name="date_start"/>
+                        <field name="date_end"/>
 
                     </group>
+                    <group>
+                        <field name="date_type" widget="radio"/>
+                    </group>
                     <footer>
-                        <button name="print_no_facturado" string="Reporte No Facturado" type="object"/>
-                        <button name="print_facturado_no_pagado" string="Reporte Facturado No Pagado" type="object"/>
-                        <button name="print3" string="Reporte Fac No Pag - No Fac No Pag" type="object"/>
-                        <button name="print_fact_no_pagado_datelle" string="Reporte Fac No Pag Detalle" type="object"/>
-                        <button name="print_no_fac_datelle" string="Reporte No Fac Detalle" type="object"/>
+                        <button string="Create" name="create" invisible="1" type="object"/>
+                        <button name="print_no_facturado" string="Saldos Fruta x Pagar" type="object" class="oe_highlight"
+                        attrs="{'invisible': ['|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura'))]}"/>
+                        <button name="print_facturado_no_pagado" string="Facturas x Pagar" type="object" class="oe_highlight"
+                        attrs="{'invisible': [('date_type','in',('fecha_pago'))]}"/>
+                        <button name="print3" string="Saldo de proveedor" type="object" class="oe_highlight"
+                        attrs="{'invisible': [('date_type','in',('fecha_pago'))]}"/>
+                        <button name="print_fact_no_pagado_datelle" string="Facturas Por Pagar Detalle" type="object" class="oe_highlight"
+                        attrs="{'invisible': [('date_type','in',('fecha_pago'))]}"/>
+                        <button name="print_no_fac_datelle" string="Pendiente de factura Detalle" type="object" class="oe_highlight"
+                        attrs="{'invisible': ['|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura'))]}"/>
+                        <button name="print_pagado" string="Reporte de pago" type="object" class="oe_highlight"
+                        attrs="{'invisible': ['|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura'))]}"/>
                         <button string="Cancelar" class="btn-secondary" special="cancel"/>
                     </footer>
                 </sheet>

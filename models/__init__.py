@@ -38,3 +38,5 @@ from . import presupuesto_lotes
 from . import presupuesto_flete
 from . import reporte_saldos
 from . import lotes_view
+from . import account_register_payment_extends
+from . import autorizaciones_cancelaciones

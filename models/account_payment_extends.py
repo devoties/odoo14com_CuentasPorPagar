@@ -29,6 +29,8 @@ class AccountPaymentExtends(models.Model):
 
     recn = fields.Char(compute='get_invoice_reconciled_data', string="Pagos")
 
+
+
     def get_invoice_reconciled_data(self):
         for l in self:
             l.recn = l.reconciled_bill_ids.uuid

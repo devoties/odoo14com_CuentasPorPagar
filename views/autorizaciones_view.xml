@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="view_autorizaciones_x" model="ir.ui.view">
+
+        <field name="name">Autorizaciones x View</field>
+        <field name="model">autorizaciones_cancelaciones</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="invoice"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+
+        </field>
+    </record>
+
+    <record id="x_autorizaciones_tree" model="ir.ui.view">
+
+        <field name="name">XTree Autorizaciones View</field>
+        <field name="model">autorizaciones_cancelaciones</field>
+        <field name="arch" type="xml">
+
+            <tree string="Autorizaciones Tree">
+
+
+                <field name="name"/>
+                <field name="invoice" domain="[('move_type','ilike','in_invoice')]"/>
+
+            </tree>
+        </field>
+    </record>
+
+</odoo>

@@ -67,6 +67,8 @@
         'report/reporte_saldos_no_pagado_facturado_detalle.xml',
         'wizards/reportes_saldos_wizard_view.xml',
         'report/reporte_saldos_no_fac_detall.xml',
+        'report/reporte_saldos_pagado.xml',
+        'views/autorizaciones_view.xml',
 
     ],
 }

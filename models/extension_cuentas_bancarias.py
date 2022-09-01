@@ -12,3 +12,5 @@ class ExtensionCuentasbancarias(models.Model):
     caratula_estado_cuenta = fields.Binary(string='Archivo Caratula de estado de cuenta')
 
     caratula_estado_cuenta_filename = fields.Char(string='Nombre del archivo')
+
+    check = fields.Boolean(string='¿Es cuenta default?')

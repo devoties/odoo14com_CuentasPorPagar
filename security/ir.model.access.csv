@@ -34,3 +34,5 @@ access_presupuesto_flete_user,access_presupuesto_flete_user,model_presupuesto_fl
 access_reporte_saldos_user,access_reporte_saldos_user,model_reporte_saldos,,1,1,1,1
 access_lotes_viewv,access_lotes_viewv,model_lotes_viewv,,1,1,1,1
 access_reportes_saldos_wizard,access_reportes_saldos_wizard,model_reportes_saldos_wizard,,1,1,1,1
+access_account_payment_register_user,access_account_payment_register_user,model_account_payment_register,,1,1,1,1
+access_autorizaciones_cancelaciones_user,access_autorizaciones_cancelaciones_user,model_autorizaciones_cancelaciones,,1,1,1,1

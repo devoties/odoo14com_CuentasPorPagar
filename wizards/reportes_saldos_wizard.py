@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 from odoo import fields, models, api
-
+from datetime import datetime
 
 class SaldosWizard(models.TransientModel):
 
@@ -9,6 +9,19 @@ class SaldosWizard(models.TransientModel):
     _name = "reportes_saldos_wizard"
 
     #_inherit = 'account.move'
+    name = fields.Char(string='Name',default='Busqueda')
+
+    date_start = fields.Date(string='Fecha Inicial',default=datetime.today())
+
+    date_type = fields.Selection(selection=[
+        ('fecha_lote', 'Fecha Lote'),
+        ('fecha_factura', 'Fecha Factura'),
+        ('fecha_pago','Fecha de pago'),
+
+    ], default='fecha_lote', string='Busqueda por fecha: ', copy=False, tracking=True, track_visibility='always',
+        store=True)
+
+    date_end = fields.Date(string='Fecha Final',default=datetime.today())
 
     def print_no_facturado(self):
         return self.env.ref('cuentas_por_pagar.report_estado_cuenta_card').report_action(self)
@@ -17,6 +30,18 @@ class SaldosWizard(models.TransientModel):
     def print3(self):
         return self.env.ref('cuentas_por_pagar.report_lotes_fac_no_pag_no_fac_no_pag').report_action(self)
     def print_fact_no_pagado_datelle(self):
+        self.date_start = super(SaldosWizard, self).browse(self.id).date_start
+        print(self.date_start)
+        self.date_end = super(SaldosWizard, self).browse(self.id).date_end
+        print(self.date_end)
         return self.env.ref('cuentas_por_pagar.report_lotes_fac_no_pag_detail').report_action(self)
     def print_no_fac_datelle(self):
         return self.env.ref('cuentas_por_pagar.report_lotes_no_fac_detall').report_action(self)
+    def print_pagado(self):
+        return self.env.ref('cuentas_por_pagar.report_lotes_pagado').report_action(self)
+
+    @api.model_create_multi
+    def create(self,vals):
+
+        rec = super(SaldosWizard,self).create(vals)
+        return rec

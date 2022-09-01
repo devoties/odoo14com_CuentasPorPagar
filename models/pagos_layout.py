@@ -53,12 +53,8 @@ class PagosLayout(models.Model):
             total_lotes = total_lotes + rec.amount
         self.total_layout = total_lotes
 
-
-
-
-
     """
-(0, 0,  { values })    link to a new record that needs to be created with the given values dictionary
+(0, 0,  { values })    link to a new record that needs to be created with the  given values dictionary
 (1, ID, { values })    update the linked record with id = ID (write *values* on it)
 (2, ID)                remove and delete the linked record with id = ID (calls unlink on ID, that will delete the object completely, and the link to it as well)
 (3, ID)                cut the link to the linked record with id = ID (delete the relationship between the two objects but does not delete the target object itself)
@@ -84,6 +80,8 @@ class PagosLayout(models.Model):
         ''' Open the account.payment.register wizard to pay the selected journal entries.
         :return: An action opening the account.payment.register wizard.
         '''
+
+    #Buscar coincidencia con partner_bank_id
 
     def action_register_payment2(self):
         ''' Open the account.payment.register wizard to pay the selected journal entries.
@@ -230,13 +228,55 @@ class PagosLayout(models.Model):
 
 
     def export_txt_layout(self):
-        if self.layout_type_bank == 'santander_a_mismo_banco':
-           print('Layout TXT')
+      for record in self:
+        if record.layout_type_bank == 'santander_a_mismo_banco':
            file_layout_txt = open("odoo/addons_custom/cuentas_por_pagar/temp/layout_santander_mismo_banco.txt", "w+")
-           for line in self.relacion_pagos:
-               dic = str(line.partner_id.name) + " " + str(line.partner_bank_id.acc_number) + " " + str(line.amount) + " " + str(line.recn) +\
-                             " " + line.date.strftime('%d%m%Y') + f"\n"
+           #field value len
+           ini_val_len = 0
+           val_name_len = 16
+           val_acc_number = 16
+           val_amount_len = 13
+           val_ref_len = 40
+           val_date_len = 8
+           for line in record.relacion_pagos:
+               #print(line.bank_id_name.name)
+              if line.bank_id_name.name == 'SANTANDER':
+               #resize string with format substring
+               list_invoice = []
+               for lnx in line.reconciled_bill_ids:
+                   list_invoice.append(lnx.uuid[0:8])
+               x_res = tuple(list_invoice)
+               acc_number_format = str(line.partner_bank_id.acc_number)[ini_val_len:val_acc_number]
+               name_format = str(line.partner_id.name)[ini_val_len:val_name_len]
+               amount_format = str("{:.2f}".format(line.amount))[ini_val_len:val_amount_len]
+               ref_format = str(x_res)[ini_val_len:val_ref_len]
+               date_format = line.date.strftime('%d%m%Y')
+               #count characters
+               acc_number_format_len = len(acc_number_format)
+               name_format_len = len(name_format)
+               amount_format_len = len(amount_format)
+               ref_format_len = len(ref_format)
+               #get difference between len's refer field and real field
+               spaces_to_in_acc_number = val_acc_number - acc_number_format_len
+               spaces_to_in_name = val_name_len - name_format_len
+               zeros_to_in_amount = val_amount_len - amount_format_len
+               spaces_to_in_ref = val_ref_len - ref_format_len
+               #differences + len(total)
+               spaces_to_in_acc_number_total = spaces_to_in_acc_number + acc_number_format_len
+               spaces_to_in_name_total = spaces_to_in_name + name_format_len
+               zeros_to_in_amount_total = zeros_to_in_amount + amount_format_len
+               spaces_to_in_ref_total = spaces_to_in_ref + ref_format_len
+               #format without spaces into
+               acc_number_format = acc_number_format.ljust(spaces_to_in_acc_number_total)
+               name_format = name_format.ljust(spaces_to_in_name_total)
+               amount_format = amount_format.zfill(zeros_to_in_amount_total)
+               ref_format = ref_format.ljust(spaces_to_in_ref_total)
+
+               #format dic for layout *.txt
+               dic = name_format + acc_number_format + amount_format + ref_format + date_format + f"\n"
+
                print(dic)
+
                file_layout_txt.write(dic)
 
            file_layout_txt.close()
@@ -246,23 +286,102 @@ class PagosLayout(models.Model):
 
            file_layout_txt.close()
 
-           self.txt_layout_file = base64.b64encode(out)
+           record.txt_layout_file = base64.b64encode(out)
 
-           self.layout_name = 'layout_santander_mismo_banco.txt'
+           record.layout_name = 'layout_santander_mismo_banco.txt'
 
-           self.write({'txt_layout_file': base64.b64encode(out), 'layout_name': 'layout_santander_mismo_banco.txt'})
+           record.write({'txt_layout_file': base64.b64encode(out), 'layout_name': 'layout_santander_mismo_banco.txt'})
 
-           self.fecha_mod_layout = datetime.now()
+           record.fecha_mod_layout = datetime.now()
 
-        if self.layout_type_bank == 'santander_multiples_bancos':
-           print('Layout TXT')
+        #Layout Santander a multiples bancos.
+
+        if record.layout_type_bank == 'santander_multiples_bancos':
            file_layout_txt = open("odoo/addons_custom/cuentas_por_pagar/temp/layout_santander_multiples_bancos.txt", "w+")
-           for line in self.relacion_pagos:
-               dic = "65507540168" + "     " + str(line.partner_bank_id.acc_number) + "  " + str(line.bank_id_name_code) + "     " + str(line.partner_id.name) +\
-                     "     " + str(line.amount) + "     " + str(line.recn) +\
-                             "     "  + "N" + "     "+ "1" + "\n"
-               print(dic)
+           #len's fields layout *.txt
+           val_acc_number_origin_len = 16
+           val_acc_number_destine_len = 20
+           val_code_bank_destine_len = 5
+           val_name_destine_len = 40
+           val_amount_destine_len = 24
+           val_amount_destine_integer_len = 17
+           val_amount_destine_decimal_len = 7
+           val_ref_destine_len = 130
+           val_aplic_form_destine_len = 8
+           ini_val_len = 0
+
+
+           for line in record.relacion_pagos:
+
+              if line.bank_id_name.name != 'SANTANDER':
+               #formate len's
+               acc_number_origin_format = str('65507540168')[ini_val_len:val_acc_number_origin_len]
+               acc_number_destine_format = str(line.partner_bank_id.acc_number)[ini_val_len:val_acc_number_destine_len]
+               code_bank_destine = str(line.bank_id_name_code)[ini_val_len:val_code_bank_destine_len]
+               name_destine_format = str(line.partner_id.name)[ini_val_len:val_name_destine_len]
+               amount_destine_format = str("{:.2f}".format(line.amount))[ini_val_len:val_amount_destine_len]
+               #Revisar
+               list_x = []
+               for l_ref in line.reconciled_bill_ids:
+                   list_x.append(l_ref.uuid[0:8])
+
+               print(tuple(list_x))
+               ref_destine_format = str(list_x)[ini_val_len:val_ref_destine_len]
+               aplic_form_destine_format = str('1')
+               #count len's
+               acc_number_origin_format_len = len(acc_number_origin_format)
+               acc_number_destine_format_len = len(acc_number_destine_format)
+               code_bank_destine_len = len(code_bank_destine)
+               name_destine_format_len = len(name_destine_format)
+               amount_destine_format_len = len(amount_destine_format)
+               amount_decimal_search_character = amount_destine_format.find('.')
+               amount_integer = amount_destine_format[ini_val_len:amount_decimal_search_character]
+               amount_decimal = amount_destine_format[amount_decimal_search_character:amount_destine_format_len].replace('.','')
+               amount_integer_fill = amount_integer.zfill(val_amount_destine_integer_len)
+               amount_decimal_fill = amount_decimal.ljust(val_amount_destine_decimal_len,'0')
+               #Concat Integers and decimals
+               concat_amount = amount_integer_fill + amount_decimal_fill
+               print(concat_amount)
+
+
+               # Revisar
+               ref_destine_format_len = len(ref_destine_format)
+               aplic_form_destine_format_len = len(aplic_form_destine_format)
+
+               #get difference between len's refer field and real field
+               spaces_to_in_acc_number_origin = val_acc_number_origin_len - acc_number_origin_format_len
+               spaces_to_in_acc_number_destine = val_acc_number_destine_len - acc_number_destine_format_len
+               spaces_to_in_code_bank_destine = val_code_bank_destine_len - code_bank_destine_len
+               spaces_to_in_name_destine = val_name_destine_len - name_destine_format_len
+               spaces_to_in_ref_destine = val_ref_destine_len - ref_destine_format_len
+               spaces_to_in_aplic_form_destine = val_aplic_form_destine_len - aplic_form_destine_format_len
+               #Complete len's addition
+               spaces_to_in_acc_number_origin_total = spaces_to_in_acc_number_origin + acc_number_origin_format_len
+               spaces_to_in_acc_number_destine_total = spaces_to_in_acc_number_destine + acc_number_destine_format_len
+               spaces_to_in_code_bank_destine_total = spaces_to_in_code_bank_destine + code_bank_destine_len
+               spaces_to_in_name_destine_total = spaces_to_in_name_destine + name_destine_format_len
+
+               spaces_to_in_ref_destine_total = spaces_to_in_ref_destine + ref_destine_format_len
+               spaces_to_in_aplic_form_destine_total = spaces_to_in_aplic_form_destine + aplic_form_destine_format_len
+               #formate with spaces or zeros
+               acc_number_origin_format = acc_number_origin_format.ljust(spaces_to_in_acc_number_origin_total)
+               acc_number_destine_format = acc_number_destine_format.ljust(spaces_to_in_acc_number_destine_total)
+               code_bank_destine = code_bank_destine.ljust(spaces_to_in_code_bank_destine_total)
+               name_destine_format = name_destine_format.ljust(spaces_to_in_name_destine_total)
+               #Falta amount
+               print()
+
+               #Revisar
+               ref_destine_format = ref_destine_format.ljust(spaces_to_in_ref_destine_total)
+               aplic_form_destine_format = aplic_form_destine_format.rjust(spaces_to_in_aplic_form_destine_total)
+
+
+               dic = acc_number_origin_format + acc_number_destine_format + code_bank_destine\
+                     + name_destine_format + concat_amount + str(ref_destine_format) + aplic_form_destine_format
+
                file_layout_txt.write(dic)
+               print('dic')
+               print(dic)
 
            file_layout_txt.close()
 
@@ -271,13 +390,13 @@ class PagosLayout(models.Model):
 
            file_layout_txt.close()
 
-           self.txt_layout_file = base64.b64encode(out)
+           record.txt_layout_file = base64.b64encode(out)
 
-           self.layout_name = 'layout_santander_multiples_bancos.txt'
+           record.layout_name = 'layout_santander_multiples_bancos.txt'
 
-           self.write({'txt_layout_file': base64.b64encode(out), 'layout_name': 'layout_santander_multiples_bancos.txt'})
+           record.write({'txt_layout_file': base64.b64encode(out), 'layout_name': 'layout_santander_multiples_bancos.txt'})
 
-           self.fecha_mod_layout = datetime.now()
+           record.fecha_mod_layout = datetime.now()
 
 
 

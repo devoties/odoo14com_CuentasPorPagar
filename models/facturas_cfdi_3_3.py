@@ -276,6 +276,7 @@ class FacturaCfdi(models.Model):
 
     lotes_provisionados = fields.One2many('lotes_account_move_line', 'lotes_presupuestos_rel',
                                           string='Lotes Presupuestados')
+    id_pagos_x = fields.Char(string='Id Pagos X',compute='acount_paym_ivoice')
 
     def button_cancel(self):
         self.write({'auto_post': False, 'state': 'cancel'})
@@ -303,7 +304,8 @@ class FacturaCfdi(models.Model):
                     ARRAY_AGG(DISTINCT invoice.id) AS invoice_ids,
     				invoice.id,
     				move.date AS fechax,
-                    invoice.move_type AS tipo
+                    invoice.move_type AS tipo,
+                    payment.id as ids_pay
                 FROM account_payment payment
                 JOIN account_move move ON move.id = payment.move_id
                 JOIN account_move_line line ON line.move_id = move.id
@@ -322,7 +324,7 @@ class FacturaCfdi(models.Model):
                     AND line.id != counterpart_line.id
                     AND invoice.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')
                 	AND invoice.id = %(account_move_ids)s
-    			GROUP BY pay, tipo, invoice.id, fechax
+    			GROUP BY pay, tipo, invoice.id, fechax,ids_pay
     			ORDER BY pay DESC
                 ''', {
             'pays': ids_payments_all,
@@ -331,15 +333,19 @@ class FacturaCfdi(models.Model):
         query_res = r._cr.dictfetchall()
         pagos_ids_all = []
         pagos_ids_new = []
+        pagos_ids_x = []
         payments_ids = ''
 
         for res in query_res:
             #self.recn = res['fechax']
             x = res['fechax']
+            ids_x = res['ids_pay']
             payments_ids = res['pay']
             x.strftime("%b %d %Y")
             pagos_ids_all.append(x)
             pagos_ids_new.append(payments_ids)
+            pagos_ids_x.append(ids_x)
+
 
         x_date = pagos_ids_all
         x_date = str(x_date).replace('datetime.date','')
@@ -348,9 +354,13 @@ class FacturaCfdi(models.Model):
         x_date = str(x_date).replace(',','-')
         x_date = str(x_date).replace(' ','')
 
+        x_date2 = pagos_ids_x
+
+
         self.recn = x_date
         self.id_pagos = payments_ids
-
+        self.id_pagos_x = x_date2
+        """
         # Cambios en el One2many de lotes
         @api.onchange('lotes_cfdi_relacionn')
         def _onchange_cfdis_lotes(self):
@@ -401,6 +411,7 @@ class FacturaCfdi(models.Model):
                 # se coloca la fecha calculada en la fecha de pago
             self.invoice_date_due = friday_date
             print(friday_date)
+            """
 
 
     def download_data(self):

@@ -77,6 +77,48 @@ class LotesCfdi(models.Model):
 
     reporte_saldos_lotes_line_rel = fields.Many2one('reporte_saldos',string='Reporte Saldos Lotes Line Rel')
 
+    ine_data = fields.Char(string='Ine Data',compute='get_ine')
+
+    ine_venc = fields.Char(string='Vencimiento INE',compute='get_ine')
+
+    def get_ine(self):
+        for l in self:
+            #contador en 0's
+            contador = 0
+            #mapeo el modelo en un objeto
+            ines_vigentes = l.env['ine_sat']
+            # variable de control para fecha
+            var_control_date = ''
+            if l.estado_factura == 'paid':
+               var_control_date = l.fecha_pago_tuple
+               var_control_date = var_control_date.replace('(', '')
+               var_control_date = var_control_date.replace(')', '')
+               var_control_date = var_control_date[0:10]
+               if var_control_date.count('-') >= 3:
+                  var_control_date = var_control_date[0:4]
+               l.ine_data = var_control_date[0:4]
+            print(var_control_date)
+            if l.estado_factura != 'paid':
+                var_control_date = date.today()
+                l.ine_data = var_control_date[0:4]
+            #Revisar resultados finales
+            for i in ines_vigentes.search([('ine_partner_rel','=',l.data_rel.partner_id.id)], order='id desc'):
+                format_date = str(i.fecha_vencimiento)
+                if format_date[0:4] >= var_control_date[0:4] and i.fecha_vencimiento is not False:
+                    contador = contador + 1
+                else:
+                    contador = contador + 0
+            contador = contador
+            if contador >= 1:
+                l.ine_venc = 'Vigente'
+            else:
+                l.ine_venc = 'Vencido'
+
+
+
+
+
+
     def put_check_freeze(self):
         for l in self:
             print('x')
