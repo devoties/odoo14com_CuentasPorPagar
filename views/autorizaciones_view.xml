@@ -12,7 +12,12 @@
                         <group>
                             <field name="name"/>
                             <field name="invoice"/>
-                        </group>
+                            <field name="cancel_motive" widget="radio"/>
+
+                            </group>
+                               <group>
+                            <field name="motive"/>
+                            </group>
                     </group>
                 </sheet>
             </form>
@@ -30,7 +35,7 @@
 
 
                 <field name="name"/>
-                <field name="invoice" domain="[('move_type','ilike','in_invoice')]"/>
+                <field name="invoice" context="{'tree_view_ref':'account.view_in_invoice_tree'}"/>
 
             </tree>
         </field>

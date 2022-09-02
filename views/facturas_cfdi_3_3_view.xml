@@ -171,6 +171,7 @@
                 <field name="folio" optional="show"/>
             </field>
             <field name="invoice_date" readonly="1" position="before">
+                <field name="partner_id" optional="hide"/>
                 <field name="metodo_pago" optional="show"/>
                 <field name="currency_id" optional="hide"/>
 
