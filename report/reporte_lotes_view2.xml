@@ -5,36 +5,52 @@
                 <div class="page">
                     <div class="oe_structure"/>
 
-                        <div style="text-align:center;"><h4 style="margin-bottom:16px;">No Facturado</h4></div>
+                    <div style="text-align:center;">
+                        <h4 style="margin-bottom:16px;">No Facturado</h4>
+                    </div>
 
 
                     <div class="row">
+                        <t t-set="sum_row2" t-value="0"/>
                         <table class="table table_condensed">
                             <thead>
                                 <tr>
-                                    <th style="text-align:left;"><strong>Proveedor: </strong></th>
-                                    <th style="text-align:left;"><strong>Importe: </strong></th>
-                                    <th style="text-align:left;"><strong>Cant. Lotes: </strong></th>
+                                    <th style="text-align:left;">
+                                        <strong>Proveedor:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>Importe:</strong>
+                                    </th>
+                                    <th style="text-align:left;">
+                                        <strong>Cant. Lotes:</strong>
+                                    </th>
 
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr t-foreach="vals" t-as="o">
-                                    <td >
-                                    <span t-esc="o['name']" />
+                                    <td>
+                                        <span t-esc="o['name']"/>
                                     </td>
-                                         <td >
-                                    <span t-esc="o['imp']" />
+                                    <td>
+                                        <span t-esc="o['imp']"/>
                                     </td>
-                                         <td >
-                                    <span t-esc="o['conteo']" />
+                                    <td>
+                                        <span t-esc="o['conteo']"/>
                                     </td>
+                                <td class="text_right">Total</td>
+                                <td class="text_right">
+                                </td>
 
                                 </tr>
 
                             </tbody>
                         </table>
+
+
                     </div>
+
+
                 </div>
             </t>
         </t>

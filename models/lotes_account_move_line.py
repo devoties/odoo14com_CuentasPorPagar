@@ -77,10 +77,10 @@ class LotesCfdi(models.Model):
 
     reporte_saldos_lotes_line_rel = fields.Many2one('reporte_saldos',string='Reporte Saldos Lotes Line Rel')
 
-    ine_data = fields.Char(string='Ine Data',compute='get_ine')
+    ine_data = fields.Char(string='Ine Data')
 
-    ine_venc = fields.Char(string='Vencimiento INE',compute='get_ine')
-
+    ine_venc = fields.Char(string='Vencimiento INE')
+    """
     def get_ine(self):
         for l in self:
             #contador en 0's
@@ -113,11 +113,7 @@ class LotesCfdi(models.Model):
                 l.ine_venc = 'Vigente'
             else:
                 l.ine_venc = 'Vencido'
-
-
-
-
-
+                """
 
     def put_check_freeze(self):
         for l in self:
@@ -376,20 +372,7 @@ class LotesCfdi(models.Model):
             #print(amount_untaxed_calc)
             ref_impuesto = ''
             abono_importe_calc = 0.0
-            """
-            if amount_total_calc is None:
-                ref_impuesto = ''
-                abono_importe_calc = 0
-            if  amount_untaxed_calc is None:
-                ref_impuesto = ''
-                abono_importe_calc = 0
-            if amount_total_calc != amount_untaxed_calc:
-                ref_impuesto = 'ISR 1.25%'
-                abono_importe_calc = (line.abono_importe) - (line.abono_importe * 0.0125)
-            if amount_total_calc == amount_untaxed_calc:
-                ref_impuesto = 'TASA 0'
-                abono_importe_calc = line.abono_importe
-            """
+
             if impuestos_retenidos is None:
                 ref_impuesto = ''
                 abono_importe_calc = 0

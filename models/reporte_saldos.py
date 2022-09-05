@@ -352,7 +352,10 @@ class Pagado(models.AbstractModel):
 
         q_pagado = f"""SELECT public.lotes_account_move_line.uuid,
                    public.res_partner.name,
-                   cast(sum(public.pagado_por_factura.amount) as money) as importe_pagado
+                   sum(case when account_move.total_impuestos_retenidos > 0 then (lotes_account_move_line.abono_kilogramos * lotes.precio_u) - 
+                   ((lotes_account_move_line.abono_kilogramos * lotes.precio_u) * (0.0125)) 
+                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end)::numeric::money as importe_pagado
+                   
                    FROM public.lotes_account_move_line
                    left join public.lotes on public.lotes_account_move_line.name = public.lotes.id
                    left join public.res_partner on public.lotes.id_partner = public.res_partner.id
@@ -363,6 +366,24 @@ class Pagado(models.AbstractModel):
                    and public.{var_date_type_ctrl} between '{i.date_start}' and '{i.date_end}'
                    group by public.lotes_account_move_line.uuid,public.account_move.partner_id,public.res_partner.name
                    order by public.res_partner.name asc"""
+#Aun no lo utilizo preguntar como sacariamos los anticipos y facturas adicionales
+        q_pagado_fac_adicionales = """
+       SELECT account_move.id,
+       account_move.uuid,
+       account_move.move_type,
+       pagado.fechax,
+       pagado.amount
+       FROM account_move 
+       left join pagado on account_move.id = pagado.inv_id 
+       WHERE NOT exists
+       (SELECT data_rel
+       FROM lotes_account_move_line p
+       WHERE p.data_rel = account_move.id)
+       and account_move.move_type = 'in_invoice'
+       and account_move.payment_state = 'paid'
+       and pagado.fechax between '2022-08-01' and '2022-08-05'
+       ORDER BY id;
+        """
 
 
         self._cr.execute(q_pagado)
@@ -392,7 +413,7 @@ class Pagado(models.AbstractModel):
 
 class NfacnopagFacnopag(models.AbstractModel):
     _name = 'report.cuentas_por_pagar.fac_no_pag_no_fac_no_pag'
-    _description = 'Reporte de facturado no pagado y no facturado no pagado (Productores)'
+    _description = 'Reporte de facturado no pagado y no facturado no pagado (Productores) MIX'
 
     @api.model
     def _get_report_values(self, docs_ids, data=None):
@@ -431,11 +452,13 @@ class NfacnopagFacnopag(models.AbstractModel):
 
         query_create_view_facturado_no_pagado = f"""CREATE OR REPLACE VIEW public.facturado_no_pagado
         AS SELECT res_partner.name,
-        (sum(account_move.amount_residual) / count(res_partner.name)::numeric)::money AS importe
+        sum(case when account_move.total_impuestos_retenidos > 0 then
+        (lotes_account_move_line.abono_kilogramos * lotes.precio_u) - ((lotes_account_move_line.abono_kilogramos * lotes.precio_u) * (0.0125))
+        else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end)::numeric::money as importe
         FROM lotes_account_move_line
         LEFT JOIN lotes ON lotes_account_move_line.name = lotes.id
-        LEFT JOIN res_partner ON lotes.id_partner = res_partner.id
         LEFT JOIN account_move ON lotes_account_move_line.data_rel = account_move.id
+        LEFT JOIN res_partner ON account_move.partner_id = res_partner.id
         WHERE account_move.amount_residual > 0::numeric
         and public.{var_date_type_ctrl} between '{i.date_start}' and '{i.date_end}'
         GROUP BY res_partner.name;"""
