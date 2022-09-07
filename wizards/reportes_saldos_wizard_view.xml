@@ -32,11 +32,14 @@
                     </group>
                     <group>
                         <field name="date_type" widget="radio"/>
+                        <field name="provider_type" widget="radio"/>
+                        <field name="productor_id" attrs="{'invisible': [('provider_type','in',('todo'))]}"/>
                     </group>
                     <footer>
                         <button string="Create" name="create" invisible="1" type="object"/>
                         <button name="print_no_facturado" string="Saldos Fruta x Pagar" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura'))]}"/>
+                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura')),
+                        ('provider_type','in',('emisor'))]}"/>
                         <button name="print_facturado_no_pagado" string="Facturas x Pagar" type="object" class="oe_highlight"
                         attrs="{'invisible': [('date_type','in',('fecha_pago'))]}"/>
                         <button name="print3" string="Saldo de proveedor" type="object" class="oe_highlight"
@@ -45,7 +48,13 @@
                         attrs="{'invisible': [('date_type','in',('fecha_pago'))]}"/>
                         <button name="print_no_fac_datelle" string="Pendiente de factura Detalle" type="object" class="oe_highlight"
                         attrs="{'invisible': ['|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura'))]}"/>
-                        <button name="print_pagado" string="Reporte de pago" type="object" class="oe_highlight"
+                        <button name="print_pagado" string="Reporte de pago (Emisor)" type="object" class="oe_highlight"
+                        attrs="{'invisible': ['|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura'))]}"/>
+                        <button name="print_pagado_prod" string="Reporte de pago (Productor)" type="object" class="oe_highlight"
+                        attrs="{'invisible': ['|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura'))]}"/>
+                        <button name="print_pagado_prod_det" string="Reporte de pago (Productor) Det" type="object" class="oe_highlight"
+                        attrs="{'invisible': ['|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura'))]}"/>
+                        <button name="print_pagado_emi_det" string="Reporte de pago (Emisor) Det" type="object" class="oe_highlight"
                         attrs="{'invisible': ['|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura'))]}"/>
                         <button string="Cancelar" class="btn-secondary" special="cancel"/>
                     </footer>

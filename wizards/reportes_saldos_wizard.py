@@ -23,6 +23,16 @@ class SaldosWizard(models.TransientModel):
 
     date_end = fields.Date(string='Fecha Final',default=datetime.today())
 
+    productor_id = fields.Many2one('res.partner',string='Proveedor')
+
+    provider_type = fields.Selection(selection=[
+        ('todo', 'Todo'),
+        ('productor', 'Por Productor'),
+        ('emisor', 'Por Emisor'),
+
+    ], default='todo', string='Busqueda por: ', copy=False, tracking=True, track_visibility='always',
+        store=True)
+
     def print_no_facturado(self):
         return self.env.ref('cuentas_por_pagar.report_estado_cuenta_card').report_action(self)
     def print_facturado_no_pagado(self):
@@ -39,7 +49,12 @@ class SaldosWizard(models.TransientModel):
         return self.env.ref('cuentas_por_pagar.report_lotes_no_fac_detall').report_action(self)
     def print_pagado(self):
         return self.env.ref('cuentas_por_pagar.report_lotes_pagado').report_action(self)
-
+    def print_pagado_prod(self):
+        return self.env.ref('cuentas_por_pagar.report_lotes_pagado_prod').report_action(self)
+    def print_pagado_prod_det(self):
+        return self.env.ref('cuentas_por_pagar.report_lotes_pagado_prod_det').report_action(self)
+    def print_pagado_emi_det(self):
+        return self.env.ref('cuentas_por_pagar.report_lotes_pagado_emi_det').report_action(self)
     @api.model_create_multi
     def create(self,vals):
 

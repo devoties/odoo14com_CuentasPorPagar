@@ -68,6 +68,9 @@
         'wizards/reportes_saldos_wizard_view.xml',
         'report/reporte_saldos_no_fac_detall.xml',
         'report/reporte_saldos_pagado.xml',
+        'report/reporte_saldos_pagado_por_productor.xml',
+        'report/reporte_saldos_pagado_por_productor_det.xml',
+        'report/reporte_saldos_pagado_por_emisor_det.xml',
         'views/autorizaciones_view.xml',
 
     ],

@@ -56,7 +56,30 @@
             name="cuentas_por_pagar.lotes_report_pagado"
             file="cuentas_por_pagar.lotes_report_pagado"
         />
-
+        <report
+            id ="report_lotes_pagado_prod"
+            string="Pagado X (Productor)"
+            model="reporte_saldos"
+            report_type="qweb-pdf"
+            name="cuentas_por_pagar.lotes_report_pagado_prod"
+            file="cuentas_por_pagar.lotes_report_pagado_prod"
+        />
+            <report
+            id ="report_lotes_pagado_prod_det"
+            string="Pagado X (Productor) Detallado"
+            model="reporte_saldos"
+            report_type="qweb-pdf"
+            name="cuentas_por_pagar.lotes_report_pagado_prod_det"
+            file="cuentas_por_pagar.lotes_report_pagado_prod_det"
+        />
+                <report
+            id ="report_lotes_pagado_emi_det"
+            string="Pagado X (Emisor) Detallado"
+            model="reporte_saldos"
+            report_type="qweb-pdf"
+            name="cuentas_por_pagar.lotes_report_pagado_emi_det"
+            file="cuentas_por_pagar.lotes_report_pagado_emi_det"
+        />
     <record id="view_reporte_saldos" model="ir.ui.view">
         <field name="name">Vista Reporte Saldos</field>
         <field name="model">reporte_saldos</field>

@@ -42,7 +42,7 @@ class ReporteSaldos(models.Model):
 
         return function_get_report
 
-
+#completo
 class PruebaQuery(models.AbstractModel):
       _name = 'report.cuentas_por_pagar.lotes_report_new'
       _description = 'Reporte de saldos pendientes (Productores)'
@@ -57,6 +57,14 @@ class PruebaQuery(models.AbstractModel):
               # lote_inicial_object.search([],order='name')
               i.date_start
               i.date_end
+
+          query_filter_provider = ''
+
+          if i.provider_type == 'todo':
+              query_filter_provider = ''
+          if i.provider_type == 'productor':
+              query_filter_provider = f' and public.lotes.id_partner =  {i.productor_id.id} '
+
           vals = []
           query = f""" SELECT res_partner.name,cast(sum(importe) as money) as importe,count(res_partner.name),
                      case when lotes_account_move_line.name is not null then 'Facturado' else 'No Facturado' end as estatus
@@ -65,11 +73,12 @@ class PruebaQuery(models.AbstractModel):
                      left join lotes_account_move_line on public.lotes.id = lotes_account_move_line.name
                      where case when lotes_account_move_line.name is not null then 'Facturado' else 'No Facturado' end = 'No Facturado'
                      and public.lotes.fecha between '{i.date_start}' and '{i.date_end}'
+                     {query_filter_provider}
                      group by res_partner.name,case when lotes_account_move_line.name is not null then 'Facturado' else 'No Facturado' end
                      order by res_partner.name ASC;
                      """
           self._cr.execute(query)
-
+          print('Saldos Fruta X Pagar')
           result = self._cr.fetchall()
 
           print(result)
@@ -99,16 +108,29 @@ class FacturadonoPagado(models.AbstractModel):
             # lote_inicial_object.search([],order='name')
             i.date_start
             i.date_end
-
+        query_filter_provider = ''
+        query_extra_invoices = ''
         var_date_type_ctrl = ''
+
         if i.date_type == 'fecha_factura':
             var_date_type_ctrl = 'account_move.date'
         if i.date_type == 'fecha_lote':
             var_date_type_ctrl = 'lotes.fecha'
+        if i.provider_type == 'todo':
+            query_filter_provider = ''
+            query_extra_invoices = ''
+        if i.provider_type == 'productor':
+            query_extra_invoices = f' and account_move.partner_id = {i.productor_id.id}'
+            query_filter_provider = f' and public.lotes.id_partner =  {i.productor_id.id} '
+        if i.provider_type == 'emisor':
+            query_extra_invoices = f' and account_move.partner_id = {i.productor_id.id}'
+            query_filter_provider = f' and public.account_move.partner_id =  {i.productor_id.id} '
         vals = []
         query = f"""SELECT public.lotes_account_move_line.uuid,
                    public.res_partner.name,
-                   cast(SUM(public.account_move.amount_residual)/COUNT(public.lotes_account_move_line.uuid) as money) as saldo_pendiente,
+                   sum(case when account_move.total_impuestos_retenidos > 0 then (lotes_account_move_line.abono_kilogramos * lotes.precio_u) - 
+                   ((lotes_account_move_line.abono_kilogramos * lotes.precio_u) * (0.0125)) 
+                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end)::numeric::money as saldo_pendiente,
                    COUNT(public.lotes_account_move_line.uuid) as conteo
                    FROM public.lotes_account_move_line
                    left join public.lotes on public.lotes_account_move_line.name = public.lotes.id
@@ -116,6 +138,7 @@ class FacturadonoPagado(models.AbstractModel):
                    left join public.account_move on public.lotes_account_move_line.data_rel = public.account_move.id
                    where public.account_move.amount_residual>0
                    and public.{var_date_type_ctrl} between '{i.date_start}' and '{i.date_end}'
+                   {query_filter_provider}
                    group by public.lotes_account_move_line.uuid,public.account_move.partner_id,public.res_partner.name
                    order by public.res_partner.name asc
                      """
@@ -123,6 +146,8 @@ class FacturadonoPagado(models.AbstractModel):
         self._cr.execute(query)
 
         result = self._cr.fetchall()
+
+        print('Facturado No Pagado')
 
         print(result)
 
@@ -272,7 +297,7 @@ class NofacturadoDetalle(models.AbstractModel):
 
 
 #Pagado
-
+#Completo
 class Pagado(models.AbstractModel):
     _name = 'report.cuentas_por_pagar.lotes_report_pagado'
     _description = 'Reporte Pagado (Productores)'
@@ -347,42 +372,50 @@ class Pagado(models.AbstractModel):
             i.date_end
 
         var_date_type_ctrl = ''
+        query_filter_provider = ''
+        query_extra_invoices = ''
         if i.date_type == 'fecha_pago':
             var_date_type_ctrl = 'pagado.fechax'
+        if i.provider_type == 'todo':
+            query_filter_provider = ''
+            query_extra_invoices = ''
+        if i.provider_type == 'productor':
+            query_extra_invoices = f' and account_move.partner_id = {i.productor_id.id}'
+            query_filter_provider = f' and public.lotes.id_partner =  {i.productor_id.id} '
+        if i.provider_type == 'emisor':
+            query_extra_invoices = f' and account_move.partner_id = {i.productor_id.id}'
+            query_filter_provider = f' and public.account_move.partner_id =  {i.productor_id.id} '
 
-        q_pagado = f"""SELECT public.lotes_account_move_line.uuid,
-                   public.res_partner.name,
+#Aun no lo utilizo preguntar como sacariamos los anticipos y facturas adicionales
+        q_pagado = f"""select public.res_partner.name,
                    sum(case when account_move.total_impuestos_retenidos > 0 then (lotes_account_move_line.abono_kilogramos * lotes.precio_u) - 
                    ((lotes_account_move_line.abono_kilogramos * lotes.precio_u) * (0.0125)) 
                    else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end)::numeric::money as importe_pagado
-                   
                    FROM public.lotes_account_move_line
                    left join public.lotes on public.lotes_account_move_line.name = public.lotes.id
-                   left join public.res_partner on public.lotes.id_partner = public.res_partner.id
                    left join public.account_move on public.lotes_account_move_line.data_rel = public.account_move.id
+                   left join public.res_partner on public.account_move.partner_id = public.res_partner.id
                    left join public.pagado_por_factura on public.lotes_account_move_line.data_rel = public.pagado_por_factura.inv_id
                    left join public.pagado on public.lotes_account_move_line.data_rel = public.pagado.inv_id
                    where public.account_move.amount_residual = 0
+                   {query_filter_provider}
+                   and public.{var_date_type_ctrl}  between '{i.date_start}' and '{i.date_end}'
+                   group by public.res_partner.name
+                   union all            
+                   SELECT res_partner.name,
+                   sum(pagado.amount)::numeric::money
+                   FROM account_move 
+                   left join pagado on account_move.id = pagado.inv_id 
+                   left join res_partner on account_move.partner_id = res_partner.id
+                   WHERE NOT exists
+                   (SELECT data_rel
+                   FROM lotes_account_move_line p
+                   WHERE p.data_rel = account_move.id)
+                   and account_move.move_type = 'in_invoice'
+                   and account_move.payment_state = 'paid'
                    and public.{var_date_type_ctrl} between '{i.date_start}' and '{i.date_end}'
-                   group by public.lotes_account_move_line.uuid,public.account_move.partner_id,public.res_partner.name
-                   order by public.res_partner.name asc"""
-#Aun no lo utilizo preguntar como sacariamos los anticipos y facturas adicionales
-        q_pagado_fac_adicionales = """
-       SELECT account_move.id,
-       account_move.uuid,
-       account_move.move_type,
-       pagado.fechax,
-       pagado.amount
-       FROM account_move 
-       left join pagado on account_move.id = pagado.inv_id 
-       WHERE NOT exists
-       (SELECT data_rel
-       FROM lotes_account_move_line p
-       WHERE p.data_rel = account_move.id)
-       and account_move.move_type = 'in_invoice'
-       and account_move.payment_state = 'paid'
-       and pagado.fechax between '2022-08-01' and '2022-08-05'
-       ORDER BY id;
+                   {query_extra_invoices}
+                   group by res_partner.name
         """
 
 
@@ -393,9 +426,8 @@ class Pagado(models.AbstractModel):
         print(res_q_pagado)
 
         for lnxx in res_q_pagado:
-            vals.append({'uuid': lnxx[0],
-                         'name': lnxx[1],
-                         'importe_pagado':lnxx[2]})
+            vals.append({'name': lnxx[0],
+                         'importe_pagado':lnxx[1]})
 
         return {
 
@@ -404,9 +436,435 @@ class Pagado(models.AbstractModel):
         }
 
 
+# Pagado por productor
+#Completo
+class PagadoporProductor(models.AbstractModel):
+    _name = 'report.cuentas_por_pagar.lotes_report_pagado_prod'
+    _description = 'Reporte Pagado X (Productor)'
 
+    @api.model
+    def _get_report_values(self, docs_ids, data=None):
+        print('Query')
+        vals = []
+        q_payments_tuple = """SELECT id FROM public.account_payment order by id asc"""
 
+        self._cr.execute(q_payments_tuple)
 
+        res_payments_tuple = self._cr.fetchall()
+
+        # print(res_payments_tuple)
+        list_tuple = []
+        for line in res_payments_tuple:
+            list_tuple.append(line[0])
+        list_tuple = tuple(list_tuple)
+
+        q_invoice_tuple = """SELECT id FROM public.account_move WHERE move_type = 'in_invoice' order by id asc"""
+
+        self._cr.execute(q_invoice_tuple)
+
+        res_invoice_tuple = self._cr.fetchall()
+
+        # print(res_payments_tuple)
+        list_tuple_invoice = []
+        for line_invoice in res_invoice_tuple:
+            list_tuple_invoice.append(line_invoice[0])
+        list_tuple_invoice = tuple(list_tuple_invoice)
+
+        q_view_payments_invoices = f"""CREATE OR REPLACE VIEW pagado AS SELECT 
+                payment.id as payment_id,
+                ARRAY_AGG(DISTINCT invoice.id) AS invoice_ids,
+				invoice.id as inv_id,
+				move.date as fechax,
+                invoice.move_type as move_type,
+                sum(payment.amount) as amount
+
+            FROM account_payment payment
+            JOIN account_move move ON move.id = payment.move_id
+            JOIN account_move_line line ON line.move_id = move.id
+            JOIN account_partial_reconcile part ON
+                part.debit_move_id = line.id
+                OR
+                part.credit_move_id = line.id
+            JOIN account_move_line counterpart_line ON
+                part.debit_move_id = counterpart_line.id
+                OR
+                part.credit_move_id = counterpart_line.id
+            JOIN account_move invoice ON invoice.id = counterpart_line.move_id
+            JOIN account_account account ON account.id = line.account_id
+            WHERE account.internal_type IN ('receivable', 'payable')
+                AND payment.id IN {list_tuple}
+                AND line.id != counterpart_line.id
+                AND invoice.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')
+            	AND invoice.id IN {list_tuple_invoice}
+			GROUP BY payment.id, invoice.move_type, invoice.id, fechax;
+            CREATE OR REPLACE VIEW pagado_por_factura AS 
+            SELECT inv_id,sum(amount) as amount  FROM public.pagado
+            group by inv_id;
+            SELECT * FROM pagado_por_factura;"""
+
+        self._cr.execute(q_view_payments_invoices)
+
+        rango_fechas = self.env['reportes_saldos_wizard']
+        for i in rango_fechas.search([], order='id desc', limit=1):
+            # ordenar por nombre
+            # lote_inicial_object.search([],order='name')
+            i.date_start
+            i.date_end
+
+        var_date_type_ctrl = ''
+        query_filter_provider = ''
+        query_extra_invoices = ''
+        if i.date_type == 'fecha_pago':
+            var_date_type_ctrl = 'pagado.fechax'
+        if i.provider_type == 'todo':
+            query_filter_provider = ''
+            query_extra_invoices = ''
+        if i.provider_type == 'productor':
+            query_extra_invoices = f' and account_move.partner_id = {i.productor_id.id}'
+            query_filter_provider = f' and public.lotes.id_partner =  {i.productor_id.id} '
+        if i.provider_type == 'emisor':
+            query_extra_invoices = f' and account_move.partner_id = {i.productor_id.id}'
+            query_filter_provider = f' and public.account_move.partner_id =  {i.productor_id.id} '
+
+        # Aun no lo utilizo preguntar como sacariamos los anticipos y facturas adicionales
+        q_pagado = f"""select public.res_partner.name,
+                   sum(case when account_move.total_impuestos_retenidos > 0 then (lotes_account_move_line.abono_kilogramos * lotes.precio_u) - 
+                   ((lotes_account_move_line.abono_kilogramos * lotes.precio_u) * (0.0125)) 
+                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end)::numeric::money as importe_pagado
+                   FROM public.lotes_account_move_line
+                   left join public.lotes on public.lotes_account_move_line.name = public.lotes.id
+                   left join public.res_partner on public.lotes.id_partner = public.res_partner.id
+                   left join public.account_move on public.lotes_account_move_line.data_rel = public.account_move.id
+                   left join public.pagado_por_factura on public.lotes_account_move_line.data_rel = public.pagado_por_factura.inv_id
+                   left join public.pagado on public.lotes_account_move_line.data_rel = public.pagado.inv_id
+                   where public.account_move.amount_residual = 0
+                   {query_filter_provider}
+                   and public.{var_date_type_ctrl}  between '{i.date_start}' and '{i.date_end}'
+                   group by public.res_partner.name
+                   union all            
+                   SELECT res_partner.name,
+                   sum(pagado.amount)::numeric::money
+                   FROM account_move 
+                   left join pagado on account_move.id = pagado.inv_id 
+                   left join res_partner on account_move.partner_id = res_partner.id
+                   WHERE NOT exists
+                   (SELECT data_rel
+                   FROM lotes_account_move_line p
+                   WHERE p.data_rel = account_move.id)
+                   and account_move.move_type = 'in_invoice'
+                   and account_move.payment_state = 'paid'
+                   and public.{var_date_type_ctrl} between '{i.date_start}' and '{i.date_end}'
+                   {query_extra_invoices}
+                   group by res_partner.name
+        """
+
+        self._cr.execute(q_pagado)
+
+        res_q_pagado = self._cr.fetchall()
+
+        print(res_q_pagado)
+
+        for lnxx in res_q_pagado:
+            vals.append({'name': lnxx[0],
+                         'importe_pagado': lnxx[1]})
+
+        return {
+
+            'doc_ids': docs_ids,
+            'vals': vals,
+        }
+#Completo
+class PagadoporProductorDetalle(models.AbstractModel):
+    _name = 'report.cuentas_por_pagar.lotes_report_pagado_prod_det'
+    _description = 'Reporte Pagado X (Productor) Detalle'
+
+    @api.model
+    def _get_report_values(self, docs_ids, data=None):
+        print('Query')
+        vals = []
+        q_payments_tuple = """SELECT id FROM public.account_payment order by id asc"""
+
+        self._cr.execute(q_payments_tuple)
+
+        res_payments_tuple = self._cr.fetchall()
+
+        # print(res_payments_tuple)
+        list_tuple = []
+        for line in res_payments_tuple:
+            list_tuple.append(line[0])
+        list_tuple = tuple(list_tuple)
+
+        q_invoice_tuple = """SELECT id FROM public.account_move WHERE move_type = 'in_invoice' order by id asc"""
+
+        self._cr.execute(q_invoice_tuple)
+
+        res_invoice_tuple = self._cr.fetchall()
+
+        # print(res_payments_tuple)
+        list_tuple_invoice = []
+        for line_invoice in res_invoice_tuple:
+            list_tuple_invoice.append(line_invoice[0])
+        list_tuple_invoice = tuple(list_tuple_invoice)
+
+        q_view_payments_invoices = f"""CREATE OR REPLACE VIEW pagado AS SELECT 
+                payment.id as payment_id,
+                ARRAY_AGG(DISTINCT invoice.id) AS invoice_ids,
+				invoice.id as inv_id,
+				move.date as fechax,
+                invoice.move_type as move_type,
+                sum(payment.amount) as amount
+
+            FROM account_payment payment
+            JOIN account_move move ON move.id = payment.move_id
+            JOIN account_move_line line ON line.move_id = move.id
+            JOIN account_partial_reconcile part ON
+                part.debit_move_id = line.id
+                OR
+                part.credit_move_id = line.id
+            JOIN account_move_line counterpart_line ON
+                part.debit_move_id = counterpart_line.id
+                OR
+                part.credit_move_id = counterpart_line.id
+            JOIN account_move invoice ON invoice.id = counterpart_line.move_id
+            JOIN account_account account ON account.id = line.account_id
+            WHERE account.internal_type IN ('receivable', 'payable')
+                AND payment.id IN {list_tuple}
+                AND line.id != counterpart_line.id
+                AND invoice.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')
+            	AND invoice.id IN {list_tuple_invoice}
+			GROUP BY payment.id, invoice.move_type, invoice.id, fechax;
+            CREATE OR REPLACE VIEW pagado_por_factura AS 
+            SELECT inv_id,sum(amount) as amount  FROM public.pagado
+            group by inv_id;
+            SELECT * FROM pagado_por_factura;"""
+
+        self._cr.execute(q_view_payments_invoices)
+
+        rango_fechas = self.env['reportes_saldos_wizard']
+        for i in rango_fechas.search([], order='id desc', limit=1):
+            # ordenar por nombre
+            # lote_inicial_object.search([],order='name')
+            i.date_start
+            i.date_end
+
+        var_date_type_ctrl = ''
+        query_filter_provider = ''
+        query_extra_invoices = ''
+        if i.date_type == 'fecha_pago':
+            var_date_type_ctrl = 'pagado.fechax'
+        if i.provider_type == 'todo':
+            query_filter_provider = ''
+            query_extra_invoices = ''
+        if i.provider_type == 'productor':
+            query_extra_invoices = f' and account_move.partner_id = {i.productor_id.id}'
+            query_filter_provider = f' and public.lotes.id_partner =  {i.productor_id.id} '
+        if i.provider_type == 'emisor':
+            query_extra_invoices = f' and account_move.partner_id = {i.productor_id.id}'
+            query_filter_provider = f' and public.account_move.partner_id =  {i.productor_id.id} '
+
+        # Aun no lo utilizo preguntar como sacariamos los anticipos y facturas adicionales
+        q_pagado = f"""select public.res_partner.name,
+                   case when account_move.total_impuestos_retenidos > 0 then (lotes_account_move_line.abono_kilogramos * lotes.precio_u) - 
+                   ((lotes_account_move_line.abono_kilogramos * lotes.precio_u) * (0.0125)) 
+                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end::numeric::money as importe_pagado,
+                   lotes.name as lote,
+                   lotes_account_move_line.uuid as uuid,
+                   huertas.name as sader
+                   FROM public.lotes_account_move_line
+                   left join public.lotes on public.lotes_account_move_line.name = public.lotes.id
+                   left join public.res_partner on public.lotes.id_partner = public.res_partner.id
+                   left join public.account_move on public.lotes_account_move_line.data_rel = public.account_move.id
+                   left join public.pagado_por_factura on public.lotes_account_move_line.data_rel = public.pagado_por_factura.inv_id
+                   left join public.pagado on public.lotes_account_move_line.data_rel = public.pagado.inv_id
+                   left join public.huertas on public.lotes.sader = public.huertas.id 
+                   where public.account_move.amount_residual = 0
+                   {query_filter_provider}
+                   and public.{var_date_type_ctrl}  between '{i.date_start}' and '{i.date_end}'
+                   union all            
+                   SELECT res_partner.name,
+                   sum(pagado.amount)::numeric::money,
+                   null as lote,
+                   account_move.uuid,
+                   null as sader
+                   FROM account_move 
+                   left join pagado on account_move.id = pagado.inv_id 
+                   left join res_partner on account_move.partner_id = res_partner.id
+                   WHERE NOT exists
+                   (SELECT data_rel
+                   FROM lotes_account_move_line p
+                   WHERE p.data_rel = account_move.id)
+                   and account_move.move_type = 'in_invoice'
+                   and account_move.payment_state = 'paid'
+                   and {var_date_type_ctrl} between '{i.date_start}' and '{i.date_end}'
+                   {query_extra_invoices}
+                   group by res_partner.name,account_move.uuid
+                   order by name
+        """
+
+        self._cr.execute(q_pagado)
+
+        res_q_pagado = self._cr.fetchall()
+
+        print(res_q_pagado)
+
+        for lnxx in res_q_pagado:
+            vals.append({'name': lnxx[0],
+                         'importe_pagado': lnxx[1],
+                         'lote':lnxx[2],
+                         'uuid':lnxx[3],
+                         'sader':lnxx[4]})
+
+        return {
+
+            'doc_ids': docs_ids,
+            'vals': vals,
+        }
+#Completo
+class PagadoporEmisorDetalle(models.AbstractModel):
+    _name = 'report.cuentas_por_pagar.lotes_report_pagado_emi_det'
+    _description = 'Reporte Pagado X (Emisor) Detalle'
+
+    @api.model
+    def _get_report_values(self, docs_ids, data=None):
+        print('Query')
+        vals = []
+        q_payments_tuple = """SELECT id FROM public.account_payment order by id asc"""
+
+        self._cr.execute(q_payments_tuple)
+
+        res_payments_tuple = self._cr.fetchall()
+
+        # print(res_payments_tuple)
+        list_tuple = []
+        for line in res_payments_tuple:
+            list_tuple.append(line[0])
+        list_tuple = tuple(list_tuple)
+
+        q_invoice_tuple = """SELECT id FROM public.account_move WHERE move_type = 'in_invoice' order by id asc"""
+
+        self._cr.execute(q_invoice_tuple)
+
+        res_invoice_tuple = self._cr.fetchall()
+
+        # print(res_payments_tuple)
+        list_tuple_invoice = []
+        for line_invoice in res_invoice_tuple:
+            list_tuple_invoice.append(line_invoice[0])
+        list_tuple_invoice = tuple(list_tuple_invoice)
+
+        q_view_payments_invoices = f"""CREATE OR REPLACE VIEW pagado AS SELECT 
+                payment.id as payment_id,
+                ARRAY_AGG(DISTINCT invoice.id) AS invoice_ids,
+				invoice.id as inv_id,
+				move.date as fechax,
+                invoice.move_type as move_type,
+                sum(payment.amount) as amount
+
+            FROM account_payment payment
+            JOIN account_move move ON move.id = payment.move_id
+            JOIN account_move_line line ON line.move_id = move.id
+            JOIN account_partial_reconcile part ON
+                part.debit_move_id = line.id
+                OR
+                part.credit_move_id = line.id
+            JOIN account_move_line counterpart_line ON
+                part.debit_move_id = counterpart_line.id
+                OR
+                part.credit_move_id = counterpart_line.id
+            JOIN account_move invoice ON invoice.id = counterpart_line.move_id
+            JOIN account_account account ON account.id = line.account_id
+            WHERE account.internal_type IN ('receivable', 'payable')
+                AND payment.id IN {list_tuple}
+                AND line.id != counterpart_line.id
+                AND invoice.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')
+            	AND invoice.id IN {list_tuple_invoice}
+			GROUP BY payment.id, invoice.move_type, invoice.id, fechax;
+            CREATE OR REPLACE VIEW pagado_por_factura AS 
+            SELECT inv_id,sum(amount) as amount  FROM public.pagado
+            group by inv_id;
+            SELECT * FROM pagado_por_factura;"""
+
+        self._cr.execute(q_view_payments_invoices)
+
+        rango_fechas = self.env['reportes_saldos_wizard']
+        for i in rango_fechas.search([], order='id desc', limit=1):
+            # ordenar por nombre
+            # lote_inicial_object.search([],order='name')
+            i.date_start
+            i.date_end
+
+        var_date_type_ctrl = ''
+        query_filter_provider = ''
+        query_extra_invoices = ''
+        if i.date_type == 'fecha_pago':
+            var_date_type_ctrl = 'pagado.fechax'
+        if i.provider_type == 'todo':
+            query_filter_provider = ''
+            query_extra_invoices = ''
+        if i.provider_type == 'productor':
+            query_extra_invoices = f' and account_move.partner_id = {i.productor_id.id}'
+            query_filter_provider = f' and public.lotes.id_partner =  {i.productor_id.id} '
+        if i.provider_type == 'emisor':
+            query_extra_invoices = f' and account_move.partner_id = {i.productor_id.id}'
+            query_filter_provider = f' and public.account_move.partner_id =  {i.productor_id.id} '
+
+        # Aun no lo utilizo preguntar como sacariamos los anticipos y facturas adicionales
+        q_pagado = f"""select public.res_partner.name,
+                   case when account_move.total_impuestos_retenidos > 0 then (lotes_account_move_line.abono_kilogramos * lotes.precio_u) - 
+                   ((lotes_account_move_line.abono_kilogramos * lotes.precio_u) * (0.0125)) 
+                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end::numeric::money as importe_pagado,
+                   lotes.name as lote,
+                   lotes_account_move_line.uuid as uuid,
+                   huertas.name as sader
+                   FROM public.lotes_account_move_line
+                   left join public.lotes on public.lotes_account_move_line.name = public.lotes.id
+                   left join public.account_move on public.lotes_account_move_line.data_rel = public.account_move.id
+                   left join public.res_partner on public.account_move.partner_id = public.res_partner.id
+                   left join public.pagado_por_factura on public.lotes_account_move_line.data_rel = public.pagado_por_factura.inv_id
+                   left join public.pagado on public.lotes_account_move_line.data_rel = public.pagado.inv_id
+                   left join public.huertas on public.lotes.sader = public.huertas.id 
+                   where public.account_move.amount_residual = 0
+                   {query_filter_provider}
+                   and public.{var_date_type_ctrl}  between '{i.date_start}' and '{i.date_end}'
+                   union all            
+                   SELECT res_partner.name,
+                   sum(pagado.amount)::numeric::money,
+                   null as lote,
+                   account_move.uuid,
+                   null as sader
+                   FROM account_move 
+                   left join pagado on account_move.id = pagado.inv_id 
+                   left join res_partner on account_move.partner_id = res_partner.id
+                   WHERE NOT exists
+                   (SELECT data_rel
+                   FROM lotes_account_move_line p
+                   WHERE p.data_rel = account_move.id)
+                   and account_move.move_type = 'in_invoice'
+                   and account_move.payment_state = 'paid'
+                   and {var_date_type_ctrl} between '{i.date_start}' and '{i.date_end}'
+                   {query_extra_invoices}
+                   group by res_partner.name,account_move.uuid
+                   order by name
+        """
+
+        self._cr.execute(q_pagado)
+
+        res_q_pagado = self._cr.fetchall()
+
+        print(res_q_pagado)
+
+        for lnxx in res_q_pagado:
+            vals.append({'name': lnxx[0],
+                         'importe_pagado': lnxx[1],
+                         'lote':lnxx[2],
+                         'uuid':lnxx[3],
+                         'sader':lnxx[4]})
+
+        return {
+
+            'doc_ids': docs_ids,
+            'vals': vals,
+        }
 
 #Pagado
 
