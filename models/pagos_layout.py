@@ -12,11 +12,11 @@ class PagosLayout(models.Model):
 
     _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
 
-    name = fields.Char(string='Referencia',copy=False,tracking=True,track_visibility='always',stored=True,required=True)
+    name = fields.Char(string='Referencia',copy=False,tracking=True,track_visibility='always',store=True,required=True)
 
-    fecha_reg = fields.Datetime(string='Fecha Layout',default=datetime.now(),tracking=True,track_visibility='always',stored=True,readonly=False,required=True)
+    fecha_reg = fields.Datetime(string='Fecha Layout',default=datetime.now(),tracking=True,track_visibility='always',store=True,readonly=False,required=True)
 
-    banco = fields.Many2one(comodel_name='res.bank',string='Banco Origen',tracking=True,track_visibility='always',stored=True)
+    banco = fields.Many2one(comodel_name='res.bank',string='Banco Origen',tracking=True,track_visibility='always',store=True)
 
     layout_type_bank = fields.Selection(string='Tipo de layout',
                                    selection=[
@@ -24,22 +24,22 @@ class PagosLayout(models.Model):
                                        ('santander_a_mismo_banco','Santander A Mismo Banco'),
                                        ('bbva_a_multiples_bancos','Bbva Multiples Bancos'),
                                        ('bbva_a_mismo_banco','Bbva Mismo Banco')
-                                   ],default='santander_a_mismo_banco',copy=False,tracking=True,track_visibility='always',stored=True)
+                                   ],default='santander_a_mismo_banco',copy=False,tracking=True,track_visibility='always',store=True)
 
-    relacion_pagos = fields.One2many('account.payment','relacion_layout',size=64,tracking=True,track_visibility='always',stored=True)
+    relacion_pagos = fields.One2many('account.payment','relacion_layout',size=64,tracking=True,track_visibility='always',store=True)
 
-    layout_name = fields.Char(string='Contenedor de layout',size=64,default='layout.txt',tracking=True,track_visibility='always',stored=True)
+    layout_name = fields.Char(string='Contenedor de layout',size=64,default='layout.txt',tracking=True,track_visibility='always',store=True)
 
-    txt_layout_file = fields.Binary(string='Archivo de layout',tracking=True,track_visibility='always',stored=True,readonly=True)
+    txt_layout_file = fields.Binary(string='Archivo de layout',tracking=True,track_visibility='always',store=True,readonly=True)
 
-    fecha_mod_layout = fields.Datetime(string='Fecha Cr/Mod Layout TXT',tracking=True,track_visibility='always',stored=True,readonly=True)
+    fecha_mod_layout = fields.Datetime(string='Fecha Cr/Mod Layout TXT',tracking=True,track_visibility='always',store=True,readonly=True)
 
     state = fields.Selection(selection=[
         ('borrador', 'Borrador'),
         ('validado', 'Validado'),
         ('cancelado','Cancelado')
 
-    ], default='borrador', string='Estados', copy=False,tracking=True,track_visibility='always',stored=True)
+    ], default='borrador', string='Estados', copy=False,tracking=True,track_visibility='always',store=True)
 
     presupuestos_rel = fields.Many2one(string='Presupuesto',comodel_name='presupuesto_lotes')
 

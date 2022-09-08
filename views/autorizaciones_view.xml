@@ -7,6 +7,13 @@
         <field name="model">autorizaciones_cancelaciones</field>
         <field name="arch" type="xml">
             <form>
+                          <header>
+                              <button string="Aprobar" type="object" name="confirmar" class="oe_highlight" states="borrador,cancelado"/>
+                              <button string="Cancelar" type="object" name="cancelar" states="borrador,aprobado" />
+                              <field name="state" widget="statusbar" statusbar_visible="cancelado,borrador,aprobado"/>
+
+                          </header>
+
                 <sheet>
                     <group>
                         <group>

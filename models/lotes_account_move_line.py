@@ -47,7 +47,7 @@ class LotesCfdi(models.Model):
     estado_pago = fields.Selection(related='data_rel.state',string='Estado Factura')
     estado_factura = fields.Selection(related='data_rel.payment_state',string='Estado Pago')
     estado_contabilizacion = fields.Selection(string='Estado Contabilizacion',related='name.state')
-    provision_lote = fields.Char(string='Provision Lote',related='name.status_provision',stored=True,readonly=True)
+    provision_lote = fields.Char(string='Provision Lote',related='name.status_provision',store=True,readonly=True)
     impuesto = fields.Char(string='Retencion',compute='calcularCampos_Impuestos')
     abono_importe_con_impuesto = fields.Float(string='Abono Importe + Ret',compute='calcularCampos_Impuestos')
     estatus_contratos = fields.Char(string='Etatus Contrato',compute='get_contracts_data')
@@ -65,7 +65,7 @@ class LotesCfdi(models.Model):
         ('check_freeze', 'Congelado'),
         ('check_freeze_invert', 'Default'),
 
-    ],copy=False, tracking=True, track_visibility='always', readonly=True,stored=True)
+    ],copy=False, tracking=True, track_visibility='always', readonly=True,store=True)
 
     lotes_presupuestos_rel = fields.Many2one(comodel_name='presupuesto_lotes')
 
@@ -73,7 +73,7 @@ class LotesCfdi(models.Model):
         ('lock', 'Bloqueado'),
         ('unlock', 'Desbloqueado'),
 
-    ], copy=False, tracking=True, track_visibility='always', readonly=True, stored=True)
+    ], copy=False, tracking=True, track_visibility='always', readonly=True, store=True)
 
     reporte_saldos_lotes_line_rel = fields.Many2one('reporte_saldos',string='Reporte Saldos Lotes Line Rel')
 
@@ -138,7 +138,6 @@ class LotesCfdi(models.Model):
             'target': 'new',
             'type': 'ir.actions.act_window',
         }
-
     def write(self, variables):
         logger.info('write variables : {0}'.format(variables))
         # Lee si la fecha contrato ya ha sido creada y no permite modificarla despues de haberla creado
@@ -151,7 +150,7 @@ class LotesCfdi(models.Model):
             raise UserError('El lote no se puede editar por que ya se encuentra en estado de presupuestado')
         # se graba el diccionario en la bd
         return super(LotesCfdi, self).write(variables)
-
+    """
     def unlink(self):
         logger.info('Se disparo la funcion unlink')
         for record in self:
@@ -159,7 +158,7 @@ class LotesCfdi(models.Model):
             super(LotesCfdi, record).unlink()
          else:
             raise UserError('No se puede eliminar el registro por que el lote esta pagado / presupuestado')
-
+    """
 
     def get_payments_ids(self):
         for l in self:

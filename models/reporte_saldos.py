@@ -94,7 +94,7 @@ class PruebaQuery(models.AbstractModel):
               'vals': vals,
           }
 
-
+#Completo
 class FacturadonoPagado(models.AbstractModel):
     _name = 'report.cuentas_por_pagar.lotes_report_new_facturado_no_pagado'
     _description = 'Reporte de facturado no pagado (Productores)'
@@ -111,20 +111,46 @@ class FacturadonoPagado(models.AbstractModel):
         query_filter_provider = ''
         query_extra_invoices = ''
         var_date_type_ctrl = ''
-
-        if i.date_type == 'fecha_factura':
-            var_date_type_ctrl = 'account_move.date'
-        if i.date_type == 'fecha_lote':
-            var_date_type_ctrl = 'lotes.fecha'
         if i.provider_type == 'todo':
             query_filter_provider = ''
             query_extra_invoices = ''
+
         if i.provider_type == 'productor':
-            query_extra_invoices = f' and account_move.partner_id = {i.productor_id.id}'
+            query_extra_invoices = f''
             query_filter_provider = f' and public.lotes.id_partner =  {i.productor_id.id} '
         if i.provider_type == 'emisor':
             query_extra_invoices = f' and account_move.partner_id = {i.productor_id.id}'
             query_filter_provider = f' and public.account_move.partner_id =  {i.productor_id.id} '
+        query_union_value_original = f"""
+                   
+                   union all
+                   select
+                   account_move.uuid as uuid,
+                   res_partner.name as name,
+                   sum(account_move.amount_residual)::numeric::money as saldo_pendiente,
+                   count(account_move.uuid) as conteo
+                   FROM account_move 
+                   left join res_partner on account_move.partner_id = res_partner.id
+                   WHERE NOT exists
+                   (SELECT data_rel
+                   FROM lotes_account_move_line p
+                   WHERE p.data_rel = account_move.id)
+                   and account_move.move_type = 'in_invoice'
+                   and account_move.date between '{i.date_start}' and '{i.date_end}'
+                   and account_move.state = 'posted'
+                   and account_move.payment_state != 'paid'
+                   {query_extra_invoices}
+                   group by res_partner.name,account_move.uuid
+                   order by name """
+        query_union_extra_invoice = ''
+
+        if i.date_type == 'fecha_factura':
+            var_date_type_ctrl = 'account_move.date'
+            query_union_extra_invoice = query_union_value_original
+        if i.date_type == 'fecha_lote':
+            var_date_type_ctrl = 'lotes.fecha'
+            query_union_extra_invoice = ''
+
         vals = []
         query = f"""SELECT public.lotes_account_move_line.uuid,
                    public.res_partner.name,
@@ -140,7 +166,7 @@ class FacturadonoPagado(models.AbstractModel):
                    and public.{var_date_type_ctrl} between '{i.date_start}' and '{i.date_end}'
                    {query_filter_provider}
                    group by public.lotes_account_move_line.uuid,public.account_move.partner_id,public.res_partner.name
-                   order by public.res_partner.name asc
+                   {query_union_extra_invoice}
                      """
 
         self._cr.execute(query)
@@ -161,7 +187,7 @@ class FacturadonoPagado(models.AbstractModel):
             'doc_ids': docs_ids,
             'vals': vals,
         }
-
+#Completo
 class FacturadonopagadoDetallado(models.AbstractModel):
     _name = 'report.cuentas_por_pagar.lotes_report_fac_no_pag_detall'
     _description = 'Reporte de facturado no pagado detallado (Productores)'
@@ -179,10 +205,57 @@ class FacturadonopagadoDetallado(models.AbstractModel):
         #variable de control para intercambiar tabla en el query dependiendo que
         #opcion del selection se utilice (dato almacenado en la bd)
         var_date_type_ctrl = ''
+        query_filter_provider = ''
+        query_extra_invoices = ''
+        # Filtro proveedor
+        if i.provider_type == 'todo':
+            query_filter_provider = ''
+            query_extra_invoices = ''
+
+        if i.provider_type == 'productor':
+            query_extra_invoices = f''
+            query_filter_provider = f' and public.lotes.id_partner =  {i.productor_id.id} '
+        if i.provider_type == 'emisor':
+            query_extra_invoices = f' and account_move.partner_id = {i.productor_id.id}'
+            query_filter_provider = f' and public.account_move.partner_id =  {i.productor_id.id} '
+
+        query_union_value_original = f"""
+
+                   union all
+                   select
+                   account_move.uuid as uuid,
+                   null as lote,
+                   res_partner.name as proveedor,
+                   null as huerta,
+                   sum(account_move.amount_residual)::numeric::money as saldo_new,
+                   null as pago_por_lote,
+                   null as kg_abono,
+                   null as precio_u,
+                   null as tipo_ret,
+                   null as conteo
+                   FROM account_move 
+                   left join res_partner on account_move.partner_id = res_partner.id
+                   WHERE NOT exists
+                   (SELECT data_rel
+                   FROM lotes_account_move_line p
+                   WHERE p.data_rel = account_move.id)
+                   and account_move.move_type = 'in_invoice'
+                   and account_move.date between '{i.date_start}' and '{i.date_end}'
+                   and account_move.state = 'posted'
+                   and account_move.payment_state != 'paid'
+                   {query_extra_invoices}
+                   group by res_partner.name,account_move.uuid """
+        query_union_extra_invoice = ''
+        #Filtro fechas
         if i.date_type == 'fecha_factura':
             var_date_type_ctrl = 'account_move.date'
+            query_union_extra_invoice = query_union_value_original
         if i.date_type == 'fecha_lote':
             var_date_type_ctrl = 'lotes.fecha'
+            query_union_extra_invoice = ''
+
+        if i.date_type == 'fecha_factura' and i.provider_type == 'productor':
+            query_union_extra_invoice = ''
 
         print('fecha calis')
         print(i.date_type)
@@ -194,7 +267,7 @@ class FacturadonopagadoDetallado(models.AbstractModel):
                    case when public.account_move.amount_residual < public.account_move.amount_total then
                    (public.lotes_account_move_line.abono_kilogramos * public.lotes.precio_u)-((public.lotes_account_move_line.abono_kilogramos * public.lotes.precio_u)*(0.0125))
                    else  public.lotes_account_move_line.abono_kilogramos * public.lotes.precio_u
-                   end as saldo_new,
+                   end::numeric::money as saldo_new,
                    public.lotes_account_move_line.abono_kilogramos * public.lotes.precio_u as pago_por_lote,
                    public.lotes_account_move_line.abono_kilogramos as kg_abono,
                    round(cast((public.lotes.precio_u) as decimal),2) AS precio_u,
@@ -207,7 +280,9 @@ class FacturadonopagadoDetallado(models.AbstractModel):
                    left join public.huertas on public.lotes.sader = public.huertas.id
                    where public.account_move.amount_residual>0
                    and public.{var_date_type_ctrl} between '{i.date_start}' and '{i.date_end}'
-                   order by public.res_partner.name,public.lotes_account_move_line.uuid,public.huertas.name asc
+                   {query_filter_provider}
+                   {query_union_extra_invoice}
+                   order by proveedor,uuid,huerta asc
                      """
 
         self._cr.execute(query)
@@ -215,6 +290,8 @@ class FacturadonopagadoDetallado(models.AbstractModel):
         result = self._cr.fetchall()
 
         print(result)
+
+        print('Facturas por pagar Detalle')
 
         for l in result:
             vals.append({'uuid': l[0],
@@ -233,7 +310,7 @@ class FacturadonopagadoDetallado(models.AbstractModel):
         }
 
 #No facturado
-
+#Completo
 class NofacturadoDetalle(models.AbstractModel):
     _name = 'report.cuentas_por_pagar.lotes_report_no_fac_datall'
     _description = 'Reporte de facturado no pagado detallado (Productores)'
@@ -246,6 +323,14 @@ class NofacturadoDetalle(models.AbstractModel):
             # lote_inicial_object.search([],order='name')
             i.date_start
             i.date_end
+
+        query_filter_provider = ''
+        # Filtro proveedor
+        if i.provider_type == 'todo':
+            query_filter_provider = ''
+
+        if i.provider_type == 'productor':
+            query_filter_provider = f' and public.lotes.id_partner =  {i.productor_id.id} '
 
         print('Query')
         vals = []
@@ -264,6 +349,7 @@ class NofacturadoDetalle(models.AbstractModel):
                    left join public.res_partner on public.lotes.id_partner = public.res_partner.id
                    where public.lotes_account_move_line.uuid is null
                    and public.lotes.fecha between '{i.date_start}' and '{i.date_end}'
+                   {query_filter_provider}
                    order by public.res_partner.name,public.huertas.sader,public.lotes.fecha asc
                      """
 
@@ -272,6 +358,8 @@ class NofacturadoDetalle(models.AbstractModel):
         result = self._cr.fetchall()
 
         print(result)
+
+        print('Pendiente de factura detalle')
 
         for l in result:
             vals.append({'lote': l[0],

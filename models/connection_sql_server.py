@@ -138,7 +138,7 @@ class Lotes(models.Model):
 
     tipo_movimiento = fields.Char(string='Tipo de movimiento')
 
-    abono = fields.Float(string='Abono',stored=True)
+    abono = fields.Float(string='Abono',store=True)
 
     saldo_pendiente = fields.Float(string='Saldo pendiente')
 
@@ -148,7 +148,7 @@ class Lotes(models.Model):
 
     precio_u = fields.Float(string='Precio Unitario')
 
-    cantidad = fields.Float(string='Kilogramos',stored=True)
+    cantidad = fields.Float(string='Kilogramos',store=True)
 
     observaciones = fields.Char(string='Observaciones')
 
@@ -181,7 +181,7 @@ class Lotes(models.Model):
     status_pago = fields.Char(string='Estatus Pago')
 
     status_provision = fields.Char(string='Provision Lotes',compute='compute_abonos',
-                                   copy=False,tracking=True,track_visibility='always',readonly=True,stored=True)
+                                   copy=False,tracking=True,track_visibility='always',readonly=True,store=True)
 
     seats = fields.Integer(string='Numeber of seats')
 
@@ -189,7 +189,7 @@ class Lotes(models.Model):
 
     kilogramos_abonados_v = fields.Float(string='Kg abonados')
 
-    kilogramos_pendientes_v = fields.Float(string='Kg Pendientes',compute='compute_abonos',stored=True)
+    kilogramos_pendientes_v = fields.Float(string='Kg Pendientes',compute='compute_abonos',store=True)
 
     fecha_contabilizacion = fields.Datetime(string='Fecha Aprobado', copy=False,tracking=True,track_visibility='always')
 

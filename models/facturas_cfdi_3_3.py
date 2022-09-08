@@ -15,6 +15,7 @@ from sqlalchemy import or_
 import logging
 import pandas as pd
 import pendulum
+from odoo.odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -278,6 +279,8 @@ class FacturaCfdi(models.Model):
                                           string='Lotes Presupuestados')
     id_pagos_x = fields.Char(string='Id Pagos X',compute='acount_paym_ivoice')
 
+    lock_validate = fields.Boolean(string='Candado')
+
     def button_cancel(self):
         self.write({'auto_post': False, 'state': 'cancel'})
         account_move_line_obj = self.env['lotes_account_move_line']
@@ -412,6 +415,19 @@ class FacturaCfdi(models.Model):
             self.invoice_date_due = friday_date
             print(friday_date)
             """
+
+    def write(self, vals):
+        for l in self:
+            print(l.payment_state)
+            print(l.id)
+            print(l.name)
+            print(l.uuid)
+            if self.env['account.move'].search([('id','=',l.id)]).lock_validate != True and \
+                    self.env['account.move'].search([('id','=',l.id)]).payment_state == 'paid':
+
+               raise UserError('El documento esta bloqueado ')
+            #13188
+            return super(FacturaCfdi,self).write(vals)
 
 
     def download_data(self):

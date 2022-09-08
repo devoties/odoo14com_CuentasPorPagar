@@ -17,7 +17,7 @@ class PresupuestoLotes(models.Model):
         ('validate', 'Validado'),
         ('draft', 'Borrador'),
 
-    ],copy=False, tracking=True, track_visibility='always', readonly=True,stored=True,default='draft')
+    ],copy=False, tracking=True, track_visibility='always', readonly=True,store=True,default='draft')
 
     invoice_rel = fields.Many2one(string='Invoice Rel',related='lotes_provisionados.data_rel')
 
@@ -27,7 +27,7 @@ class PresupuestoLotes(models.Model):
 
     budget_total = fields.Float(string='Total Presupuesto',compute='get_sum_budget')
 
-    res = fields.Char(string='Estado de pago',compute='get_payment_state',stored=True)
+    res = fields.Char(string='Estado de pago',compute='get_payment_state',store=True)
 
     facturas_adicionales = fields.One2many('account.move','presupuesto_lote_fac_adic_rel')
 

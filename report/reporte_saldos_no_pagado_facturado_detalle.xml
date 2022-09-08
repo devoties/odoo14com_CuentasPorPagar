@@ -57,7 +57,7 @@
                                         <span t-esc="o['kg_abono']"/>
                                     </td>
                                     <td>
-                                        <span t-esc="o['precio_u']" t-options="{'widget': 'float' , 'precision': 2}"/>
+                                        <span t-esc="o['precio_u']"/>
                                     </td>
                                     <td>
                                         <span t-esc="o['saldo_new']"/>
