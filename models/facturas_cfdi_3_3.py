@@ -363,7 +363,7 @@ class FacturaCfdi(models.Model):
         self.recn = x_date
         self.id_pagos = payments_ids
         self.id_pagos_x = x_date2
-        """
+
         # Cambios en el One2many de lotes
         @api.onchange('lotes_cfdi_relacionn')
         def _onchange_cfdis_lotes(self):
@@ -414,8 +414,8 @@ class FacturaCfdi(models.Model):
                 # se coloca la fecha calculada en la fecha de pago
             self.invoice_date_due = friday_date
             print(friday_date)
-            """
 
+    """
     def write(self, vals):
         for l in self:
             print(l.payment_state)
@@ -428,6 +428,7 @@ class FacturaCfdi(models.Model):
                raise UserError('El documento esta bloqueado ')
             #13188
             return super(FacturaCfdi,self).write(vals)
+    """
 
 
     def download_data(self):

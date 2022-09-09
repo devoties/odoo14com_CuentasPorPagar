@@ -478,7 +478,7 @@ class Pagado(models.AbstractModel):
         q_pagado = f"""select public.res_partner.name,
                    sum(case when account_move.total_impuestos_retenidos > 0 then (lotes_account_move_line.abono_kilogramos * lotes.precio_u) - 
                    ((lotes_account_move_line.abono_kilogramos * lotes.precio_u) * (0.0125)) 
-                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end)::numeric::money as importe_pagado
+                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end) as importe_pagado
                    FROM public.lotes_account_move_line
                    left join public.lotes on public.lotes_account_move_line.name = public.lotes.id
                    left join public.account_move on public.lotes_account_move_line.data_rel = public.account_move.id
@@ -491,7 +491,7 @@ class Pagado(models.AbstractModel):
                    group by public.res_partner.name
                    union all            
                    SELECT res_partner.name,
-                   sum(pagado.amount)::numeric::money
+                   sum(pagado.amount)
                    FROM account_move 
                    left join pagado on account_move.id = pagado.inv_id 
                    left join res_partner on account_move.partner_id = res_partner.id

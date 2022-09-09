@@ -19,7 +19,9 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <t t-set="total" t-value="0.0"/>
                                 <tr t-foreach="vals" t-as="o">
+                                    <t t-set="total" t-value="total+o['saldo_pendiente']"/>
                                     <td >
                                     <span t-esc="o['uuid']" />
                                     </td>
@@ -31,6 +33,9 @@
                                     </td>
 
                                 </tr>
+                                          <tr class="text_right">
+                                          <td class="text_right">TOTAL=<t t-esc="'${0:,.2f}'.format(float(total))"/></td>
+                                          </tr>
 
                             </tbody>
                         </table>
