@@ -31,7 +31,7 @@
                                         <span t-esc="o['NAME']"/>
                                     </td>
                                     <td>
-                                        <span t-esc="o['importe']"/>
+                                        <t t-esc="'${0:,.2f}'.format(float(o['importe']))"/>
                                     </td>
                                 </tr>
                                           <tr class="text_right">

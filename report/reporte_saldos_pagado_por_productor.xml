@@ -25,17 +25,22 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <t t-set="total" t-value="0.0"/>
                                 <tr t-foreach="vals" t-as="o">
-
+                                    <t t-set="total" t-value="total+o['importe_pagado']"/>
                                     <td>
                                         <span t-esc="o['name']"/>
                                     </td>
                                     <td>
-                                        <span t-esc="o['importe_pagado']"/>
+                                        <t t-esc="'${0:,.2f}'.format(float(o['importe_pagado']))"/>
                                     </td>
 
                                 </tr>
-
+                                <tr class="text_right">
+                                    <td class="text_right">TOTAL=
+                                        <t t-esc="'${0:,.2f}'.format(float(total))"/>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

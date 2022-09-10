@@ -79,8 +79,8 @@ class LotesCfdi(models.Model):
 
     ine_data = fields.Char(string='Ine Data')
 
-    ine_venc = fields.Char(string='Vencimiento INE')
-    """
+    ine_venc = fields.Char(string='Vencimiento INE',compute='get_ine')
+
     def get_ine(self):
         for l in self:
             #contador en 0's
@@ -95,12 +95,11 @@ class LotesCfdi(models.Model):
                var_control_date = var_control_date.replace(')', '')
                var_control_date = var_control_date[0:10]
                if var_control_date.count('-') >= 3:
-                  var_control_date = var_control_date[0:4]
-               l.ine_data = var_control_date[0:4]
+                  var_control_date = str(var_control_date[0:4])
+
             print(var_control_date)
             if l.estado_factura != 'paid':
-                var_control_date = date.today()
-                l.ine_data = var_control_date[0:4]
+                var_control_date = str(date.today())
             #Revisar resultados finales
             for i in ines_vigentes.search([('ine_partner_rel','=',l.data_rel.partner_id.id)], order='id desc'):
                 format_date = str(i.fecha_vencimiento)
@@ -113,7 +112,7 @@ class LotesCfdi(models.Model):
                 l.ine_venc = 'Vigente'
             else:
                 l.ine_venc = 'Vencido'
-                """
+
 
     def put_check_freeze(self):
         for l in self:

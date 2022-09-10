@@ -46,7 +46,9 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <t t-set="total" t-value="0.0"/>
                                 <tr t-foreach="vals" t-as="o">
+                                    <t t-set="total" t-value="total+o['importe']"/>
                                     <td>
                                         <span t-esc="o['lote']"/>
                                     </td>
@@ -60,12 +62,12 @@
                                         <span t-esc="o['fecha']"/>
                                     </td>
                                     <td>
-                                        <span t-esc="o['importe']"/>
+                                        <t t-esc="'${0:,.2f}'.format(float(o['importe']))"/>
                                     </td>
                                     <td>
                                         <span t-esc="o['precio_u']"/>
                                     </td>
-                                                                        <td>
+                                    <td>
                                         <span t-esc="o['cantidad']"/>
                                     </td>
                                     <td>
@@ -76,6 +78,12 @@
                                     </td>
 
                                 </tr>
+                                <tr class="text_right">
+                                    <td class="text_right">TOTAL=
+                                        <t t-esc="'${0:,.2f}'.format(float(total))"/>
+                                    </td>
+                                </tr>
+
                             </tbody>
                         </table>
                     </div>

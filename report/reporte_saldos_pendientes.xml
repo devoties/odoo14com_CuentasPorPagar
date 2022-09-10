@@ -52,17 +52,20 @@
                                 <tbody>
                                     <!-- inicio de funcion de reoporteo-->
 
-
+                                    <t t-set="total" t-value="0.0"/>
                                     <tr t-foreach="o.lotes_no_facturados" t-as="l">
+                                        <t t-set="total" t-value="total+l.importe"/>
 
                                         <td>
                                             <span t-field="l.id_partner.name"/>
-                                            <span t-field="l.importe"/>
+                                            <t t-esc="'${0:,.2f}'.format(float(l.importe))"/>
                                         </td>
 
 
                                     </tr>
-
+                                <tr class="text_right">
+                                          <td class="text_right">TOTAL=<t t-esc="'${0:,.2f}'.format(float(total))"/></td>
+                                </tr>
 
                                     <!--Fin de reporteo-->
 

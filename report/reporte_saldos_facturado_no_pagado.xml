@@ -29,7 +29,7 @@
                                     <span t-esc="o['proveedor']" />
                                     </td>
                                          <td >
-                                    <span t-esc="o['saldo_pendiente']" />
+                                    <t t-esc="'${0:,.2f}'.format(float(o['saldo_pendiente']))"/>
                                     </td>
 
                                 </tr>

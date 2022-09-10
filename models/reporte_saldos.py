@@ -66,7 +66,7 @@ class PruebaQuery(models.AbstractModel):
               query_filter_provider = f' and public.lotes.id_partner =  {i.productor_id.id} '
 
           vals = []
-          query = f""" SELECT res_partner.name,cast(sum(importe) as money) as importe,count(res_partner.name),
+          query = f""" SELECT res_partner.name,sum(importe) as importe,count(res_partner.name),
                      case when lotes_account_move_line.name is not null then 'Facturado' else 'No Facturado' end as estatus
                      FROM public.lotes
                      left join res_partner on public.lotes.id_partner  = res_partner.id
@@ -127,7 +127,7 @@ class FacturadonoPagado(models.AbstractModel):
                    select
                    account_move.uuid as uuid,
                    res_partner.name as name,
-                   sum(account_move.amount_residual)::numeric::money as saldo_pendiente,
+                   sum(account_move.amount_residual)::numeric as saldo_pendiente,
                    count(account_move.uuid) as conteo
                    FROM account_move 
                    left join res_partner on account_move.partner_id = res_partner.id
@@ -156,7 +156,7 @@ class FacturadonoPagado(models.AbstractModel):
                    public.res_partner.name,
                    sum(case when account_move.total_impuestos_retenidos > 0 then (lotes_account_move_line.abono_kilogramos * lotes.precio_u) - 
                    ((lotes_account_move_line.abono_kilogramos * lotes.precio_u) * (0.0125)) 
-                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end)::numeric::money as saldo_pendiente,
+                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end)::numeric as saldo_pendiente,
                    COUNT(public.lotes_account_move_line.uuid) as conteo
                    FROM public.lotes_account_move_line
                    left join public.lotes on public.lotes_account_move_line.name = public.lotes.id
@@ -227,7 +227,7 @@ class FacturadonopagadoDetallado(models.AbstractModel):
                    null as lote,
                    res_partner.name as proveedor,
                    null as huerta,
-                   sum(account_move.amount_residual)::numeric::money as saldo_new,
+                   sum(account_move.amount_residual)::numeric as saldo_new,
                    null as pago_por_lote,
                    null as kg_abono,
                    null as precio_u,
@@ -267,7 +267,7 @@ class FacturadonopagadoDetallado(models.AbstractModel):
                    case when public.account_move.amount_residual < public.account_move.amount_total then
                    (public.lotes_account_move_line.abono_kilogramos * public.lotes.precio_u)-((public.lotes_account_move_line.abono_kilogramos * public.lotes.precio_u)*(0.0125))
                    else  public.lotes_account_move_line.abono_kilogramos * public.lotes.precio_u
-                   end::numeric::money as saldo_new,
+                   end::numeric as saldo_new,
                    public.lotes_account_move_line.abono_kilogramos * public.lotes.precio_u as pago_por_lote,
                    public.lotes_account_move_line.abono_kilogramos as kg_abono,
                    round(cast((public.lotes.precio_u) as decimal),2) AS precio_u,
@@ -618,7 +618,7 @@ class PagadoporProductor(models.AbstractModel):
         q_pagado = f"""select public.res_partner.name,
                    sum(case when account_move.total_impuestos_retenidos > 0 then (lotes_account_move_line.abono_kilogramos * lotes.precio_u) - 
                    ((lotes_account_move_line.abono_kilogramos * lotes.precio_u) * (0.0125)) 
-                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end)::numeric::money as importe_pagado
+                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end)::numeric as importe_pagado
                    FROM public.lotes_account_move_line
                    left join public.lotes on public.lotes_account_move_line.name = public.lotes.id
                    left join public.res_partner on public.lotes.id_partner = public.res_partner.id
@@ -631,7 +631,7 @@ class PagadoporProductor(models.AbstractModel):
                    group by public.res_partner.name
                    union all            
                    SELECT res_partner.name,
-                   sum(pagado.amount)::numeric::money
+                   sum(pagado.amount)::numeric
                    FROM account_move 
                    left join pagado on account_move.id = pagado.inv_id 
                    left join res_partner on account_move.partner_id = res_partner.id
@@ -754,7 +754,7 @@ class PagadoporProductorDetalle(models.AbstractModel):
         q_pagado = f"""select public.res_partner.name,
                    case when account_move.total_impuestos_retenidos > 0 then (lotes_account_move_line.abono_kilogramos * lotes.precio_u) - 
                    ((lotes_account_move_line.abono_kilogramos * lotes.precio_u) * (0.0125)) 
-                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end::numeric::money as importe_pagado,
+                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end::numeric as importe_pagado,
                    lotes.name as lote,
                    lotes_account_move_line.uuid as uuid,
                    huertas.name as sader
@@ -770,7 +770,7 @@ class PagadoporProductorDetalle(models.AbstractModel):
                    and public.{var_date_type_ctrl}  between '{i.date_start}' and '{i.date_end}'
                    union all            
                    SELECT res_partner.name,
-                   sum(pagado.amount)::numeric::money,
+                   sum(pagado.amount)::numeric,
                    null as lote,
                    account_move.uuid,
                    null as sader
@@ -900,7 +900,7 @@ class PagadoporEmisorDetalle(models.AbstractModel):
         q_pagado = f"""select public.res_partner.name,
                    case when account_move.total_impuestos_retenidos > 0 then (lotes_account_move_line.abono_kilogramos * lotes.precio_u) - 
                    ((lotes_account_move_line.abono_kilogramos * lotes.precio_u) * (0.0125)) 
-                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end::numeric::money as importe_pagado,
+                   else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end::numeric as importe_pagado,
                    lotes.name as lote,
                    lotes_account_move_line.uuid as uuid,
                    huertas.name as sader
@@ -916,7 +916,7 @@ class PagadoporEmisorDetalle(models.AbstractModel):
                    and public.{var_date_type_ctrl}  between '{i.date_start}' and '{i.date_end}'
                    union all            
                    SELECT res_partner.name,
-                   sum(pagado.amount)::numeric::money,
+                   sum(pagado.amount)::numeric,
                    null as lote,
                    account_move.uuid,
                    null as sader
@@ -981,7 +981,7 @@ class NfacnopagFacnopag(models.AbstractModel):
         vals = []
         # Creacion de primera vista#
         query_create_view_no_facturado_no_pagado = f"""CREATE OR REPLACE VIEW public.no_facturado_no_pagado
-        AS select res_partner.name, cast(sum(lotes.importe)as money) as importe from public.lotes
+        AS select res_partner.name, sum(lotes.importe) as importe from public.lotes
         left join lotes_account_move_line on lotes.id = lotes_account_move_line.name
         left join res_partner on lotes.id_partner = res_partner.id
         left join account_move on lotes_account_move_line.data_rel = account_move.id 
@@ -1000,7 +1000,7 @@ class NfacnopagFacnopag(models.AbstractModel):
         AS SELECT res_partner.name,
         sum(case when account_move.total_impuestos_retenidos > 0 then
         (lotes_account_move_line.abono_kilogramos * lotes.precio_u) - ((lotes_account_move_line.abono_kilogramos * lotes.precio_u) * (0.0125))
-        else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end)::numeric::money as importe
+        else (lotes_account_move_line.abono_kilogramos * lotes.precio_u) end)::numeric as importe
         FROM lotes_account_move_line
         LEFT JOIN lotes ON lotes_account_move_line.name = lotes.id
         LEFT JOIN account_move ON lotes_account_move_line.data_rel = account_move.id

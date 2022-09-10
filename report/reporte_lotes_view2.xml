@@ -35,19 +35,17 @@
                                         <span t-esc="o['name']"/>
                                     </td>
                                     <td>
-                                        <span t-esc="o['imp']"/>
+                                        <t t-esc="'${0:,.2f}'.format(float(o['imp']))"/>
                                     </td>
                                     <td>
                                         <span t-esc="o['conteo']"/>
                                     </td>
-                                <td class="text_right">Total</td>
-                                <td class="text_right">
-                                </td>
+
 
                                 </tr>
-                                          <tr class="text_right">
+                                <tr class="text_right">
                                           <td class="text_right">TOTAL=<t t-esc="'${0:,.2f}'.format(float(total))"/></td>
-                                          </tr>
+                                </tr>
 
                             </tbody>
                         </table>

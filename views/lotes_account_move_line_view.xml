@@ -103,8 +103,7 @@
                 <field name="rep_imp_pagado" optional="show"/>
                 <field name="fecha_pago_tuple" optional="hide"/>
                 <field name="state_special" widget="badge" decoration-success="state_special == 'check_freeze'" decoration-danger="state_special == 'check_freeze_invert'"/>
-                <field name="ine_data" optional="show"/>
-                <field name="ine_venc" optional="show"/>
+                <field name="ine_venc" optional="show" decoration-success="state_special == 'vigente'" decoration-danger="state_special == 'vencido'"/>
             </tree>
         </field>
     </record>

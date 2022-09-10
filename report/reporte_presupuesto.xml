@@ -45,6 +45,7 @@
                                                 </li>
                                                 <li class="text-right" t-if="o.budget_total">Total:
                                                     <span t-field="o.budget_total"/>
+
                                                 </li>
 
                                             </ul>

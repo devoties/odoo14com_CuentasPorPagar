@@ -281,6 +281,17 @@ class FacturaCfdi(models.Model):
 
     lock_validate = fields.Boolean(string='Candado')
 
+    sum_rep = fields.Float(string='$ Reps',compute='get_sum_imp_pagado',store=True)
+
+    def get_sum_imp_pagado(self):
+        for line in self:
+            sum_importe_pagado_rep = sum(line.env['pagos_doctos_rel'].search([('id_documento',"ilike",line.uuid)]).mapped('imp_pagado'))
+
+            if line.metodo_pago == 'PPD':
+               line.sum_rep = sum_importe_pagado_rep
+            else:
+                line.sum_rep = None
+
     def button_cancel(self):
         self.write({'auto_post': False, 'state': 'cancel'})
         account_move_line_obj = self.env['lotes_account_move_line']
@@ -365,8 +376,8 @@ class FacturaCfdi(models.Model):
         self.id_pagos_x = x_date2
 
         # Cambios en el One2many de lotes
-        @api.onchange('lotes_cfdi_relacionn')
-        def _onchange_cfdis_lotes(self):
+    @api.onchange('lotes_cfdi_relacionn')
+    def _onchange_cfdis_lotes(self):
             # Lista vacia contenedor de ciclos
             RowList = []
             # funciones de calculo numerico de lotes
