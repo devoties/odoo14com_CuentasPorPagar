@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 from odoo import fields, models, api
-from datetime import datetime
+from datetime import date
 
 class IneSat(models.Model):
     _name = 'ine_sat'
@@ -16,4 +16,19 @@ class IneSat(models.Model):
 
     fecha_vencimiento = fields.Date(string='Fecha Vencimiento')
 
+    estatus = fields.Char(string='Vigencia',compute='vigencia',store=False)
 
+
+    def vigencia(self):
+        for l in self:
+            var_control_date = l.fecha_vencimiento
+            var_control_date_char = 0
+            if var_control_date == False:
+                var_control_date_char = 0000
+            if (var_control_date != False):
+                var_control_date_char = int(str(l.fecha_vencimiento)[0:4])
+
+            if var_control_date_char >= int(str(date.today())[0:4]):
+                l.estatus = 'VIGENTE'
+            else:
+                l.estatus = 'VENCIDO'

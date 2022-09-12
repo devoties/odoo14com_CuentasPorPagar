@@ -10,6 +10,7 @@
         'portal',
         'product',
         'purchase',
+        'report_xlsx',
     ],
     'author': 'ISC Alexis Cruz A',
     'category': 'Cuentas Por Pagar (Interfaz Contpaqi, TTs)',

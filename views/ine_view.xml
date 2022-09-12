@@ -26,7 +26,7 @@
         </field>
     </record>
 
-    <record id="x_tree" model="ir.ui.view">
+    <record id="x_ine_tree" model="ir.ui.view">
 
         <field name="name">XTree Ine View</field>
         <field name="model">ine_sat</field>
@@ -39,6 +39,7 @@
                 <field name="ine" filename="ine_filename" optional="show" widget="binary"/>
                 <field name="ine_filename" invisible="1"/>
                 <field name="fecha_vencimiento" optional="show"/>
+                <field name="estatus" optional="show"/>
 
             </tree>
         </field>

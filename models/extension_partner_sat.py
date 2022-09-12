@@ -18,9 +18,9 @@ class ExtensionPartnersat(models.Model):
 
     ine = fields.One2many('ine_sat','ine_partner_rel',string='INE')
 
-    es_cif = fields.Boolean(string='¿CIF?',default=True)
+    es_cif = fields.Boolean(string='¿CSF?',default=True)
 
-    cif_partner_rel = fields.One2many('cif','cif_rel',string='CIF')
+    cif_partner_rel = fields.One2many('cif','cif_rel',string='CSF')
 
     id_productor = fields.Integer(string='Id Productor TTS')
 

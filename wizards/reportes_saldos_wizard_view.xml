@@ -18,6 +18,8 @@
     />
 
     -->
+
+
     <record id="view_reporting_saldos_form" model="ir.ui.view">
         <field name="name">Vista Reportes Saldos</field>
         <field name="model">reportes_saldos_wizard</field>
@@ -40,7 +42,12 @@
                         <button name="print_no_facturado" string="Saldos Fruta x Pagar" type="object" class="oe_highlight"
                         attrs="{'invisible': ['|','|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura')),
                         ('provider_type','in',('emisor'))]}"/>
+                        <button name="print_no_facturado_xls" string="Saldos Fruta x Pagar XLSX" type="object" class="oe_highlight"
+                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura')),
+                        ('provider_type','in',('emisor'))]}"/>
                         <button name="print_facturado_no_pagado" string="Facturas x Pagar" type="object" class="oe_highlight"
+                        attrs="{'invisible': [('date_type','in',('fecha_pago'))]}"/>
+                        <button name="print_facturado_no_pagado_xls" string="Facturas x Pagar XLS" type="object" class="oe_highlight"
                         attrs="{'invisible': [('date_type','in',('fecha_pago'))]}"/>
                         <button name="print3" string="Saldo de proveedor" type="object" class="oe_highlight"
                         attrs="{'invisible': ['|','|',('date_type','in',('fecha_pago')),('provider_type','in',('productor')),

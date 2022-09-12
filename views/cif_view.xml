@@ -3,7 +3,7 @@
 
     <record id="view_cif_x" model="ir.ui.view">
 
-        <field name="name">Cif x View</field>
+        <field name="name">CSF x View</field>
         <field name="model">cif</field>
         <field name="arch" type="xml">
             <form>
@@ -28,11 +28,11 @@
 
     <record id="x_cif_tree" model="ir.ui.view">
 
-        <field name="name">XTree Cif View</field>
+        <field name="name">XTree CSF View</field>
         <field name="model">cif</field>
         <field name="arch" type="xml">
 
-            <tree string="cif Tree">
+            <tree string="CSF Tree">
 
 
                 <field name="name" readonly="1"/>

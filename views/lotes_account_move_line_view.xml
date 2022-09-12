@@ -97,13 +97,14 @@
                        decoration-danger="estatus_contratos == 'VENCIDO'" optional="show"/>
                 <field name="es_opinion" optional="hide" widget="badge" decoration-danger="es_opinion == 'VENCIDO'"
                        decoration-success="es_opinion == 'VIGENTE'"/>
-                <field name="es_ine" optional="show" widget="boolean_toggle" readonly="False"/>
+                <!--<field name="es_ine" optional="show" widget="boolean_toggle" readonly="False"/>-->
+                <field name="ine_venc" widget="badge" optional="show" decoration-success="ine_venc == 'VIGENTE'" decoration-danger="ine_venc == 'VENCIDO'"/>
                 <field name="es_cif" optional="show" widget="badge" decoration-danger="es_cif == 'VENCIDO'"
                        decoration-success="es_cif == 'VIGENTE'"/>
                 <field name="rep_imp_pagado" optional="show"/>
                 <field name="fecha_pago_tuple" optional="hide"/>
                 <field name="state_special" widget="badge" decoration-success="state_special == 'check_freeze'" decoration-danger="state_special == 'check_freeze_invert'"/>
-                <field name="ine_venc" optional="show" decoration-success="state_special == 'vigente'" decoration-danger="state_special == 'vencido'"/>
+
             </tree>
         </field>
     </record>

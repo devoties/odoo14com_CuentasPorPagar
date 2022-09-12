@@ -414,6 +414,10 @@ class FacturaCfdi(models.Model):
             if (pd.to_datetime(add_days).date()).strftime("%A") == 'sábado':
                 friday_date = pendulum.parse(add_days).previous(pendulum.FRIDAY).strftime('%Y-%m-%d')
             # condicional si es viernes
+
+
+
+
             if (pd.to_datetime(add_days).date()).strftime("%A") == 'viernes':
                 # usar el dia de la suma de dias
                 friday_date = add_days

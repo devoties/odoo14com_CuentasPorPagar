@@ -35,8 +35,12 @@ class SaldosWizard(models.TransientModel):
 
     def print_no_facturado(self):
         return self.env.ref('cuentas_por_pagar.report_estado_cuenta_card').report_action(self)
+    def print_no_facturado_xls(self):
+        return self.env.ref('cuentas_por_pagar.report_estado_cuenta_card_xls').report_action(self)
     def print_facturado_no_pagado(self):
         return self.env.ref('cuentas_por_pagar.report_lotes_facturado_no_pagado').report_action(self)
+    def print_facturado_no_pagado_xls(self):
+        return self.env.ref('cuentas_por_pagar.report_lotes_facturado_no_pagado_xls').report_action(self)
     def print3(self):
         return self.env.ref('cuentas_por_pagar.report_lotes_fac_no_pag_no_fac_no_pag').report_action(self)
     def print_fact_no_pagado_datelle(self):

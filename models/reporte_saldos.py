@@ -42,6 +42,9 @@ class ReporteSaldos(models.Model):
 
         return function_get_report
 
+
+
+
 #completo
 class PruebaQuery(models.AbstractModel):
       _name = 'report.cuentas_por_pagar.lotes_report_new'
@@ -442,7 +445,7 @@ class Pagado(models.AbstractModel):
             WHERE account.internal_type IN ('receivable', 'payable')
                 AND payment.id IN {list_tuple}
                 AND line.id != counterpart_line.id
-                AND invoice.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')
+                AND invoice.move_type in ('in_invoice')
             	AND invoice.id IN {list_tuple_invoice}
 			GROUP BY payment.id, invoice.move_type, invoice.id, fechax;
             CREATE OR REPLACE VIEW pagado_por_factura AS 

@@ -80,6 +80,24 @@
             name="cuentas_por_pagar.lotes_report_pagado_emi_det"
             file="cuentas_por_pagar.lotes_report_pagado_emi_det"
         />
+
+              <report
+            id ="report_estado_cuenta_card_xls"
+            string="No Facturado XLSX"
+            model="reporte_saldos"
+            report_type="xlsx"
+            name="cuentas_por_pagar.lotes_report_new_xls"
+            file="cuentas_por_pagar.lotes_report_new_xls"
+        />
+                  <report
+            id ="report_lotes_facturado_no_pagado_xls"
+            string="Facturado No Pagado XLSX"
+            model="reporte_saldos"
+            report_type="xlsx"
+            name="cuentas_por_pagar.lotes_report_facturado_no_pagado_xls"
+            file="cuentas_por_pagar.lotes_report_facturado_no_pagado_xls"
+        />
+
     <record id="view_reporte_saldos" model="ir.ui.view">
         <field name="name">Vista Reporte Saldos</field>
         <field name="model">reporte_saldos</field>

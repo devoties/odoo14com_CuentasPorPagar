@@ -54,7 +54,7 @@ class LotesCfdi(models.Model):
     es_tarjeta_apeam = fields.Boolean(string='Tarjeta Apeam',compute='get_documental_data')
     es_opinion = fields.Char(string='OPINION',compute='get_aditional_data')
     es_ine = fields.Boolean(string='INE',compute='get_aditional_data')
-    es_cif = fields.Char(string='CIF',compute='get_aditional_data')
+    es_cif = fields.Char(string='CSF',compute='get_aditional_data')
     estatus_layout = fields.Char(string='Estatus Layout')
     rep_imp_pagado = fields.Float(string='Imp Pagado REPS',compute='get_sum_imp_pagado')
     rep_imp_por_pagar = fields.Float(string='Imp Por Pagar REPS',compute='get_sum_imp_pagado')
@@ -79,7 +79,7 @@ class LotesCfdi(models.Model):
 
     ine_data = fields.Char(string='Ine Data')
 
-    ine_venc = fields.Char(string='Vencimiento INE',compute='get_ine')
+    ine_venc = fields.Char(string='INE',compute='get_ine')
 
     def get_ine(self):
         for l in self:
@@ -109,9 +109,9 @@ class LotesCfdi(models.Model):
                     contador = contador + 0
             contador = contador
             if contador >= 1:
-                l.ine_venc = 'Vigente'
+                l.ine_venc = 'VIGENTE'
             else:
-                l.ine_venc = 'Vencido'
+                l.ine_venc = 'VENCIDO'
 
 
     def put_check_freeze(self):
