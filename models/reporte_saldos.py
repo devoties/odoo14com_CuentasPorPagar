@@ -415,6 +415,14 @@ class Pagado(models.AbstractModel):
 
         res_invoice_tuple = self._cr.fetchall()
 
+        #Add view partial payments
+
+        q_partial_payments = """ CREATE OR REPLACE VIEW partial_payments AS SELECT ap.debit_move_id,ap.credit_move_id,ap.amount,account_move_line.move_id FROM public.account_partial_reconcile as ap
+                                left join account_move_line on ap.credit_move_id  = account_move_line.id
+                                ORDER BY debit_move_id desc;
+                             """
+        self._cr.execute(q_partial_payments)
+
         #print(res_payments_tuple)
         list_tuple_invoice = []
         for line_invoice in res_invoice_tuple:
@@ -428,7 +436,6 @@ class Pagado(models.AbstractModel):
 				move.date as fechax,
                 invoice.move_type as move_type,
                 sum(payment.amount) as amount
-                
             FROM account_payment payment
             JOIN account_move move ON move.id = payment.move_id
             JOIN account_move_line line ON line.move_id = move.id
@@ -449,7 +456,8 @@ class Pagado(models.AbstractModel):
             	AND invoice.id IN {list_tuple_invoice}
 			GROUP BY payment.id, invoice.move_type, invoice.id, fechax;
             CREATE OR REPLACE VIEW pagado_por_factura AS 
-            SELECT inv_id,sum(amount) as amount  FROM public.pagado
+            select inv_id,sum(partial_payments.amount) as amount FROM public.pagado
+            left join partial_payments on pagado.inv_id = partial_payments.move_id 
             group by inv_id;
             SELECT * FROM pagado_por_factura;"""
 
@@ -494,10 +502,11 @@ class Pagado(models.AbstractModel):
                    group by public.res_partner.name
                    union all            
                    SELECT res_partner.name,
-                   sum(pagado.amount)
+                   sum(pagado_por_factura.amount) as amount
                    FROM account_move 
                    left join pagado on account_move.id = pagado.inv_id 
                    left join res_partner on account_move.partner_id = res_partner.id
+                   left join pagado_por_factura on account_move.id = pagado_por_factura.inv_id
                    WHERE NOT exists
                    (SELECT data_rel
                    FROM lotes_account_move_line p
@@ -549,6 +558,14 @@ class PagadoporProductor(models.AbstractModel):
             list_tuple.append(line[0])
         list_tuple = tuple(list_tuple)
 
+        #Add view partial payments
+
+        q_partial_payments = """ CREATE OR REPLACE VIEW partial_payments AS SELECT ap.debit_move_id,ap.credit_move_id,ap.amount,account_move_line.move_id FROM public.account_partial_reconcile as ap
+                                left join account_move_line on ap.credit_move_id  = account_move_line.id
+                                ORDER BY debit_move_id desc;
+                             """
+        self._cr.execute(q_partial_payments)
+
         q_invoice_tuple = """SELECT id FROM public.account_move WHERE move_type = 'in_invoice' order by id asc"""
 
         self._cr.execute(q_invoice_tuple)
@@ -589,7 +606,8 @@ class PagadoporProductor(models.AbstractModel):
             	AND invoice.id IN {list_tuple_invoice}
 			GROUP BY payment.id, invoice.move_type, invoice.id, fechax;
             CREATE OR REPLACE VIEW pagado_por_factura AS 
-            SELECT inv_id,sum(amount) as amount  FROM public.pagado
+            select inv_id,sum(partial_payments.amount) as amount FROM public.pagado
+            left join partial_payments on pagado.inv_id = partial_payments.move_id 
             group by inv_id;
             SELECT * FROM pagado_por_factura;"""
 
@@ -634,10 +652,11 @@ class PagadoporProductor(models.AbstractModel):
                    group by public.res_partner.name
                    union all            
                    SELECT res_partner.name,
-                   sum(pagado.amount)::numeric
+                   sum(pagado_por_factura.amount)::numeric as amount
                    FROM account_move 
                    left join pagado on account_move.id = pagado.inv_id 
                    left join res_partner on account_move.partner_id = res_partner.id
+                   left join pagado_por_factura on account_move.id = pagado_por_factura.inv_id
                    WHERE NOT exists
                    (SELECT data_rel
                    FROM lotes_account_move_line p
@@ -673,6 +692,15 @@ class PagadoporProductorDetalle(models.AbstractModel):
     def _get_report_values(self, docs_ids, data=None):
         print('Query')
         vals = []
+
+        #Add view partial payments
+
+        q_partial_payments = """ CREATE OR REPLACE VIEW partial_payments AS SELECT ap.debit_move_id,ap.credit_move_id,ap.amount,account_move_line.move_id FROM public.account_partial_reconcile as ap
+                                left join account_move_line on ap.credit_move_id  = account_move_line.id
+                                ORDER BY debit_move_id desc;
+                             """
+        self._cr.execute(q_partial_payments)
+
         q_payments_tuple = """SELECT id FROM public.account_payment order by id asc"""
 
         self._cr.execute(q_payments_tuple)
@@ -725,7 +753,8 @@ class PagadoporProductorDetalle(models.AbstractModel):
             	AND invoice.id IN {list_tuple_invoice}
 			GROUP BY payment.id, invoice.move_type, invoice.id, fechax;
             CREATE OR REPLACE VIEW pagado_por_factura AS 
-            SELECT inv_id,sum(amount) as amount  FROM public.pagado
+            select inv_id,sum(partial_payments.amount) as amount FROM public.pagado
+            left join partial_payments on pagado.inv_id = partial_payments.move_id 
             group by inv_id;
             SELECT * FROM pagado_por_factura;"""
 
@@ -773,13 +802,14 @@ class PagadoporProductorDetalle(models.AbstractModel):
                    and public.{var_date_type_ctrl}  between '{i.date_start}' and '{i.date_end}'
                    union all            
                    SELECT res_partner.name,
-                   sum(pagado.amount)::numeric,
+                   sum(pagado_por_factura.amount)::numeric as amount,
                    null as lote,
                    account_move.uuid,
                    null as sader
                    FROM account_move 
                    left join pagado on account_move.id = pagado.inv_id 
                    left join res_partner on account_move.partner_id = res_partner.id
+                   left join pagado_por_factura on account_move.id = pagado_por_factura.inv_id                   
                    WHERE NOT exists
                    (SELECT data_rel
                    FROM lotes_account_move_line p
@@ -819,6 +849,15 @@ class PagadoporEmisorDetalle(models.AbstractModel):
     def _get_report_values(self, docs_ids, data=None):
         print('Query')
         vals = []
+
+        #Add view partial payments
+
+        q_partial_payments = """ CREATE OR REPLACE VIEW partial_payments AS SELECT ap.debit_move_id,ap.credit_move_id,ap.amount,account_move_line.move_id FROM public.account_partial_reconcile as ap
+                                left join account_move_line on ap.credit_move_id  = account_move_line.id
+                                ORDER BY debit_move_id desc;
+                             """
+        self._cr.execute(q_partial_payments)
+
         q_payments_tuple = """SELECT id FROM public.account_payment order by id asc"""
 
         self._cr.execute(q_payments_tuple)
@@ -871,7 +910,8 @@ class PagadoporEmisorDetalle(models.AbstractModel):
             	AND invoice.id IN {list_tuple_invoice}
 			GROUP BY payment.id, invoice.move_type, invoice.id, fechax;
             CREATE OR REPLACE VIEW pagado_por_factura AS 
-            SELECT inv_id,sum(amount) as amount  FROM public.pagado
+            select inv_id,sum(partial_payments.amount) as amount FROM public.pagado
+            left join partial_payments on pagado.inv_id = partial_payments.move_id 
             group by inv_id;
             SELECT * FROM pagado_por_factura;"""
 
@@ -919,13 +959,14 @@ class PagadoporEmisorDetalle(models.AbstractModel):
                    and public.{var_date_type_ctrl}  between '{i.date_start}' and '{i.date_end}'
                    union all            
                    SELECT res_partner.name,
-                   sum(pagado.amount)::numeric,
+                   sum(pagado_por_factura.amount)::numeric as amount,
                    null as lote,
                    account_move.uuid,
                    null as sader
                    FROM account_move 
                    left join pagado on account_move.id = pagado.inv_id 
                    left join res_partner on account_move.partner_id = res_partner.id
+                   left join pagado_por_factura on account_move.id = pagado_por_factura.inv_id                    
                    WHERE NOT exists
                    (SELECT data_rel
                    FROM lotes_account_move_line p

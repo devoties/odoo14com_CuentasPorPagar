@@ -97,6 +97,62 @@
             name="cuentas_por_pagar.lotes_report_facturado_no_pagado_xls"
             file="cuentas_por_pagar.lotes_report_facturado_no_pagado_xls"
         />
+                  <report
+            id ="report_lotes_fac_no_pag_no_fac_no_pag_xls"
+            string="Saldos de proveedor XLS"
+            model="reporte_saldos"
+            report_type="xlsx"
+            name="cuentas_por_pagar.fac_no_pag_no_fac_no_pag_xls"
+            file="cuentas_por_pagar.fac_no_pag_no_fac_no_pag_xls"
+        />
+                      <report
+            id ="report_lotes_fac_no_pag_detail_xls"
+            string="Facturado No Pagado Detalle XLS"
+            model="reporte_saldos"
+            report_type="xlsx"
+            name="cuentas_por_pagar.lotes_report_fac_no_pag_detall_xls"
+            file="cuentas_por_pagar.lotes_report_fac_no_pag_detall_xls"
+        />
+                          <report
+            id ="report_lotes_no_fac_detall_xls"
+            string="No Facturado Detalle XLS"
+            model="reporte_saldos"
+            report_type="xlsx"
+            name="cuentas_por_pagar.lotes_report_no_fac_datall_xls"
+            file="cuentas_por_pagar.lotes_report_no_fac_datall_xls"
+        />
+            <report
+            id ="report_lotes_pagado_xls"
+            string="Pagado por Emisor XLS"
+            model="reporte_saldos"
+            report_type="xlsx"
+            name="cuentas_por_pagar.lotes_report_pagado_xls"
+            file="cuentas_por_pagar.lotes_report_pagado_xls"
+        />
+            <report
+            id ="report_lotes_pagado_prod_xls"
+            string="Pagado X (Productor) XLS"
+            model="reporte_saldos"
+            report_type="xlsx"
+            name="cuentas_por_pagar.lotes_report_pagado_prod_xls"
+            file="cuentas_por_pagar.lotes_report_pagado_prod_xls"
+        />
+            <report
+            id ="report_lotes_pagado_prod_det_xls"
+            string="Pagado X (Productor) Detallado XLS"
+            model="reporte_saldos"
+            report_type="xlsx"
+            name="cuentas_por_pagar.lotes_report_pagado_prod_det_xls"
+            file="cuentas_por_pagar.lotes_report_pagado_prod_det_xls"
+        />
+                <report
+            id ="report_lotes_pagado_emi_det_xls"
+            string="Pagado X (Emisor) Detallado XLS"
+            model="reporte_saldos"
+            report_type="xlsx"
+            name="cuentas_por_pagar.lotes_report_pagado_emi_det_xls"
+            file="cuentas_por_pagar.lotes_report_pagado_emi_det_xls"
+        />
 
     <record id="view_reporte_saldos" model="ir.ui.view">
         <field name="name">Vista Reporte Saldos</field>

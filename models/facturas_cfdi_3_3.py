@@ -430,20 +430,21 @@ class FacturaCfdi(models.Model):
             self.invoice_date_due = friday_date
             print(friday_date)
 
-    """
+    @api.model
     def write(self, vals):
+        res = super(FacturaCfdi, self).write(vals)
         for l in self:
+            print('Datos de prueba')
             print(l.payment_state)
             print(l.id)
             print(l.name)
             print(l.uuid)
-            if self.env['account.move'].search([('id','=',l.id)]).lock_validate != True and \
-                    self.env['account.move'].search([('id','=',l.id)]).payment_state == 'paid':
+            if self.env['account.move'].search([('id', '=', l.id)]).lock_validate != True and \
+                    self.env['account.move'].search([('id', '=', l.id)]).payment_state == 'paid':
 
-               raise UserError('El documento esta bloqueado ')
+               raise UserError('El documento esta bloqueado')
             #13188
-            return super(FacturaCfdi,self).write(vals)
-    """
+            return res
 
 
     def download_data(self):

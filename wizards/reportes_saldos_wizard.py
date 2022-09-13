@@ -41,26 +41,46 @@ class SaldosWizard(models.TransientModel):
         return self.env.ref('cuentas_por_pagar.report_lotes_facturado_no_pagado').report_action(self)
     def print_facturado_no_pagado_xls(self):
         return self.env.ref('cuentas_por_pagar.report_lotes_facturado_no_pagado_xls').report_action(self)
+    #saldo de proveedor
     def print3(self):
         return self.env.ref('cuentas_por_pagar.report_lotes_fac_no_pag_no_fac_no_pag').report_action(self)
+    #saldo de proveedor
+    def print3_xls(self):
+        return self.env.ref('cuentas_por_pagar.report_lotes_fac_no_pag_no_fac_no_pag_xls').report_action(self)
     def print_fact_no_pagado_datelle(self):
         self.date_start = super(SaldosWizard, self).browse(self.id).date_start
         print(self.date_start)
         self.date_end = super(SaldosWizard, self).browse(self.id).date_end
         print(self.date_end)
         return self.env.ref('cuentas_por_pagar.report_lotes_fac_no_pag_detail').report_action(self)
+    def print_fact_no_pagado_datelle_xls(self):
+        self.date_start = super(SaldosWizard, self).browse(self.id).date_start
+        print(self.date_start)
+        self.date_end = super(SaldosWizard, self).browse(self.id).date_end
+        print(self.date_end)
+        return self.env.ref('cuentas_por_pagar.report_lotes_fac_no_pag_detail_xls').report_action(self)
     def print_no_fac_datelle(self):
         return self.env.ref('cuentas_por_pagar.report_lotes_no_fac_detall').report_action(self)
+
+    def print_no_fac_datelle_xls(self):
+        return self.env.ref('cuentas_por_pagar.report_lotes_no_fac_detall_xls').report_action(self)
     def print_pagado(self):
         return self.env.ref('cuentas_por_pagar.report_lotes_pagado').report_action(self)
+    def print_pagado_xls(self):
+        return self.env.ref('cuentas_por_pagar.report_lotes_pagado_xls').report_action(self)
     def print_pagado_prod(self):
         return self.env.ref('cuentas_por_pagar.report_lotes_pagado_prod').report_action(self)
+    def print_pagado_prod_xls(self):
+        return self.env.ref('cuentas_por_pagar.report_lotes_pagado_prod_xls').report_action(self)
     def print_pagado_prod_det(self):
         return self.env.ref('cuentas_por_pagar.report_lotes_pagado_prod_det').report_action(self)
+    def print_pagado_prod_det_xls(self):
+        return self.env.ref('cuentas_por_pagar.report_lotes_pagado_prod_det_xls').report_action(self)
     def print_pagado_emi_det(self):
         return self.env.ref('cuentas_por_pagar.report_lotes_pagado_emi_det').report_action(self)
+    def print_pagado_emi_det_xls(self):
+        return self.env.ref('cuentas_por_pagar.report_lotes_pagado_emi_det_xls').report_action(self)
     @api.model_create_multi
     def create(self,vals):
-
         rec = super(SaldosWizard,self).create(vals)
         return rec
