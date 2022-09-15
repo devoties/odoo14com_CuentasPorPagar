@@ -283,14 +283,50 @@ class FacturaCfdi(models.Model):
 
     sum_rep = fields.Float(string='$ Reps',compute='get_sum_imp_pagado',store=True)
 
+    real_payment = fields.Float(string='Status REP',compute='get_sum_imp_pagado')
+
+    status_rep = fields.Char(string='Estatus REP',compute='get_sum_imp_pagado',store=True)
+
     def get_sum_imp_pagado(self):
         for line in self:
             sum_importe_pagado_rep = sum(line.env['pagos_doctos_rel'].search([('id_documento',"ilike",line.uuid)]).mapped('imp_pagado'))
+            q_partial_payments = """ CREATE OR REPLACE VIEW partial_payments AS SELECT ap.debit_move_id,ap.credit_move_id,ap.amount,account_move_line.move_id FROM public.account_partial_reconcile as ap
+                                    left join account_move_line on ap.credit_move_id  = account_move_line.id
+                                    ORDER BY debit_move_id desc;
+                                 """
+            self._cr.execute(q_partial_payments)
+            self._cr.execute('select sum(amount) as amount from partial_payments where move_id=%s GROUP BY move_id'% (line.id))
+            res_payments = self._cr.fetchall()
+
+            res_payments = str(res_payments).replace('[','')
+            res_payments = str(res_payments).replace(']', '')
+            res_payments = str(res_payments).replace('(', '')
+            res_payments = str(res_payments).replace(')', '')
+            res_payments = str(res_payments).replace(',', '')
+
+
+            line.real_payment = res_payments
+
+            if res_payments == '':
+                res_payments = 0.0
+            if sum_importe_pagado_rep == '':
+                sum_importe_pagado_rep = 0.0
+            res_reps_diff = float(res_payments) - float(sum_importe_pagado_rep)
 
             if line.metodo_pago == 'PPD':
-               line.sum_rep = sum_importe_pagado_rep
-            else:
-                line.sum_rep = None
+                print('Diferencia')
+                print(res_reps_diff)
+                line.sum_rep = sum_importe_pagado_rep
+                if res_reps_diff == 0:
+                    line.status_rep = 'Completo'
+                if res_reps_diff > 0:
+                    line.status_rep = 'Pendiente'
+                if res_payments == 0:
+                    line.status_rep = 'No Aplica'
+            if line.metodo_pago != 'PPD':
+                line.status_rep = 'No Aplica'
+
+
 
     def button_cancel(self):
         self.write({'auto_post': False, 'state': 'cancel'})
@@ -430,22 +466,18 @@ class FacturaCfdi(models.Model):
             self.invoice_date_due = friday_date
             print(friday_date)
 
-    @api.model
-    def write(self, vals):
-        res = super(FacturaCfdi, self).write(vals)
-        for l in self:
-            print('Datos de prueba')
-            print(l.payment_state)
-            print(l.id)
-            print(l.name)
-            print(l.uuid)
-            if self.env['account.move'].search([('id', '=', l.id)]).lock_validate != True and \
-                    self.env['account.move'].search([('id', '=', l.id)]).payment_state == 'paid':
+    def button_draft(self):
 
-               raise UserError('El documento esta bloqueado')
-            #13188
-            return res
+        for move in self:
+            """ if move in move.line_ids.mapped('full_reconcile_id.exchange_move_id'):
+                 raise UserError(_('You cannot reset to draft an exchange difference journal entry.'))"""
 
+            if self.env['account.move'].search([('id', '=', move.id)]).lock_validate != True and \
+                    self.env['account.move'].search([('id', '=', move.id)]).payment_state == 'paid':
+                raise ValidationError('El documento esta bloqueado')
+            else:
+                res = super(FacturaCfdi, self).button_draft()
+                return res
 
     def download_data(self):
         engine = Session.engine()

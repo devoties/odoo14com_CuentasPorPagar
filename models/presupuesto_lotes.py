@@ -1,11 +1,10 @@
 from odoo import fields, models, api, _
 from datetime import date,timedelta
 
-
 class PresupuestoLotes(models.Model):
     _name = "presupuesto_lotes"
     _description = "Presupuesto de lotes"
-    _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin','report.report_xlsx.abstract']
 
     name = fields.Char(string='Referencia de presupuesto')
 
@@ -35,6 +34,28 @@ class PresupuestoLotes(models.Model):
 
     aditional_invoices_total = fields.Float(string='Facturas adicionales Total',compute='get_sum_aditional_invoices')
 
+
+    def generate_xlsx_report(self, workbook, data,row_count):
+        for l in self.lotes_provisionados:
+            print(l)
+        query = f""" 
+                     """
+        self._cr.execute(query)
+        result = self._cr.fetchall()
+        row_count = 0
+        format1 = workbook.add_format({'font_size': 14, 'align': 'vcenter', 'bold': True})
+        format2 = workbook.add_format({'font_size': 10, 'align': 'vcenter',})
+        sheet = workbook.add_worksheet('Reporte 1')
+        for lines in result:
+            row_count = row_count + 1
+            sheet.set_column(3, 3, 50)
+            sheet.set_column(2, 2, 30)
+            sheet.write(0, 0, 'Nombre', format1)
+            sheet.write(row_count, 0, lines[0],format2)
+            sheet.write(0, 1, 'Importe', format1)
+            sheet.write(row_count, 1, lines[1], format2)
+            sheet.write(0, 2, 'Cant Lotes', format1)
+            sheet.write(row_count, 2, lines[2], format2)
 
     def action_register_payment(self):
         ''' Open the account.payment.register wizard to pay the selected journal entries.
@@ -70,9 +91,21 @@ class PresupuestoLotes(models.Model):
 
         total_facturas_adicionales = 0
         for l in self.facturas_adicionales:
-            total_facturas_adicionales = total_facturas_adicionales + l.amount_residual_signed
+            if l.amount_residual_signed == 0:
+                print('Usar el total del pago')
+                self._cr.execute('select sum(amount) as amount from partial_payments where move_id=%s GROUP BY move_id' % (l.id))
+                res_payments = self._cr.fetchall()
+                res_payments = str(res_payments).replace('[', '')
+                res_payments = str(res_payments).replace(']', '')
+                res_payments = str(res_payments).replace('(', '')
+                res_payments = str(res_payments).replace(')', '')
+                res_payments = str(res_payments).replace(',', '')
+                l.amount_residual_signed = float(res_payments)
+            if l.amount_residual_signed < 0:
+                l.amount_residual_signed = l.amount_residual_signed * -1
+            total_facturas_adicionales = (total_facturas_adicionales) + l.amount_residual_signed
         print(total_facturas_adicionales)
-        self.budget_total = sum_budget + (total_facturas_adicionales * -1)
+        self.budget_total = sum_budget + (total_facturas_adicionales)
 
 
     def budget_validate(self):

@@ -181,7 +181,7 @@ class Lotes(models.Model):
     status_pago = fields.Char(string='Estatus Pago')
 
     status_provision = fields.Char(string='Provision Lotes',compute='compute_abonos',
-                                   copy=False,tracking=True,track_visibility='always',readonly=True,store=True)
+                                   copy=False,tracking=True,track_visibility='always',readonly=True,store=False)
 
     seats = fields.Integer(string='Numeber of seats')
 
