@@ -47,7 +47,7 @@
 
 
                 <field name="name"/>
-                <field name="invoice" context="{'tree_view_ref':'account.view_in_invoice_tree'}"/>
+                <field name="invoice"/>
 
             </tree>
         </field>

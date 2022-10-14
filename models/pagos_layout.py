@@ -3,7 +3,7 @@ import base64
 from odoo import fields, models, api, _
 import logging
 from datetime import datetime, date
-from odoo.odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError, ValidationError
 logger = logging.getLogger(__name__)
 
 class PagosLayout(models.Model):
@@ -32,18 +32,18 @@ class PagosLayout(models.Model):
 
     txt_layout_file = fields.Binary(string='Archivo de layout',tracking=True,track_visibility='always',store=True,readonly=True)
 
-    fecha_mod_layout = fields.Datetime(string='Fecha Cr/Mod Layout TXT',tracking=True,track_visibility='always',store=True,readonly=True)
+    fecha_mod_layout = fields.Datetime(string='Fecha Cr/Mod Layout TXT', tracking=True, track_visibility='always', store=True, readonly=True)
 
     state = fields.Selection(selection=[
         ('borrador', 'Borrador'),
         ('validado', 'Validado'),
         ('cancelado','Cancelado')
 
-    ], default='borrador', string='Estados', copy=False,tracking=True,track_visibility='always',store=True)
+    ], default='borrador', string='Estados', copy=False, tracking=True, track_visibility='always', store=True)
 
-    presupuestos_rel = fields.Many2one(string='Presupuesto',comodel_name='presupuesto_lotes')
+    presupuestos_rel = fields.Many2one(string='Presupuesto', comodel_name='presupuesto_lotes', store=True)
 
-    total_layout = fields.Float(string='Total Layout',compute='total_calculate')
+    total_layout = fields.Float(string='Total Layout', compute='total_calculate')
 
 
     def total_calculate(self):
@@ -103,6 +103,8 @@ class PagosLayout(models.Model):
         '''
 
     def pruebas(self):
+        global r
+        r = ''
         for r in self:
             pagos_ids = []
             r._cr.execute('''
@@ -112,46 +114,55 @@ class PagosLayout(models.Model):
 
             # idss = (1, 2, 3, 4, 5, 6, 7)
 
+
             for pys in query_res:
                 pagos_ids.append(pys['id'])
             ids_payments_all = tuple(pagos_ids)
+            #hasta aqui tod0 bien
 
         for rec in self:
             lines = []
             for line in rec.presupuestos_rel.facturas_adicionales:
+                print('xxxxxxx')
                 lines.append(line.id)
-            print(tuple(lines))
+                print('testing data')
+                print(line.id)
+
             tup_invoice_ids = tuple(lines)
 
-            r._cr.execute('''SELECT
+            #condicionar si las facturas adicionales son false
+            if str(tup_invoice_ids) == '()':
+                print('Not have aditional invoices')
+            if str(tup_invoice_ids) != '()':
+                r._cr.execute('''SELECT
                 payment.id as pay,
                 payment.amount,
                 ARRAY_AGG(DISTINCT invoice.id) AS invoice_ids,
-				invoice.id,
-				invoice.invoice_date,
+			    invoice.id,
+			    invoice.invoice_date,
                 invoice.move_type
-            FROM account_payment payment
-            JOIN account_move move ON move.id = payment.move_id
-            JOIN account_move_line line ON line.move_id = move.id
-            JOIN account_partial_reconcile part ON
+                FROM account_payment payment
+                JOIN account_move move ON move.id = payment.move_id
+                JOIN account_move_line line ON line.move_id = move.id
+                JOIN account_partial_reconcile part ON
                 part.debit_move_id = line.id
                 OR
                 part.credit_move_id = line.id
-            JOIN account_move_line counterpart_line ON
+                JOIN account_move_line counterpart_line ON
                 part.debit_move_id = counterpart_line.id
                 OR
                 part.credit_move_id = counterpart_line.id
-            JOIN account_move invoice ON invoice.id = counterpart_line.move_id
-            JOIN account_account account ON account.id = line.account_id
-            WHERE account.internal_type IN ('receivable', 'payable')
-                AND payment.id IN %(pays)s
+                JOIN account_move invoice ON invoice.id = counterpart_line.move_id
+                JOIN account_account account ON account.id = line.account_id
+                WHERE account.internal_type IN ('receivable', 'payable')
+                AND payment.id in %(pays)s
                 AND line.id != counterpart_line.id
                 AND invoice.move_type in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')
-            	AND invoice.id IN %(account_move_ids)s
-			GROUP BY payment.id, invoice.move_type, invoice.id, invoice.invoice_date''', {
+                AND invoice.id in %(account_move_ids)s
+			    GROUP BY payment.id, invoice.move_type, invoice.id, invoice.invoice_date''', {
                 'pays': ids_payments_all,
                 'account_move_ids': tup_invoice_ids,
-            })
+                })
             query_res = r._cr.dictfetchall()
             pagos_ids_all = []
             pagos_ids_new = []
@@ -161,8 +172,6 @@ class PagosLayout(models.Model):
             for res in query_res:
                 payments_ids = res['pay']
                 pagos_ids_new.append(payments_ids)
-                print('Nueva Imp')
-                print(payments_ids)
                 lines.append((4, int(payments_ids)))
         rec.relacion_pagos = lines
 
@@ -171,7 +180,7 @@ class PagosLayout(models.Model):
             for linez in recx.presupuestos_rel.lotes_provisionados:
                 print(linez.id_pago)
                 linesx.append((4, int(linez.id_pago)))
-            print("lines", linesx)
+
 
             #remueve los items del one2many
             #rec.relacion_pagos = ([2,int(line.id_pago)])
@@ -316,7 +325,7 @@ class PagosLayout(models.Model):
               if line.bank_id_name.name != 'SANTANDER':
                #formate len's
                acc_number_origin_format = str('65507540168')[ini_val_len:val_acc_number_origin_len]
-               acc_number_destine_format = str(line.partner_bank_id.acc_number)[ini_val_len:val_acc_number_destine_len]
+               acc_number_destine_format = str(line.partner_bank_id.l10n_mx_edi_clabe)[ini_val_len:val_acc_number_destine_len]
                code_bank_destine = str(line.bank_id_name_code)[ini_val_len:val_code_bank_destine_len]
                name_destine_format = str(line.partner_id.name)[ini_val_len:val_name_destine_len]
                amount_destine_format = str("{:.2f}".format(line.amount))[ini_val_len:val_amount_destine_len]
@@ -377,7 +386,7 @@ class PagosLayout(models.Model):
 
 
                dic = acc_number_origin_format + acc_number_destine_format + code_bank_destine\
-                     + name_destine_format + concat_amount + str(ref_destine_format) + aplic_form_destine_format
+                     + name_destine_format + concat_amount + str(ref_destine_format) + aplic_form_destine_format + f"\n"
 
                file_layout_txt.write(dic)
                print('dic')

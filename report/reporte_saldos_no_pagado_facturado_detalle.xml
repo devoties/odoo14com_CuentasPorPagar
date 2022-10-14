@@ -4,6 +4,7 @@
             <t t-call="web.external_layout">
                 <div class="page">
                     <div class="oe_structure"/>
+                    <div style="margin-bottom:20px;">De: <span style="margin-right:50px;" t-esc="date_start"/> A: <span style="margin-right:10px;" t-esc="date_end"/></div>
 
                     <div style="text-align:center;">
                         <h4 style="margin-bottom:16px;">Facturado No Pagado Detalle</h4>

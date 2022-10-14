@@ -11,6 +11,7 @@
                 <button name="budget_draft" type="object" string="Cancelar"
                         class="oe_highlight" invisible="0" states="validate"/>
 
+
                 <field name="state" widget="statusbar" statusbar_visible="draft,validate"/>
 
             </header>

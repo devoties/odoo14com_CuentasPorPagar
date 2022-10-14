@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 from odoo import fields, models, api
-
+from datetime import datetime
 
 class ReporteSaldos(models.Model):
     _name = "reporte_saldos"
@@ -95,6 +95,8 @@ class PruebaQuery(models.AbstractModel):
 
               'doc_ids': docs_ids,
               'vals': vals,
+              'date_start': i.date_start,
+              'date_end': i.date_end,
           }
 
 #Completo
@@ -189,6 +191,8 @@ class FacturadonoPagado(models.AbstractModel):
 
             'doc_ids': docs_ids,
             'vals': vals,
+            'date_start': i.date_start,
+            'date_end': i.date_end,
         }
 #Completo
 class FacturadonopagadoDetallado(models.AbstractModel):
@@ -310,6 +314,8 @@ class FacturadonopagadoDetallado(models.AbstractModel):
 
             'doc_ids': docs_ids,
             'vals': vals,
+            'date_start': i.date_start,
+            'date_end': i.date_end,
         }
 
 #No facturado
@@ -379,6 +385,8 @@ class NofacturadoDetalle(models.AbstractModel):
 
             'doc_ids': docs_ids,
             'vals': vals,
+            'date_start': i.date_start,
+            'date_end': i.date_end,
         }
 
 
@@ -533,6 +541,8 @@ class Pagado(models.AbstractModel):
 
             'doc_ids': docs_ids,
             'vals': vals,
+            'date_start': i.date_start,
+            'date_end': i.date_end,
         }
 
 
@@ -682,6 +692,8 @@ class PagadoporProductor(models.AbstractModel):
 
             'doc_ids': docs_ids,
             'vals': vals,
+            'date_start': i.date_start,
+            'date_end': i.date_end,
         }
 #Completo
 class PagadoporProductorDetalle(models.AbstractModel):
@@ -839,6 +851,8 @@ class PagadoporProductorDetalle(models.AbstractModel):
 
             'doc_ids': docs_ids,
             'vals': vals,
+            'date_start': i.date_start,
+            'date_end': i.date_end,
         }
 #Completo
 class PagadoporEmisorDetalle(models.AbstractModel):
@@ -996,6 +1010,8 @@ class PagadoporEmisorDetalle(models.AbstractModel):
 
             'doc_ids': docs_ids,
             'vals': vals,
+            'date_start': i.date_start,
+            'date_end': i.date_end,
         }
 
 #Pagado
@@ -1080,9 +1096,81 @@ class NfacnopagFacnopag(models.AbstractModel):
 
             'doc_ids': docs_ids,
             'vals': vals,
+            'date_start': i.date_start,
+            'date_end': i.date_end,
         }
 
+class PresupuestoXFactura(models.AbstractModel):
+    _name = 'report.cuentas_por_pagar.presupuesto_por_factura'
+    _description = 'Reporte de presupuesto por factura PDF'
 
+    @api.model
+    def _get_report_values(self, docs_ids, data=None):
+        print('Query')
+        rango_fechas = self.env['reportes_saldos_wizard']
+        for i in rango_fechas.search([], order='id desc', limit=1):
+            i.date_type
+        date_start_val = i.date_start
+        date_end_val = i.date_end
+        vals = []
+        # Creacion de primera vista#
+
+        query = f"""
+        select distinct(data_rel) as id,
+        account_move.uuid as uuid,
+        res_partner.name as name,
+        case when  sum(account_move.amount_residual_signed)/count(account_move.amount_residual_signed) < 0 then 
+        (case when  sum(account_move.amount_residual_signed)/count(account_move.amount_residual_signed) = 0
+        then (select amount from pagado_por_factura where inv_id = data_rel) else sum(account_move.amount_residual_signed)/count(account_move.amount_residual_signed)
+        end) * -1 else (case when  sum(account_move.amount_residual_signed)/count(account_move.amount_residual_signed) = 0
+        then (select amount from pagado_por_factura where inv_id = data_rel) else sum(account_move.amount_residual_signed)/count(account_move.amount_residual_signed)
+        end) end as amount_residual_signed
+        from lotes_account_move_line
+        left join account_move on lotes_account_move_line.data_rel = account_move.id
+        left join res_partner on account_move.partner_id = res_partner.id
+        where lotes_presupuestos_rel = {i.presupuesto.id}
+        group by data_rel,account_move.uuid,res_partner.id 
+        union all
+        SELECT account_move.id,
+        account_move.uuid as uuid,
+        res_partner.name as name,
+        case when  sum(account_move.amount_residual_signed)/count(account_move.amount_residual_signed) < 0 then 
+        (case when  sum(account_move.amount_residual_signed)/count(account_move.amount_residual_signed) = 0
+        then (select amount from pagado_por_factura where inv_id = account_move.id) else sum(account_move.amount_residual_signed)/count(account_move.amount_residual_signed)
+        end) * -1 else (case when  sum(account_move.amount_residual_signed)/count(account_move.amount_residual_signed) = 0
+        then (select amount from pagado_por_factura where inv_id = account_move.id) else sum(account_move.amount_residual_signed)/count(account_move.amount_residual_signed)
+        end) end as amount_residual_signed
+        FROM public.account_move
+        left join res_partner on account_move.partner_id = res_partner.id
+        where presupuesto_lote_fac_adic_rel = {i.presupuesto.id}
+        group by account_move.id,account_move.uuid,res_partner.id
+        order by id asc
+        """
+
+        self._cr.execute(query)
+
+        result = self._cr.fetchall()
+
+        print(result)
+
+        for l in result:
+            vals.append({'id': l[0],
+                         'uuid': l[1],
+                         'name':l[2],
+                         'amount_residual_signed':l[3],
+                         'date_initial':i.date_start,})
+        print('respuesta')
+        print(date_start_val)
+        today = datetime.now()
+        dt_string = today.strftime("%d/%m/%Y %H:%M:%S")
+        dt_print = "DT:", dt_string
+        return {
+
+            'doc_ids': docs_ids,
+            'vals': vals,
+            'presupuesto': i.presupuesto.name,
+            'datetime': dt_print,
+        }
 
 
 """    #INTEGRAR DATOS A UN ONE2MANY

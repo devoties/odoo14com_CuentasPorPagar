@@ -28,34 +28,13 @@ class PresupuestoLotes(models.Model):
 
     res = fields.Char(string='Estado de pago',compute='get_payment_state',store=True)
 
-    facturas_adicionales = fields.One2many('account.move','presupuesto_lote_fac_adic_rel')
+    facturas_adicionales = fields.One2many('account.move', 'presupuesto_lote_fac_adic_rel', store=True)
 
     lotes_total = fields.Float(string='Total Lotes',compute='get_sum_lotes')
 
     aditional_invoices_total = fields.Float(string='Facturas adicionales Total',compute='get_sum_aditional_invoices')
 
 
-    def generate_xlsx_report(self, workbook, data,row_count):
-        for l in self.lotes_provisionados:
-            print(l)
-        query = f""" 
-                     """
-        self._cr.execute(query)
-        result = self._cr.fetchall()
-        row_count = 0
-        format1 = workbook.add_format({'font_size': 14, 'align': 'vcenter', 'bold': True})
-        format2 = workbook.add_format({'font_size': 10, 'align': 'vcenter',})
-        sheet = workbook.add_worksheet('Reporte 1')
-        for lines in result:
-            row_count = row_count + 1
-            sheet.set_column(3, 3, 50)
-            sheet.set_column(2, 2, 30)
-            sheet.write(0, 0, 'Nombre', format1)
-            sheet.write(row_count, 0, lines[0],format2)
-            sheet.write(0, 1, 'Importe', format1)
-            sheet.write(row_count, 1, lines[1], format2)
-            sheet.write(0, 2, 'Cant Lotes', format1)
-            sheet.write(row_count, 2, lines[2], format2)
 
     def action_register_payment(self):
         ''' Open the account.payment.register wizard to pay the selected journal entries.

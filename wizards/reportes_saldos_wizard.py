@@ -29,9 +29,12 @@ class SaldosWizard(models.TransientModel):
         ('todo', 'Todo'),
         ('productor', 'Por Productor'),
         ('emisor', 'Por Emisor'),
+        ('presupuesto','Presupuesto'),
 
     ], default='todo', string='Busqueda por: ', copy=False, tracking=True, track_visibility='always',
         store=True)
+
+    presupuesto = fields.Many2one('presupuesto_lotes',string='Presupuesto #')
 
     def print_no_facturado(self):
         return self.env.ref('cuentas_por_pagar.report_estado_cuenta_card').report_action(self)
@@ -80,6 +83,11 @@ class SaldosWizard(models.TransientModel):
         return self.env.ref('cuentas_por_pagar.report_lotes_pagado_emi_det').report_action(self)
     def print_pagado_emi_det_xls(self):
         return self.env.ref('cuentas_por_pagar.report_lotes_pagado_emi_det_xls').report_action(self)
+    #Reporte de presupuesto por factura
+    def print_pres_xls(self):
+        return self.env.ref('cuentas_por_pagar.report_pres_fac_xls').report_action(self)
+    def print_pres_pdf(self):
+        return self.env.ref('cuentas_por_pagar.report_pres_fac').report_action(self)
     @api.model_create_multi
     def create(self,vals):
         rec = super(SaldosWizard,self).create(vals)

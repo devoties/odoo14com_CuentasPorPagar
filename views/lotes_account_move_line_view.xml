@@ -104,7 +104,7 @@
                 <field name="rep_imp_pagado" optional="show"/>
                 <field name="fecha_pago_tuple" optional="hide"/>
                 <field name="state_special" widget="badge" decoration-success="state_special == 'check_freeze'" decoration-danger="state_special == 'check_freeze_invert'"/>
-
+                <field name="account_partner_bank" widget="boolean_toggle" readonly="False" optional="show"/>
             </tree>
         </field>
     </record>

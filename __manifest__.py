@@ -72,6 +72,7 @@
         'report/reporte_saldos_pagado_por_productor.xml',
         'report/reporte_saldos_pagado_por_productor_det.xml',
         'report/reporte_saldos_pagado_por_emisor_det.xml',
+        'report/reporte_presupuesto_fact.xml',
         'views/autorizaciones_view.xml',
         'wizards/autorizaciones_confirm_wizard.xml',
 

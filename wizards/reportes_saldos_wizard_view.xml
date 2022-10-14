@@ -28,59 +28,65 @@
                 <sheet>
                     <group>
                         <!-- <field name="name"/> -->
-                        <field name="date_start"/>
-                        <field name="date_end"/>
+                        <field name="date_start" attrs="{'invisible': [('provider_type','in',('presupuesto'))]}"/>
+                        <field name="date_end" attrs="{'invisible': [('provider_type','in',('presupuesto'))]}"/>
 
                     </group>
                     <group>
-                        <field name="date_type" widget="radio"/>
+                        <field name="date_type" widget="radio" attrs="{'invisible': [('provider_type','in',('presupuesto'))]}"/>
                         <field name="provider_type" widget="radio"/>
-                        <field name="productor_id" attrs="{'invisible': [('provider_type','in',('todo'))]}"/>
+                        <field name="productor_id" attrs="{'invisible': ['|',('provider_type','in',('todo')),('provider_type','in',('presupuesto'))]}"/>
+                        <field name="presupuesto" attrs="{'invisible': ['|','|',('provider_type','in',('todo')),
+                        ('provider_type','in',('productor')),('provider_type','in',('emisor'))]}"/>
                     </group>
                     <footer>
                         <button string="Create" name="create" invisible="1" type="object"/>
                         <button name="print_no_facturado" string="Saldos Fruta x Pagar" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura')),
-                        ('provider_type','in',('emisor'))]}"/>
+                        attrs="{'invisible': ['|','|','|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura')),
+                        ('provider_type','in',('emisor')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_no_facturado_xls" string="Saldos Fruta x Pagar XLSX" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura')),
-                        ('provider_type','in',('emisor'))]}"/>
+                        attrs="{'invisible': ['|','|','|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura')),
+                        ('provider_type','in',('emisor')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_facturado_no_pagado" string="Facturas x Pagar" type="object" class="oe_highlight"
-                        attrs="{'invisible': [('date_type','in',('fecha_pago'))]}"/>
+                        attrs="{'invisible': ['|',('date_type','in',('fecha_pago')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_facturado_no_pagado_xls" string="Facturas x Pagar XLS" type="object" class="oe_highlight"
-                        attrs="{'invisible': [('date_type','in',('fecha_pago'))]}"/>
+                        attrs="{'invisible': ['|',('date_type','in',('fecha_pago')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print3" string="Saldo de proveedor" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_pago')),('provider_type','in',('productor')),
-                        ('provider_type','in',('emisor'))]}"/>
+                        attrs="{'invisible': ['|','|','|',('date_type','in',('fecha_pago')),('provider_type','in',('productor')),
+                        ('provider_type','in',('emisor')),('provider_type','in',('presupuesto'))]}"/>
                           <button name="print3_xls" string="Saldo de proveedor XLS" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_pago')),('provider_type','in',('productor')),
-                        ('provider_type','in',('emisor'))]}"/>
+                        attrs="{'invisible': ['|','|','|',('date_type','in',('fecha_pago')),('provider_type','in',('productor')),
+                        ('provider_type','in',('emisor')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_fact_no_pagado_datelle" string="Facturas Por Pagar Detalle" type="object" class="oe_highlight"
-                        attrs="{'invisible': [('date_type','in',('fecha_pago'))]}"/>
+                        attrs="{'invisible': ['|',('date_type','in',('fecha_pago')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_fact_no_pagado_datelle_xls" string="Facturas Por Pagar Detalle XLS" type="object" class="oe_highlight"
-                        attrs="{'invisible': [('date_type','in',('fecha_pago'))]}"/>
+                        attrs="{'invisible': ['|',('date_type','in',('fecha_pago')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_no_fac_datelle" string="Pendiente de factura Detalle" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura')),
-                        ('provider_type','in',('emisor'))]}"/>
+                        attrs="{'invisible': ['|','|','|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura')),
+                        ('provider_type','in',('emisor')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_no_fac_datelle_xls" string="Pendiente de factura Detalle XLS" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura')),
-                        ('provider_type','in',('emisor'))]}"/>
+                        attrs="{'invisible': ['|','|','|',('date_type','in',('fecha_pago')),('date_type','in',('fecha_factura')),
+                        ('provider_type','in',('emisor')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_pagado" string="Reporte de pago (Emisor)" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura'))]}"/>
+                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_pagado_xls" string="Reporte de pago (Emisor) XLS" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura'))]}"/>
+                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_pagado_prod" string="Reporte de pago (Productor)" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura'))]}"/>
+                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_pagado_prod_xls" string="Reporte de pago (Productor) XLS" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura'))]}"/>
+                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_pagado_prod_det" string="Reporte de pago (Productor) Det" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura'))]}"/>
+                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_pagado_prod_det_xls" string="Reporte de pago (Productor) Det XLS" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura'))]}"/>
+                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_pagado_emi_det" string="Reporte de pago (Emisor) Det" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura'))]}"/>
+                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura')),('provider_type','in',('presupuesto'))]}"/>
                         <button name="print_pagado_emi_det_xls" string="Reporte de pago (Emisor) Det XLS" type="object" class="oe_highlight"
-                        attrs="{'invisible': ['|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura'))]}"/>
+                        attrs="{'invisible': ['|','|',('date_type','in',('fecha_lote')),('date_type','in',('fecha_factura')),('provider_type','in',('presupuesto'))]}"/>
+                         <button name="print_pres_xls" string="Reporte Presupuesto XLS" type="object" class="oe_highlight"
+                        attrs="{'invisible': ['|','|',('provider_type','in',('todo')),('provider_type','in',('productor')),('provider_type','in',('emisor'))]}"/>
+                        <button name="print_pres_pdf" string="Reporte Presupuesto PDF" type="object" class="oe_highlight"
+                        attrs="{'invisible': ['|','|',('provider_type','in',('todo')),('provider_type','in',('productor')),('provider_type','in',('emisor'))]}"/>
                         <button string="Cancelar" class="btn-secondary" special="cancel"/>
                     </footer>
                 </sheet>

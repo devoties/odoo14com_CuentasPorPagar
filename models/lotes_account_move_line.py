@@ -80,8 +80,19 @@ class LotesCfdi(models.Model):
     reporte_saldos_lotes_line_rel = fields.Many2one('reporte_saldos',string='Reporte Saldos Lotes Line Rel')
 
     ine_data = fields.Char(string='Ine Data')
-
+    #Vencimiento del ine
     ine_venc = fields.Char(string='INE VENC',compute='get_ine')
+
+    account_partner_bank = fields.Boolean(string='Cta Banco',compute='get_account_partner_bank_status')
+
+    def get_account_partner_bank_status(self):
+        for l in self:
+            account_exists = l.env['res.partner.bank'].search_count([('partner_id','=',l.id_partner.id)])
+            if account_exists > 0 :
+               l.account_partner_bank = True
+            if account_exists <= 0:
+               l.account_partner_bank = False
+
 
     def get_ine(self):
         for l in self:
