@@ -89,7 +89,6 @@ class FacturadonoPagadoExcel(models.AbstractModel):
             query_extra_invoices = f' and account_move.partner_id = {i.productor_id.id}'
             query_filter_provider = f' and public.account_move.partner_id =  {i.productor_id.id} '
         query_union_value_original = f"""
-
                    union all
                    select
                    account_move.uuid as uuid,
@@ -442,8 +441,7 @@ class PagadoXls(models.AbstractModel):
             	AND invoice.id IN {list_tuple_invoice}
 			GROUP BY payment.id, invoice.move_type, invoice.id, fechax;
             CREATE OR REPLACE VIEW pagado_por_factura AS 
-            select inv_id,sum(partial_payments.amount) as amount FROM public.pagado
-            left join partial_payments on pagado.inv_id = partial_payments.move_id 
+            select inv_id,sum(amount) as amount FROM public.pagado
             group by inv_id;
             SELECT * FROM pagado_por_factura;"""
 
@@ -594,8 +592,7 @@ class PagadoporProductorXls(models.AbstractModel):
             	AND invoice.id IN {list_tuple_invoice}
 			GROUP BY payment.id, invoice.move_type, invoice.id, fechax;
             CREATE OR REPLACE VIEW pagado_por_factura AS 
-            select inv_id,sum(partial_payments.amount) as amount FROM public.pagado
-            left join partial_payments on pagado.inv_id = partial_payments.move_id 
+            select inv_id,sum(amount) as amount FROM public.pagado
             group by inv_id;
             SELECT * FROM pagado_por_factura;"""
 
@@ -745,8 +742,7 @@ class PagadoporProductorDetalleXls(models.AbstractModel):
             	AND invoice.id IN {list_tuple_invoice}
 			GROUP BY payment.id, invoice.move_type, invoice.id, fechax;
             CREATE OR REPLACE VIEW pagado_por_factura AS 
-            select inv_id,sum(partial_payments.amount) as amount FROM public.pagado
-            left join partial_payments on pagado.inv_id = partial_payments.move_id 
+            select inv_id,sum(amount) as amount FROM public.pagado
             group by inv_id;
             SELECT * FROM pagado_por_factura;"""
 
@@ -911,8 +907,7 @@ class PagadoporEmisorDetalleXls(models.AbstractModel):
             	AND invoice.id IN {list_tuple_invoice}
 			GROUP BY payment.id, invoice.move_type, invoice.id, fechax;
             CREATE OR REPLACE VIEW pagado_por_factura AS 
-            select inv_id,sum(partial_payments.amount) as amount FROM public.pagado
-            left join partial_payments on pagado.inv_id = partial_payments.move_id 
+            select inv_id,sum(amount) as amount FROM public.pagado
             group by inv_id;
             SELECT * FROM pagado_por_factura;"""
 

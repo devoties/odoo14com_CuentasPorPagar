@@ -39,6 +39,7 @@
         'data/productos.xml',
         'data/secuencia.xml',
         'data/currency.xml',
+        'data/size_binary_alter.xml',
         'report/reporte_presupuesto.xml',
         'wizards/lotes_wizard.xml',
         'wizards/cortes_wizard.xml',

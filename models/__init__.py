@@ -40,3 +40,4 @@ from . import reporte_saldos
 from . import lotes_view
 from . import account_register_payment_extends
 from . import autorizaciones_cancelaciones
+from . import modify_original_size_binaries

@@ -103,6 +103,9 @@
         <field name="res_model">pagos_doctos_rel</field>
         <field name="view_mode">tree,form</field>
     </record>
+
+
+
     <!-- menus horizontales -->
     <menuitem id="menu_principal_cuentas_por_pagar" name="Cuentas por pagar"
               web_icon="cuentas_por_pagar,static/description/icon.png"/>
@@ -169,4 +172,5 @@
     <menuitem id="menu_vertical_cuentas_por_pagar_autorizaciones" name="Autorizaciones"
               parent="menu_horizontal_autorizaciones"
               action="action_open_cuentas_por_pagar_autorizaciones_cancelaciones_view"/>
+
 </odoo>
