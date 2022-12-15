@@ -3,7 +3,7 @@ import base64
 from odoo import fields, models, api, _
 import logging
 from datetime import datetime, date
-from odoo.odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError, ValidationError
 logger = logging.getLogger(__name__)
 
 class AutorizacionesCancelaciones(models.Model):

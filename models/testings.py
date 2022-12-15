@@ -1,4 +1,6 @@
-a = 500
-b = True
+resultado = 23
 
-print (a if b else 0)
+if resultado <= 22:
+   print('No es la edad de leo')
+else:
+    print(resultado, ' es la edad de leo')

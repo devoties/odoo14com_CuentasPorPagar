@@ -15,7 +15,7 @@ from sqlalchemy import or_
 import logging
 import pandas as pd
 import pendulum
-from odoo.odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -131,8 +131,8 @@ class Session():
         return session
 
     def engine():
-        server_addres = 'e3210dfde5c7.sn.mynetname.net' + ":" + "49706"
-        #server_addres = '192.168.88.214' + ":" + "49706"
+        #server_addres = 'e3210dfde5c7.sn.mynetname.net' + ":" + "49706"
+        server_addres = '192.168.88.214' + ":" + "49706"
         database = 'document_e6bf5000-4ec4-4221-b121-079a0be33697_metadata'
         username = 'sa'
         password = 'HideMyPassBm123'
@@ -144,8 +144,8 @@ class Session():
         return engine
     #Conexion a la BD content de contpaqi (XML FILE)
     def engine_xml():
-        #server_addres_xml = '192.168.88.214' + ":" + "49706"
-        server_addres_xml = 'e3210dfde5c7.sn.mynetname.net' + ":" + "49706"
+        server_addres_xml = '192.168.88.214' + ":" + "49706"
+        #server_addres_xml = 'e3210dfde5c7.sn.mynetname.net' + ":" + "49706"
         database_xml = 'document_b293efb8-0254-4a13-8ab5-dd78af6bfc8b_content'
         username_xml = 'sa'
         password_xml = 'HideMyPassBm123'
@@ -261,7 +261,7 @@ class FacturaCfdi(models.Model):
 
     nc_original_file = fields.Binary(string='Nota de credito Original')
 
-    purchase_order_rel = fields.Many2many('purchase.order', 'purchase_order_account_move_rel_4','purchase_id','account_id', string='Ordenes Compra')
+    #purchase_order_rel = fields.Many2many('purchase.order', 'purchase_order_account_move_rel_4','purchase_id','account_id', string='Ordenes Compra')
 
     rep_rel = fields.One2many('pagos_doctos_rel','account_move_pagos_rel',string='Relación de REPS')
 
@@ -286,6 +286,8 @@ class FacturaCfdi(models.Model):
     real_payment = fields.Float(string='Status REP',compute='get_sum_imp_pagado')
 
     status_rep = fields.Char(string='Estatus REP',compute='get_sum_imp_pagado',store=True)
+
+    corte_rel = fields.One2many('cortes','account_move_cortes_rel',string='Relacion cortes')
 
     def get_sum_imp_pagado(self):
         for line in self:
@@ -480,11 +482,12 @@ class FacturaCfdi(models.Model):
                 return res
 
     def download_data(self):
+        #Se abre la sesion del engine (conexion a base de datos sql server)
         engine = Session.engine()
         session = Session.session(engine)
 
         global cfdi_contpaqi
-
+        # Mapeo los modelos en objetos
         contactos_obj = self.env['res.partner']
 
         rango_cfdis_obj = self.env['cfdis_wizard']
@@ -495,6 +498,7 @@ class FacturaCfdi(models.Model):
 
         moneda_obj = self.env['res.currency'].search([('name', '=', 'MXN')])
 
+        #se encarga de recorrer el modelo cfdi_wizard
         for i in rango_cfdis_obj.search([], order='id desc', limit=1):
             # ordenar por nombre
             # lote_inicial_object.search([],order='name')

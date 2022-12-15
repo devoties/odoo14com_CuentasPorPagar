@@ -3,7 +3,7 @@
 from odoo import fields, models, api, _
 import logging
 
-from odoo.odoo.exceptions import UserError
+from odoo.exceptions import UserError
 
 
 class AccountRegisterPaymentExtends(models.TransientModel):

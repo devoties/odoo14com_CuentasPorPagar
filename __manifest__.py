@@ -11,12 +11,14 @@
         'product',
         'purchase',
         'report_xlsx',
+
     ],
     'author': 'ISC Alexis Cruz A',
     'category': 'Cuentas Por Pagar (Interfaz Contpaqi, TTs)',
     'website': 'https://www.bmavocados.com',
     'summary': 'Cuentas Por Pagar Mod',
     'description':'Cuentas Por Pagar Module',
+    'application': True,
     'data':[
         'security/contratos_security.xml',
         'security/ir.model.access.csv',
@@ -32,7 +34,7 @@
         'views/contratos_compra_venta_view.xml',
         'views/pagos_layout_view.xml',
         'views/account_payment_extends_view.xml',
-        'views/facturas_cfdi_3_3_view.xml',
+        #'views/facturas_cfdi_3_3_view.xml',
         'data/categoria.xml',
         'data/tipo_cuadrillas.xml',
         'data/organismos_verificadores.xml',
@@ -46,8 +48,8 @@
         'wizards/cfdis_wizard.xml',
         'views/extension_cuentas_bancarias_view.xml',
         'views/extension_partner_sat_view.xml',
-        'views/interfaz_lotes_view.xml',
         'views/interfaz_cortes_view.xml',
+        'views/interfaz_lotes_view.xml',
         'views/cp_cuadrillas_view.xml',
         'views/registros_certificaciones_view.xml',
         'views/opinion_cumplimiento_view.xml',
@@ -57,7 +59,6 @@
         'wizards/corte_cuadrillas_ajuste_view.xml',
         #'views/product_product_extends.xml',
         'views/product_product_sat_catalogue_view.xml',
-        'views/purchase_order_extends_view.xml',
         'views/pagos_doctos_rel_view.xml',
         'views/presupuesto_lotes_view.xml',
         'views/reporte_saldos.xml',
@@ -74,8 +75,15 @@
         'report/reporte_saldos_pagado_por_productor_det.xml',
         'report/reporte_saldos_pagado_por_emisor_det.xml',
         'report/reporte_presupuesto_fact.xml',
+        'report/reporte_fleteros.xml',
         'views/autorizaciones_view.xml',
         'wizards/autorizaciones_confirm_wizard.xml',
+
+
+        'views/mfletes.xml',
+        'views/modelo_fletes.xml',
+        'views/k_view.xml',
+        'wizards/wizard_fletes.xml',
 
     ],
 }

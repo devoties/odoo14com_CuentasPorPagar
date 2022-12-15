@@ -41,7 +41,6 @@
                         <group>
                             <field name="fecha_reg"/>
                             <field name="banco"/>
-                            <field name="layout_type_bank"/>
                             <field name="presupuestos_rel"/>
                             <field name="total_layout"/>
                         </group>
@@ -57,7 +56,13 @@
 
                                         <field name="relacion_pagos" widget="many2many" mode="tree,form"
                                                domain="[('estatus_layout', '!=', 'locked')]"/>
+
                                     </group>
+                                </group>
+                            </page>
+                            <page string="Relacion fletes">
+                                <group>
+                                <field name="rel_field" />
                                 </group>
                             </page>
 

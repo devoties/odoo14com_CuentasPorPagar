@@ -37,13 +37,17 @@ class PagosLayout(models.Model):
     state = fields.Selection(selection=[
         ('borrador', 'Borrador'),
         ('validado', 'Validado'),
-        ('cancelado','Cancelado')
+        ('cancelado', 'Cancelado')
 
     ], default='borrador', string='Estados', copy=False, tracking=True, track_visibility='always', store=True)
 
     presupuestos_rel = fields.Many2one(string='Presupuesto', comodel_name='presupuesto_lotes', store=True)
 
     total_layout = fields.Float(string='Total Layout', compute='total_calculate')
+
+
+    #page_fletes_presupuesto = fields.One2many('fletes_modelo_tts', 'layout_fletes', string='Fletes')
+    rel_field = fields.Many2one('impuestos', required=True, store=True)
 
 
     def total_calculate(self):

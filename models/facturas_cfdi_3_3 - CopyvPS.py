@@ -132,8 +132,8 @@ class Session():
         return session
 
     def engine():
-        server_addres = 'e3210dfde5c7.sn.mynetname.net' + ":" + "49706"
-        #server_addres = '192.168.88.214' + ":" + "49706"
+        #server_addres = 'e3210dfde5c7.sn.mynetname.net' + ":" + "49706"
+        server_addres = '192.168.88.214' + ":" + "49706"
         database = 'document_e6bf5000-4ec4-4221-b121-079a0be33697_metadata'
         username = 'sa'
         password = 'HideMyPassBm123'
@@ -145,8 +145,8 @@ class Session():
         return engine
     #Conexion a la BD content de contpaqi (XML FILE)
     def engine_xml():
-        #server_addres_xml = '192.168.88.214' + ":" + "49706"
-        server_addres_xml = 'e3210dfde5c7.sn.mynetname.net' + ":" + "49706"
+        server_addres_xml = '192.168.88.214' + ":" + "49706"
+        #server_addres_xml = 'e3210dfde5c7.sn.mynetname.net' + ":" + "49706"
         database_xml = 'document_b293efb8-0254-4a13-8ab5-dd78af6bfc8b_content'
         username_xml = 'sa'
         password_xml = 'HideMyPassBm123'

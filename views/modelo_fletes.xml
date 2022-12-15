@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+
+    <record id="view_create_fletes_modelo" model="ir.ui.view">
+        <field name="name">Creacion de fletes</field>
+        <field name="model">fletes_modelo_tts</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button string="Contabilizado CFDI" type="object" name="aprobar_cfdi_fletes" class="oe_highlight" confirm="Desea contabilizar CFDI" />
+                    <button string="Ir borrador" type="object" name="ir_borrador_fletes" confirm="Desea ir a borrador"  />
+
+                    <field name="state_fletes" widget="statusbar" statusbar_visible="borrador,aprobado_cfdi"/>
+                </header>
+                <sheet>
+                    <!--<div class="alert alert-info" role="alert" style="margin-botton: 0px"
+                                 attrs="{'invisible': [('alerta_peso_cajas', '=', True)]}"  >
+                        <h2 ><field name="alerta_peso_cajas" readonly="1" /></h2>
+                            </div>-->
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="fecha"/>
+                            <field name="huerta"/>
+                            <field name="ubicacion_municipio"/>
+                            <field name="poblacion"/>
+                            <field name="estado"/>
+                            <field name="status" placeholder="Tipo de fruta org/conv"/>
+                            <field name="nombre_produtor_modelo_tts"/>
+                            <field name="nombre_transportista"/>
+                            <field name="nombre_jefe_cuadrilla"/>
+                            <field name="beneficiario"/>
+                            <field name="state"  invisible="1"/>
+                            <field name="peso_producto" invisible="1" />
+
+                            <!--<field name="data_rel"/>
+                             <field name="es_opinion"/>
+                            <field name="uuid"/>-->
+
+                        </group>
+                        <group>
+                            <field name="municipio"/>
+                            <field name="importe_total_fletes_municipio"/>
+                            <field name="cajas_lote_fletes"/>
+                            <field name="cajas_mixtos_fletes"/>
+                            <field name="impuestos" widget="selection_and_note_one2many"
+                                   mode="tree,kanban"/>
+                            <field name="importe_mas_retencion"/>
+
+
+                            <field name="peso_promedio_caja" invisible="1"/>
+
+
+
+                        </group>
+                    </group>
+                    <h3>Observaciones</h3>
+                    <field name="observaciones" placeholder="Agregar una observacion"/>
+                </sheet>
+
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+
+            </form>
+        </field>
+    </record>
+    <record id="search_fletes_x" model="ir.ui.view">
+        <field name="name">Buscador flete</field>
+        <field name="model">fletes_modelo_tts</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="ORDEN CORTE"/>
+                <field name="huerta" string="HUERTA"/>
+                <field name="municipio" string="MUNICIPIO"/>
+                <field name="nombre_produtor_modelo_tts" string="PRODUCTOR"/>
+                <field name="nombre_transportista" string="TRASPORTISTA"/>
+                <field name="nombre_jefe_cuadrilla" string="JEFE CUADRILLA"/>
+                <field name="beneficiario" string="BENEFICIARIO"/>
+                <field name="fecha" string="FECHA"/>
+                <field name="ubicacion_municipio" string="LOCALIDAD"/>
+                <field name="poblacion" string="POBLACION"/>
+            </search>
+        </field>
+    </record>
+    <record id="tree_create_fletes" model="ir.ui.view">
+        <field name="name">Creacion de flete</field>
+        <field name="model">fletes_modelo_tts</field>
+        <field name="arch" type="xml">
+            <tree  >
+                <header>
+                    <button string="Contabilizado CFDI" type="object" name="aprobar_cfdi_fletes" class="oe_highlight" confirm="Desea contabilizar CFDI"/>
+                    <button string="Ir borrador" type="object" name="ir_borrador_fletes"  confirm="Desea ir a borrador"/>
+                </header>
+                <field name="name" optional="show"/>
+                <field name="fecha" optional="show"/>
+                <field name="huerta" optional="show"/>
+
+
+
+                <field name="ubicacion_municipio" optional="show"/>
+                <field name="poblacion" optional="show"/>
+                <field name="estado" optional="show"/>
+                <field name="municipio" optional="show" widget="badge"/>
+                <field name="cajas_lote_fletes" optional="show"/>
+                <field name="cajas_mixtos_fletes"/>
+                <!--<field name="peso_promedio_caja"  widget="badge" decoration-success="state == 'margen'"
+                decoration-warning="state == 'alerta_faltante'" decoration-danger="state == 'alerta_exeso'"/>
+                <field name="state" optional="show"  />-->
+                <field name="nombre_produtor_modelo_tts" optional="show"/>
+                <field name="carta_porte" widget="boolean_toggle"/>
+                <field name="nombre_transportista" optional="show"/>
+                <field name="nombre_jefe_cuadrilla" optional="show"/>
+                <field name="importe_mas_retencion" optional="show" sum="SumaTarifasFinales"/>
+                <field name="state_fletes" optional="show" widget="badge"/>
+                <field name="beneficiario" optional="show"/>
+
+
+            </tree>
+        </field>
+    </record>
+</odoo>

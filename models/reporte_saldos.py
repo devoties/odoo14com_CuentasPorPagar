@@ -1177,3 +1177,102 @@ class PresupuestoXFactura(models.AbstractModel):
                 linesx.append((4, int(linez.id_pago)))
             print("lines", linesx)
 """
+class ReporteFleterosPdf(models.AbstractModel):
+    _name = 'report.cuentas_por_pagar.lotes_fleteros'
+    _description = 'Reporte Fleteros PDF'
+
+    @api.model
+    def _get_report_values(self, docs_ids, data=None):
+        print('PRUEBA ALEXIS')
+        print('Query')
+        rango_fechas = self.env['reportes_saldos_wizard']
+        for i in rango_fechas.search([], order='id desc', limit=1):
+            i.date_type
+        date_start_val = i.date_start
+        date_end_val = i.date_end
+        vals = []
+        # Creacion de primera vista#
+
+        query_create_fleteros_view = f"""
+        CREATE OR REPLACE VIEW public.fleteros
+        AS SELECT c.name AS id_flete,
+        c.fecha,
+        h.name AS huerta,
+        c.municipio,
+        c.cajas_mixtos_fletes AS cajas_camion,
+        h.name AS nombre_transportista,
+        c.importe_mas_retencion AS total,
+        n.name AS beneficiario
+        FROM fletes_modelo_tts c
+        LEFT JOIN huertas h ON h.id = c.huerta
+        LEFT JOIN res_partner x ON x.id = c.nombre_transportista
+        LEFT JOIN res_partner n ON n.id = c.beneficiario
+        WHERE fecha BETWEEN '{i.date_start}' AND '{i.date_end}'
+        ORDER BY n.name;
+        """
+        self._cr.execute(query_create_fleteros_view)
+        query_create_second_view_fleteros_2 = f"""
+        SELECT  beneficiario,id_flete,fecha,huerta,municipio,cajas_camion,nombre_transportista,total,tot
+        FROM    (
+         SELECT fleteros.beneficiario,fleteros.id_flete, fleteros.fecha,huerta,fleteros.municipio,fleteros.cajas_camion,fleteros.nombre_transportista,fleteros.total,coalesce(cast(SUM(fleteros.total) as VARCHAR(20))) as tot
+         FROM   public.fleteros
+         GROUP by ROLLUP (BENEFICIARIO
+               ,id_flete
+               ,fecha
+               ,huerta
+               ,municipio
+               ,cajas_camion
+               ,nombre_transportista
+               ,TOTAL)
+               order by Id_flete DESC
+        ) AS X
+        WHERE   BENEFICIARIO IS NOT null
+        AND (
+             (
+              Id_flete IS NOT NULL
+              AND Fecha IS NOT null
+              and Total is not null
+              and Huerta is not null
+              and Municipio is not null
+              and Cajas_camion is not null
+              and Nombre_transportista is not null
+             )
+             OR (
+                 Id_Flete IS NULL
+                 AND fecha IS null
+                 and total is  null
+                 and huerta is null
+                 and municipio is null
+                 and cajas_camion is null
+                 and nombre_transportista is null
+                )
+            )
+            order by Id_flete DESC
+        """
+
+
+
+        self._cr.execute(query_create_second_view_fleteros_2)
+        result = self._cr.fetchall()
+        print('Prueba')
+        print(result)
+
+        for l in result:
+            vals.append({'beneficiario': l[0],
+                         'id_flete': l[1],
+                         'fecha':l[2],
+                         'huerta':l[3],
+                         'municipio':l[4],
+                         'cajas_camion':l[5],
+                         'nombre_transportista':l[6],
+                         'tot':l[8],})
+        print('respuesta')
+        print(date_start_val)
+        today = datetime.now()
+        dt_string = today.strftime("%d/%m/%Y %H:%M:%S")
+        dt_print = "DT:", dt_string
+        return {
+
+            'doc_ids': docs_ids,
+            'vals': vals,
+        }

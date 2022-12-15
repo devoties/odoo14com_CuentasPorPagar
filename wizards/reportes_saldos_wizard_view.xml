@@ -87,6 +87,8 @@
                         attrs="{'invisible': ['|','|',('provider_type','in',('todo')),('provider_type','in',('productor')),('provider_type','in',('emisor'))]}"/>
                         <button name="print_pres_pdf" string="Reporte Presupuesto PDF" type="object" class="oe_highlight"
                         attrs="{'invisible': ['|','|',('provider_type','in',('todo')),('provider_type','in',('productor')),('provider_type','in',('emisor'))]}"/>
+
+                        <button name="print_fleteros_pdf" string="Reporte Fleteros PDF" type="object" class="oe_highlight"/>
                         <button string="Cancelar" class="btn-secondary" special="cancel"/>
                     </footer>
                 </sheet>

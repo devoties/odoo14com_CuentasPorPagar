@@ -170,6 +170,14 @@
             name="cuentas_por_pagar.presupuesto_por_factura"
             file="cuentas_por_pagar.presupuesto_por_factura"
         />
+               <report
+            id ="report_lotes_fleteros"
+            string="Reporte fleteros PDF"
+            model="reporte_saldos"
+            report_type="qweb-pdf"
+            name="cuentas_por_pagar.lotes_fleteros"
+            file="cuentas_por_pagar.lotes_fleteros"
+        />
 
     <record id="view_reporte_saldos" model="ir.ui.view">
         <field name="name">Vista Reporte Saldos</field>

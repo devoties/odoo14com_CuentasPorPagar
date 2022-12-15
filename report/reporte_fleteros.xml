@@ -1,0 +1,69 @@
+<odoo>
+    <template id="lotes_fleteros">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="oe_structure"/>
+                    <div style="margin-bottom:20px;">De: <span style="margin-right:50px;" t-esc="date_start"/> A: <span style="margin-right:10px;" t-esc="date_end"/></div>
+
+                        <div style="text-align:center;"><h4 style="margin-bottom:16px;">Reporte fleteros</h4></div>
+
+
+                    <div class="row">
+                        <table class="table table_condensed">
+                            <thead>
+                                <tr>
+                                        <th style="text-align:left;"><strong>BENEFICIARIO.: </strong></th>
+                                    <th style="text-align:left;"><strong>ID_FLETE: </strong></th>
+                                    <th style="text-align:left;"><strong>FECHA: </strong></th>
+                                    <th style="text-align:left;"><strong>HUERTA: </strong></th>
+                                    <th style="text-align:left;"><strong>MUNICIPIO: </strong></th>
+                                    <th style="text-align:left;"><strong>CAJAS CAMION: </strong></th>
+                                    <th style="text-align:left;"><strong>NOMBRE TRANSPORTISTA: </strong></th>
+                                    <th style="text-align:left;"><strong>TOTAL: </strong></th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                <tr t-foreach="vals" t-as="o">
+
+                                    <td >
+                                    <span t-esc="o['beneficiario']" />
+                                    </td>
+                                                                        <td >
+                                    <span t-esc="o['id_flete']" />
+                                    </td>
+                                                                        <td >
+                                    <span t-esc="o['fecha']" />
+                                    </td>
+                                                                        <td >
+                                    <span t-esc="o['huerta']" />
+                                    </td>
+                                                                        <td >
+                                    <span t-esc="o['municipio']" />
+                                    </td>
+                                                                        <td >
+                                    <span t-esc="o['cajas_camion']" />
+                                    </td>
+                                                                        <td >
+                                    <span t-esc="o['nombre_transportista']" />
+                                    </td>
+                                         <td >
+                                    <span t-esc="'${0:,.2f}'.format(float(o['tot']))" />
+                                    </td>
+
+                                </tr>
+                                          <tr class="text_right">
+
+                                          </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

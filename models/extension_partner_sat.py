@@ -27,3 +27,7 @@ class ExtensionPartnersat(models.Model):
     id_jefe_cuadrilla = fields.Integer(string='Id Jefe Cuadrilla TTS')
 
     rfc = fields.Char(string='RFC')
+
+    beneficiario_flete = fields.Many2one('res.partner',string='Beneficiario')
+
+    meniu_tafifas = fields.Many2many('tarifas_fletes', string='Tarifas')

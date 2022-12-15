@@ -88,6 +88,8 @@ class SaldosWizard(models.TransientModel):
         return self.env.ref('cuentas_por_pagar.report_pres_fac_xls').report_action(self)
     def print_pres_pdf(self):
         return self.env.ref('cuentas_por_pagar.report_pres_fac').report_action(self)
+    def print_fleteros_pdf(self):
+        return self.env.ref('cuentas_por_pagar.report_lotes_fleteros').report_action(self)
     @api.model_create_multi
     def create(self,vals):
         rec = super(SaldosWizard,self).create(vals)

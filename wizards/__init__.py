@@ -6,3 +6,4 @@ from . import cfdis_wizard
 from . import cortes_cuadrillas_ajuste_wizard
 from . import reportes_saldos_wizard
 from . import autorizaciones_confirm
+from . import fletes_wizard

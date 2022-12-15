@@ -6,7 +6,7 @@ from odoo import fields, models, api, _
 import pandas as pd
 from datetime import date,timedelta
 
-from odoo.odoo.exceptions import UserError
+from odoo.exceptions import UserError
 logger = logging.getLogger(__name__)
 
 class LotesCfdi(models.Model):
@@ -58,7 +58,7 @@ class LotesCfdi(models.Model):
     es_cif = fields.Char(string='CSF',compute='get_aditional_data')
     #aqui revisar
     estatus_layout = fields.Char(string='Estatus Layout')
-    rep_imp_pagado = fields.Float(string='Imp Pagado REPS',compute='get_sum_imp_pagado')
+    #rep_imp_pagado = fields.Float(string='Imp Pagado REPS',compute='get_sum_imp_pagado')
     rep_imp_por_pagar = fields.Float(string='Imp Por Pagar REPS',compute='get_sum_imp_pagado')
     res = fields.Char(compute='search_date',string='Total')
     fecha_pago_tuple = fields.Char(compute='get_payments_ids',string='Fecha Pago')

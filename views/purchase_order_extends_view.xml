@@ -9,7 +9,7 @@
         <field name="arch" type="xml">
             <xpath expr="//notebook//page[@name='products']" position="after">  <!-- se tiene que buscar en el notebook el @name-->
                 <page string="Facturas Proveedor">
-                <field name="account_move_rel" widget="many2many"/>
+                <!--<field name="account_move_rel" widget="many2many"/>-->
                     <button name="update_all_products" type="object" string="Update"
                             class="oe_highlight" invisible="0"/>
                 </page>

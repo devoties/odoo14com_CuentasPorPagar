@@ -50,7 +50,7 @@ class PresupuestoFacExcel(models.AbstractModel):
         				invoice.id as inv_id,
         				move.date as fechax,
                         invoice.move_type as move_type,
-                        sum(payment.amount) as amount
+                        sum(part.amount) as amount
                     FROM account_payment payment
                     JOIN account_move move ON move.id = payment.move_id
                     JOIN account_move_line line ON line.move_id = move.id

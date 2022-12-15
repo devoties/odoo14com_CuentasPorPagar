@@ -86,12 +86,6 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <record id="action_open_cuentas_por_pagar_reporte_lotes_view" model="ir.actions.act_window">
-        <field name="name">Reporte Lotes View</field>
-        <field name="res_model">lotes_viewv</field>
-        <field name="view_mode">tree,form</field>
-    </record>
-
     <record id="action_open_cuentas_por_pagar_autorizaciones_cancelaciones_view" model="ir.actions.act_window">
         <field name="name">Autorizaciones Cancelaciones View</field>
         <field name="res_model">autorizaciones_cancelaciones</field>
@@ -106,10 +100,32 @@
 
 
 
+    <record id="action_open_cuentas_por_pagar_fletes" model="ir.actions.act_window">
+        <field name="name">Tarifas - Municipios</field>
+        <field name="res_model">tarifas_fletes</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <record id="action_open_cuentas_por_pagar_fletes_modelo_tts" model="ir.actions.act_window">
+        <field name="name">Municipios - fletes</field>
+        <field name="res_model">fletes_modelo_tts</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <record id="action_open_fletes_descarga_wizard" model="ir.actions.act_window">
+        <field name="name">Descargas - fletes</field>
+        <field name="res_model">fletes_wizard</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+
+
+
     <!-- menus horizontales -->
     <menuitem id="menu_principal_cuentas_por_pagar" name="Cuentas por pagar"
               web_icon="cuentas_por_pagar,static/description/icon.png"/>
     <menuitem id="menu_horizontal_cuentas_por_pagar" name="Opciones" parent="menu_principal_cuentas_por_pagar"/>
+    <menuitem id="menu_vertical_cuentas_por_pagar" name="tarifas" parent="menu_horizontal_cuentas_por_pagar"
+              action="action_open_cuentas_por_pagar_fletes"/>
     <menuitem id="menu_horizontal_cuentas_por_pagar_catalogo" name="Catalogos"
               parent="menu_principal_cuentas_por_pagar"/>
     <menuitem id="menu_horizontal_cuentas_por_pagar_interfaz" name="Interfaz"
@@ -140,6 +156,8 @@
 
     <menuitem id="menu_vertical_cuentas_por_pagar_cortes" name="Cortes"
               parent="menu_horizontal_cuentas_por_pagar_interfaz" action="action_open_cuentas_por_pagar_cortes"/>
+    <menuitem id="menu_vertical_cuentas_por_pagar_fletes" name="fletes"
+              parent="menu_horizontal_cuentas_por_pagar_interfaz" action="action_open_cuentas_por_pagar_fletes_modelo_tts"/>
 
     <menuitem id="menu_vertical_cuentas_por_pagar_lotes_account_move_line" name="Lotes Lineas Facturas"
               parent="menu_horizontal_programacion_pagos"
@@ -150,6 +168,8 @@
               parent="menu_horizontal_cuentas_por_pagar_descarga" action="action_open_cortes_descarga_wizard"/>
     <menuitem id="menu_vertical_cuentas_por_pagar_cfdis_descarga" name="Descarga de cfdis"
               parent="menu_horizontal_cuentas_por_pagar_descarga" action="action_open_cfdis_descarga_wizard"/>
+    <menuitem id="menu_vertical_cuentas_por_pagar_fletes_descarga" name="Descarga de fletes"
+              parent="menu_horizontal_cuentas_por_pagar_descarga" action="action_open_fletes_descarga_wizard"/>
 
     <menuitem id="menu_vertical_cuentas_por_pagar_layout_pago" name="Layout Pago"
               parent="menu_horizontal_programacion_pagos" action="action_open_cuentas_por_pagar_layout_pago"/>
@@ -161,9 +181,6 @@
     <menuitem id="menu_vertical_presupuestos_flete" name="Reporte Saldos"
               parent="menu_horizontal_programacion_pagos"
               action="action_open_cuentas_por_pagar_reporte_saldos"/>
-    <menuitem id="menu_vertical_lotes_view" name="Lotes View"
-              parent="menu_horizontal_programacion_pagos"
-              action="action_open_cuentas_por_pagar_reporte_lotes_view"/>
     <menuitem id="menu_vertical_reps_view" name="REP'S View"
               parent="menu_horizontal_programacion_pagos"
               action="action_open_cuentas_por_pagar_reps_view"/>

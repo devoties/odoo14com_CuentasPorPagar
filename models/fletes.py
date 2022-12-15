@@ -1,14 +1,14 @@
-# -*- coding:utf-8 -*-
+	# -*- coding:utf-8 -*-
 import requests
-
 from odoo import fields, models, api, _
 import sqlalchemy as sa
+import pandas as pd
 from sqlalchemy.orm import scoped_session, Session
 from sqlalchemy.orm import sessionmaker
-
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql.schema import Column
 from sqlalchemy.types import Integer, String, Float, SmallInteger, Numeric, DateTime, Date
+from datetime import date,timedelta
 from sqlalchemy import distinct
 import logging
 
@@ -17,32 +17,32 @@ _logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 
 Base = declarative_base()
-
-
 # Clase de movimientos de recepcion
-class CortesData(Base):
-    __tablename__ = 'ZZZ_RecepcionLotes'
-    id_acuerdo = Column('IdAcuerdo', Integer())
-    id_orden_corte = Column('IdOrdenCorte', Integer())
-    id_lote_recepcion = Column('IdLoteRecepcion', Integer(), primary_key=True)
-    nombre_productor = Column('Nombre', String(500))
-    huerta = Column('Huerta', String(500))
-    sader = Column('NoRegistro', String(500))
+class CortesDataOrden(Base):
+    __tablename__ = 'REP_OrdenesCorte2'
+    id_orden_corte = Column('IdOrdenCorte', Integer(), primary_key=True)
     fecha = Column('Fecha', DateTime)
+    sader = Column('NoRegistro',String(500))
+    huerta = Column('Huerta', String(500))
+    ubicacion = Column('Ubicacion', String(500))
     poblacion = Column('Poblacion', String(500))
-    tipo_corte = Column('TipoCorte', String(500))
-    precio = Column('Precio', Float)
-    transportista = Column('Expr2', String(500))
-    empresa_corte = Column('Expr3', String(500))
-    jefe_acopio = Column('Expr4', String(200))
-    candado = Column('Candado', String(200))
-    cajas_entregadas = Column('CajasCortadas', Integer())
-    peso_neto = Column('PesoNeto', Float)
-    peso_productor = Column('PesoBasculaProductor', Float)
-    bico = Column('COPREF', String(200))
+    estado = Column('Estado', String(500))
+    municipio = Column('Municipio', String(500))
+    status = Column('Status', String(500))
+    nombre_productor = Column('Productor', String(500))
+    nombre_transportista = Column('Transportista', String(500))
+    nombre_jefe_cuadrilla = Column('JefeCuadrilla', String(500))
+    observaciones = Column('Observaciones', String(500))
+
+
+class CortesCajasTTS(Base):
+    __tablename__ = 'View_datos_camion2'
+    id_orden_corte_cajas = Column('IdOrdenCorte', Integer(), primary_key=True)
+    id_cajas_cortadas = Column('CajasCortadas', Integer())
+    fecha = Column('Fecha',DateTime)
+    cajas_entregadas = Column('CajasMixto',Integer())
     ticket = Column('Ticket', String(200))
-    id_productor = Column('IdProductor', Integer())
-    id_jefe_cuadrilla = Column('IdJefeCuadrilla', Integer())
+    pesototal = Column('PesoNeto',Integer())
 
 
 class Session():
@@ -54,8 +54,8 @@ class Session():
         return session
 
     def engine():
-        # server_addres = '192.168.88.214' + ":" + "49703"
-        server_addres = 'e3210dfde5c7.sn.mynetname.net' + ":" + "49703"
+        server_addres = '192.168.88.214' + ":" + "49703"
+        #server_addres = 'e3210dfde5c7.sn.mynetname.net' + ":" + "49703"
         database = 'TTS'
         username = 'sa'
         password = 'HideMyPassBm123*'
@@ -68,76 +68,408 @@ class Session():
 
     # Modelo de odoo
 
+class FletesCrear(models.Model):
+    _name = "fletes_modelo_tts"
 
-class Fletes(models.Model):
-    _name = "fletes"
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
 
-    name = fields.Char(string='')
+    name = fields.Char(string='Id orden corte', tracking=True, track_visibility='always')
+
+    fecha = fields.Date(string='Fecha', tracking=True, track_visibility='always')
+
+    # Un Many2one siempre recibe un entero
+    huerta = fields.Many2one(comodel_name='huertas', string='Huerta', tracking=True, track_visibility='always')
+
+    ubicacion_municipio = fields.Many2one(comodel_name='localidad', string='Localidad', tracking=True,
+                                          track_visibility='always')
+
+    poblacion = fields.Many2one(comodel_name='poblacion', string='Poblacion', tracking=True, track_visibility='always')
+
+    estado = fields.Many2one(comodel_name='estado', string='Estado', tracking=True, track_visibility='always')
+
+    municipio = fields.Many2one(comodel_name='ciudad', string='Municipio', tracking=True, track_visibility='always')
+
+    status = fields.Char(string='Status fruta', tracking=True, track_visibility='always')
+
+    nombre_produtor_modelo_tts = fields.Many2one(comodel_name='res.partner', string='Nombre productor', tracking=True,
+                                                 track_visibility='always')
+
+    nombre_transportista = fields.Many2one(comodel_name='res.partner', string='Nombre transportista', tracking=True,
+                                           track_visibility='always')
+
+    nombre_jefe_cuadrilla = fields.Many2one(comodel_name='res.partner', string='Jefe de cuadrilla', tracking=True,
+                                            track_visibility='always')
+
+    observaciones = fields.Text(string='Observaciones', tracking=True, track_visibility='always')
+
+    impuestos = fields.One2many('retenciones', 'fletes_rel', string='Retencion extra', tracking=True,
+                                track_visibility='always')
+
+    importe_total_fletes_municipio = fields.Float(string='Importe municipio', compute='_compute_tarifa_final_fleteo',
+                                                  tracking=True, track_visibility='always')
+
+    importe_mas_retencion = fields.Float(string='Tarifa final', compute='_compute_tarifa_final', tracking=True,
+                                         track_visibility='always', store=True)
+
+    beneficiario = fields.Many2one(related='nombre_transportista.beneficiario_flete', string='Beneficiario',
+                                   tracking=True, track_visibility='always',store=True)
+
+    cajas_lote_fletes = fields.Integer(string='Cajas lote')
+
+    cajas_mixtos_fletes = fields.Integer(string='Cajas en camion')
+
+    peso_promedio_caja = fields.Float(string='Peso promedio cajas', )
+
+    state = fields.Selection(selection=[('alerta_exeso', 'Exceso'), ('alerta_faltante', 'Faltante'),
+                                        ('margen', 'margen'), ('bloqueo', 'Bloqueo')]
+                             , default='margen', string='Estados', copy=False, )
+    peso_producto = fields.Float(string='Peso productor')
+
+    alerta_peso_cajas = fields.Char(string='Alerta de Peso')
+
+    state_fletes = fields.Selection(selection=[('borrador', 'Borrador'), ('aprobado_cfdi', 'Contabilizado CFDI'),
+                                        ('bloqueo', 'bloqueo'), ]
+                                        , default='borrador', string='CFDI', copy=False)
+
+    carta_porte = fields.Boolean(string='Carta porte')
+
+
+
+    def get_contracts_data(self):
+        for line in self:
+            busqueda_vigencias = line.env["huertas_contratos_terceros"].search_count([('huertas_contratos_terceros_huertas_rel', '=', line.name.sader.id),('fecha_vencimiento','>=',line.lotes_fecha_recepcion),
+                                                                                      ('fecha_apertura','<=',line.lotes_fecha_recepcion)])
+            x = line.env["huertas_contratos_terceros"].search(
+                [('huertas_contratos_terceros_huertas_rel', '=', line.name.sader.id),
+                 ('fecha_vencimiento', '>=', line.lotes_fecha_recepcion),
+                 ('fecha_apertura','<=',line.lotes_fecha_recepcion)])
+            print('****busqueda vigencias******')
+            print(busqueda_vigencias)
+            print('**********Contador de lista beneficiarios************')
+            validator_count = 0
+
+    def aprobar_cfdi_fletes(self):
+        self.state_fletes = 'aprobado_cfdi'
+    def ir_borrador_fletes(self):
+        self.state_fletes = 'borrador'
+
+
+    def get_aditional_data(self):
+        print('hola mundo2')
+        for line in self:
+            print('tes')
+            # calcula las opiniones que estan el rango de fecha de la factura relacionada "data_rel"
+            x = line.env['opinion_cumplimiento_sat'].search(
+                [('opinion_cumplimiento_partner_rel', '=', line.data_rel.partner_id.id)]).mapped("fecha_emision")
+            print('es x', x)
+            print('tes 5', line.data_rel.invoice_date)
+            if line.data_rel.invoice_date is not False:
+                fecha_factura = pd.to_datetime(line.data_rel.invoice_date)
+                print('tes 1')
+                mes_factura = fecha_factura.strftime('%b')
+                contador_vigencias = 0
+                status = ''
+                print('tes 1')
+                for linx in x:
+                    print('tes 2')
+                    mes_contrato = linx.strftime('%b')
+                    print('Diferencia')
+                    diff = int((pd.to_datetime(fecha_factura) - pd.to_datetime(linx)).days)
+                    print(diff)
+                    if mes_factura == mes_contrato or diff < 0 or diff <= (90):
+                        contador_vigencias = contador_vigencias + 1
+                        if contador_vigencias == 0:
+                            status = 'VENCIDO'
+                        if contador_vigencias > 0:
+                            status = 'VIGENTE'
+
+                    else:
+                        contador_vigencias = contador_vigencias + 0
+                        if contador_vigencias == 0:
+                            status = 'VENCIDO'
+                        if contador_vigencias > 0:
+                            status = 'VIGENTE'
+                line.es_opinion = status
+
+                # calcula qty de ines vigentes o vencidas
+                calcular_ines = line.env['ine_sat'].search_count(
+                    [('ine_partner_rel', '=', line.data_rel.partner_id.id)])
+                if calcular_ines >= 1:
+                    line.es_ine = True
+                if calcular_ines < 1:
+                    line.es_ine = False
+                # calcula las caratulas que estan el rango de fecha de la factura relacionada "data_rel"
+                qty_cifs = line.env['cif'].search([('cif_rel', '=', line.data_rel.partner_id.id)]).mapped(
+                    'fecha_emision')
+                fecha_factura = pd.to_datetime(line.data_rel.invoice_date)
+                mes_factura = fecha_factura.strftime('%b')
+                contador_vigencias = 0
+                status = ''
+                for linx in qty_cifs:
+                    mes_contrato = linx
+                    mes_contrato = mes_contrato.strftime('%b')
+                    print('Otro parametro que ocupo ver')
+                    print(mes_contrato)
+                    print('Diferencia')
+                    diff = int((pd.to_datetime(fecha_factura) - pd.to_datetime(linx)).days)
+                    print(diff)
+                    if mes_factura == mes_contrato or diff < 0 or diff <= (90):
+                        contador_vigencias = contador_vigencias + 1
+                        if contador_vigencias == 0:
+                            status = 'VENCIDO'
+                        if contador_vigencias > 0:
+                            status = 'VIGENTE'
+
+                    else:
+                        contador_vigencias = contador_vigencias + 0
+                        if contador_vigencias == 0:
+                            status = 'VENCIDO'
+                        if contador_vigencias > 0:
+                            status = 'VIGENTE'
+                line.es_cif = status
+            else:
+                line.es_opinion = 'VIGENTE'
+                line.es_cif = 'VENCIDO'
+                line.estatus_contratos = 'VIGENTE'
+
+
+
+    def get_ine(self):
+        for l in self:
+            #contador en 0's
+            contador = 0
+            #mapeo el modelo en un objeto
+            ines_vigentes = l.env['ine_sat']
+            # variable de control para fecha
+            var_control_date = ''
+            if l.estado_factura == 'paid':
+               var_control_date = l.fecha_pago_tuple
+               var_control_date = var_control_date.replace('(', '')
+               var_control_date = var_control_date.replace(')', '')
+               var_control_date = var_control_date[0:10]
+               if var_control_date.count('-') >= 3:
+                  var_control_date = str(var_control_date[0:4])
+
+            print(var_control_date)
+            if l.estado_factura != 'paid':
+                var_control_date = str(date.today())
+            #Revisar resultados finales
+            for i in ines_vigentes.search([('ine_partner_rel','=',l.data_rel.partner_id.id)], order='id desc'):
+                format_date = str(i.fecha_vencimiento)
+                if format_date[0:4] >= var_control_date[0:4] and i.fecha_vencimiento is not False:
+                    contador = contador + 1
+                else:
+                    contador = contador + 0
+            contador = contador
+            if contador >= 1:
+                l.ine_venc = 'VIGENTE'
+            else:
+                l.ine_venc = 'VENCIDO'
+
+    def _compute_tarifa_final(self):
+        suma = 0.0
+        for rec in self:
+            for line in rec.impuestos:
+                suma = suma + line.importe
+            rec.importe_mas_retencion = rec.importe_total_fletes_municipio + suma
+            suma = 0.0
+    @api.model
+    def create(self, variables):
+        if variables['peso_promedio_caja'] > 28:
+            variables['state'] = 'alerta_exeso'
+            variables['alerta_peso_cajas'] = '***CAJAS CON MAS DE 28kg***'
+        if variables['peso_promedio_caja'] < 22:
+            variables['state'] = 'alerta_faltante'
+            variables['alerta_peso_cajas'] = '***CAJAS CON MENOS DE 22kg***'
+        return super(FletesCrear, self).create(variables)
+
+
+    def _compute_tarifa_final_fleteo(self):
+        for record_fletes in self:
+            importe_municipio_flete = 0.0
+            res_tarifa_amount = record_fletes.env['tarifas_fletes'].search([('name', '=',record_fletes.municipio.id)]).tarifa_importe_final_flete_municipio
+            record_fletes.importe_total_fletes_municipio = res_tarifa_amount
+
+    def boton_de_testeo(self):
+        for linea in self:
+            if linea.cajas_lote_fletes > 300:
+                suma = (((linea.cajas_lote_fletes-300)*15)*1.16)-(((linea.cajas_lote_fletes-300)*15)*.04)
+                id_cajas_extra = self.env['cat_descuentos'].search([('name', '=', 'CAJAS EXTRA')], limit=1)
+                recordcajasfletes = {'name': id_cajas_extra.id,
+                                     'fletes_rel': linea.id,
+                                     'importe': suma, }
+                insert_cajas_flete = self.env['retenciones'].create(recordcajasfletes)
+                self.env.cr.commit()
 
     def download_data(self):
         engine = Session.engine()
         session = Session.session(engine)
 
         # valores globales para llamar el objeto fuera del modelo
-        global cortes_object
-        # ordenar por nombre
-        # lote_inicial_object.search([],order='name')
-        rango_cortes_obj = self.env['cortes_wizard']
+        global fletes_object
+        # mapeo de modelos
+        rango_fletes_obj = self.env['fletes_wizard']
         contactos_obj = self.env['res.partner']
         huertas_obj = self.env['huertas']
-        productor_obj = self.env['res.partner']
-        jefe_acopio_obj = self.env['res.partner']
-        huerta_prod_obj = self.env['res.partner']
+        for j in rango_fletes_obj.search([], order='id desc', limit=1):
+            j.fecha_inicial
+            j.fecha_final
+            print(j.fecha_inicial)
+        print('que pasa con j')
 
-        for i in rango_cortes_obj.search([], order='id desc', limit=1):
-            # ordenar por nombre
-            # lote_inicial_object.search([],order='name')
-            i.fecha_inicial
-            i.fecha_final
+        # realizo el query en la clase "CortesDataOrden" para obtener un resultado
+        #filtrado por fechas
 
-        cortes_object = session.query(CortesData).filter(
-            CortesData.fecha.cast(Date).between(i.fecha_inicial, i.fecha_final)).all()
-        # este arreglo recorre el query
-        for record in cortes_object:
-            global recordObject
+        fletes_object = session.query(CortesDataOrden, CortesCajasTTS) .filter(
+            CortesDataOrden.fecha.cast(Date).between(j.fecha_inicial, j.fecha_final)). \
+            filter(CortesCajasTTS.id_orden_corte_cajas == CortesDataOrden.id_orden_corte).all()
+            # .filter(CortesMixtosCajasTTS.tiket_mixto_tts == CortesCajasTTS.ticket)
 
-            recordObject = {'name': record.id_lote_recepcion,
-                            'id_acuerdo': record.id_acuerdo,
-                            'id_orden_corte': record.id_orden_corte,
-                            'nombre_productor': line3.id,
-                            'huerta': record.huerta,
-                            'sader': line2.id,
-                            'fecha': record.fecha,
-                            'poblacion': record.poblacion,
-                            'tipo_corte': record.tipo_corte,
-                            'transportista': record.transportista,
-                            'empresa_corte': line.id,
-                            'jefe_acopio': line4.id,
-                            'candado': record.candado,
-                            'cajas_entregadas': record.cajas_entregadas,
-                            'peso_neto': record.peso_neto,
-                            'peso_productor': record.peso_productor,
-                            'bico': record.bico,
-                            'ticket': record.ticket, }
-            insert_cortes = self.env['cortes'].create(recordObject)
+        # Objeto que crea el catalogo de huertas
+
+
+        # este arreglo recorre el objeto resultante del query
+        for record in fletes_object:
+
+          if self.env['fletes_modelo_tts'].search_count([('name', '=', record[0].id_orden_corte)]) >= 1:
+                print('Registro existente')
+          if self.env['fletes_modelo_tts'].search_count([('name', '=', record[0].id_orden_corte)]) == 0:
+            global rec_obj_fletes_dic
+            global id_huerta
+            global id_ubicacion_municipio
+            global id_name_trasportista
+            global id_municipio
+            global id_productor
+            global id_transportista
+            global id_jefe_cuadrilla
+            global id_estado
+            global id_poblacion
+            global testeo
+
+            # create method for record and search register
+            if self.env['res.partner'].search_count([('name','=',record[0].nombre_transportista)]) >= 1:
+                id_transportista = self.env['res.partner'].search([('name', '=', record[0].nombre_transportista)],limit=1).id
+            if self.env['res.partner'].search_count([('name','=',record[0].nombre_transportista)]) == 0:
+               rec_obj_transportista_dic = {'name': record[0].nombre_transportista, }
+               id_transportista = self.env['res.partner'].create(rec_obj_transportista_dic)
+               id_transportista = id_transportista.id
+               self.env.cr.commit()
+
+            if self.env['localidad'].search_count([('name', '=', record[0].ubicacion)]) >= 1:
+                id_ubicacion_municipio = self.env['localidad'].search([('name', '=', record[0].ubicacion)],limit=1).id
+            if self.env['localidad'].search_count([('name', '=', record[0].ubicacion)]) == 0:
+                rec_obj_localidad_dic = {'name': record[0].ubicacion}
+                id_ubicacion_municipio = self.env['localidad'].create(rec_obj_localidad_dic)
+                id_ubicacion_municipio = id_ubicacion_municipio.id
+                self.env.cr.commit()
+
+            if self.env['poblacion'].search_count([('name', '=', record[0].poblacion)]) >= 1:
+                id_poblacion = self.env['poblacion'].search([('name', '=', record[0].poblacion)],limit=1).id
+            if self.env['poblacion'].search_count([('name', '=', record[0].poblacion)]) == 0:
+                rec_obj_poblacion_dic = {'name': record[0].poblacion, }
+                id_poblacion = self.env['poblacion'].create(rec_obj_poblacion_dic)
+                id_poblacion = id_poblacion.id
+                self.env.cr.commit()
+
+            if self.env['ciudad'].search_count([('name','=',record[0].municipio)]) >= 1:
+                id_municipio = self.env['ciudad'].search([('name', '=', record[0].municipio)],limit=1).id
+            if self.env['ciudad'].search_count([('name', '=', record[0].municipio)]) == 0:
+               rec_obj_municipio_dic_dic = {'name': record[0].municipio, }
+               id_municipio = self.env['ciudad'].create(rec_obj_municipio_dic_dic)
+               id_municipio = id_municipio.id
+               self.env.cr.commit()
+
+            if self.env['estado'].search_count([('name','=',record[0].estado)]) >= 1:
+                id_estado = self.env['estado'].search([('name', '=', record[0].estado)],limit=1).id
+            if self.env['estado'].search_count([('name','=',record[0].estado)]) == 0:
+               rec_obj_estado_dic = {'name': record[0].estado, }
+               id_estado = self.env['estado'].create(rec_obj_estado_dic)
+               id_estado = id_estado.id
+               self.env.cr.commit()
+
+
+
+            if self.env['res.partner'].search_count([('name','=',record[0].nombre_productor)]) >= 1:
+                id_productor = self.env['res.partner'].search([('name', '=', record[0].nombre_productor)],limit=1).id
+            if self.env['res.partner'].search_count([('name', '=', record[0].nombre_productor)]) == 0:
+               rec_obj_productor_dic = {'name': record[0].nombre_productor, }
+               id_productor = self.env['res.partner'].create(rec_obj_productor_dic)
+               id_productor = id_productor.id
+               self.env.cr.commit()
+
+            if self.env['huertas'].search_count([('sader','=',record[0].sader)]) >= 1:
+                id_huerta = self.env['huertas'].search([('sader', '=', record[0].sader)],limit=1).id
+            if self.env['huertas'].search_count([('sader','=',record[0].sader)]) == 0:
+               rec_obj_huertas_dic = {'name': record[0].huerta,
+                                      'sader': record[0].sader,
+                                      'productor': self.env['res.partner'].search([('name', '=', record[0].nombre_productor)]).id
+                                      }
+               id_huerta = self.env['huertas'].create(rec_obj_huertas_dic)
+               id_huerta = id_huerta.id
+               self.env.cr.commit()
+
+            if self.env['res.partner'].search_count([('name', '=', record[0].nombre_jefe_cuadrilla)]) >= 1:
+                id_jefe_cuadrilla = self.env['res.partner'].search(
+                    [('name', '=', record[0].nombre_jefe_cuadrilla)],limit=1).id
+            if self.env['res.partner'].search_count([('name', '=', record[0].nombre_jefe_cuadrilla)]) == 0:
+                rec_obj_jefe_cuadrilla_dic = {'name': record[0].nombre_jefe_cuadrilla, }
+                id_jefe_cuadrilla = self.env['res.partner'].create(rec_obj_jefe_cuadrilla_dic)
+                id_jefe_cuadrilla = id_jefe_cuadrilla.id
+                self.env.cr.commit()
+
+
+
+            cajas_camion = record[1].cajas_entregadas
+            if cajas_camion == 0:
+                cajas_camion = record[1].id_cajas_cortadas
+            if record[1].pesototal != 0.0:
+               promediocajas = record[1].pesototal / record[1].id_cajas_cortadas
+
+            rec_obj_fletes_dic = {
+                            'name': record[0].id_orden_corte,
+                            'fecha': record[0].fecha,
+                            'huerta': id_huerta,
+                            'poblacion': id_poblacion,
+                            'nombre_produtor_modelo_tts': id_productor,
+                            'status': record[0].status,
+                            'estado': id_estado,
+                            'nombre_transportista':id_transportista,
+                            'nombre_jefe_cuadrilla':id_jefe_cuadrilla,
+                            'municipio': id_municipio,
+                            'observaciones': record[0].observaciones,
+                            'ubicacion_municipio': id_ubicacion_municipio,
+                            'cajas_lote_fletes': record[1].id_cajas_cortadas,
+                            'cajas_mixtos_fletes': cajas_camion,
+                            'peso_producto': record[1].pesototal,
+                            'peso_promedio_caja': promediocajas
+
+                            }
+            insert_cajas_de_tts = self.env['fletes_modelo_tts'].create(rec_obj_fletes_dic)
+
+
+            if record[1].id_cajas_cortadas > 300:
+                tarifa_cajas_extra = (((record[1].id_cajas_cortadas - 300) * 15) * 1.16) - (((record[1].id_cajas_cortadas - 300) * 15) * .04)
+                id_cajas_extra = self.env['cat_descuentos'].search([('name', '=', 'CAJAS EXTRA')], limit=1)
+                recordcajasfletes = {'name': id_cajas_extra.id,
+                                     'fletes_rel': insert_cajas_de_tts.id,
+                                     'importe': tarifa_cajas_extra, }
+                insert_cajas_flete = self.env['retenciones'].create(recordcajasfletes)
+                self.env.cr.commit()
+
+            if record[1].cajas_entregadas > 300:
+                tarifa_cajas_extra = (((record[1].cajas_entregadas - 300) * 15) * 1.16) - (((record[1].cajas_entregadas - 300) * 15) * .04)
+                id_cajas_extra = self.env['cat_descuentos'].search([('name', '=', 'CAJAS EXTRA')], limit=1)
+                recordcajasfletes = {'name': id_cajas_extra.id,
+                                     'fletes_rel': insert_cajas_de_tts.id,
+                                     'importe': tarifa_cajas_extra, }
+                insert_cajas_flete = self.env['retenciones'].create(recordcajasfletes)
+                self.env.cr.commit()
+
+
+            print(rec_obj_fletes_dic)
+            #response_dic_create = self.env['fletes_modelo_tts'].create(rec_obj_fletes_dic)
             self.env.cr.commit()
-            print(recordObject)
-            # obtiene el id externo del gasto de cuadrilla normal
-            id = self.env['tipo_cuadrillas'].search([('name', '=', 'CUADRILLA NORMAL')], limit=1)
-            # calculador de tarifa de cuadrilla
-            tarifa = 0
-            if record.peso_productor > 5000:
-                tarifa = record.peso_productor * 1.65
-            if record.peso_productor < 5000:
-                tarifa = 7500
+        session.close()
+        engine.dispose()
 
-            # objeto de datos obtenidos name = cuadrillas normal, cudrilla rel = el id que arrojara el almacenamiento
-            # del objeto anterior de los cortes, importe = calculo de cuadrilla por Kilogramos
-            recordObjectCuadrillasPorCorte = {'name': id.id,
-                                              'cuadrilla_rel': insert_cortes.id,
-                                              'importe': tarifa}
-            insert_cuadrilla_normal = self.env['cuadrillas'].create(recordObjectCuadrillasPorCorte)
-            self.env.cr.commit()
 
-    session.close()
-    engine.disp

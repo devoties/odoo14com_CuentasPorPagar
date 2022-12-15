@@ -41,13 +41,18 @@
                             <field name="jefe_acopio" readonly="1"/>
                             <field name="candado" readonly="1"/>
                             <field name="cajas_entregadas" readonly="1"/>
+                            <field name="peso_promedio_cajas_corte" readonly="1" invisible="1"/>
+                            <field name="peso_promedio_cajas_corte2" readonly="1"/>
                             <field name="peso_neto" readonly="1"/>
-                            <field name="peso_productor" readonly="1"/>
+                            <field name="peso_nuevo_productor" readonly="1" />
+                            <field name="cuadrilla_extra" invisible="1"/>
 
                             <field name="bico" readonly="1"/>
                             <field name="ticket" readonly="1"/>
                             <field name="active" widget="boolean_toggle"/>
                             <field name="kilogramos_ajuste" readonly="1"/>
+                            <field name="id_lote" readonly="1"/>
+
 
                         </group>
                         <group>
@@ -85,19 +90,36 @@
                             class="oe_highlight" invisible="0" confirm="¿Deseas realizar un ajuste?"/>
 
                 </header>
-                <field name="name" readonly="1"/>
-                <field name="nombre_productor" readonly="1"/>
-                <field name="sader" readonly="1"/>
-                <field name="fecha" readonly="1"/>
-                <field name="poblacion" readonly="1"/>
-                <field name="empresa_corte"/>
-                <field name="peso_productor" sum="Kilogramos"/>
-                <field name="cajas_entregadas"/>
-                <field name="kilogramos_ajuste" readonly="1" sum="Total"/>
-                <field name="total_ajuste" sum="Total Ajuste"/>
-                <field name="total_importe" sum="Importe"/>
-                <field name="cuadrilla"/>
-                <field name="cuadrilla" readonly="1" widget="many2many_tags"/>
+                <field name="name" readonly="1" optional="show"/>
+                <field name="nombre_productor" readonly="1" optional="show"/>
+                <field name="sader" readonly="1" optional="show"/>
+                <field name="fecha" readonly="1" optional="show"/>
+                <field name="poblacion" readonly="1" optional="show"/>
+                <field name="empresa_corte" optional="show"/>
+                <field name="transportista" optional="show"/>
+                <field name="peso_productor" sum="Kilogramos" optional="show"/>
+                <field name="cajas_entregadas" optional="show"/>
+                <field name="peso_promedio_cajas_corte2" widget="badge" decoration-success="state_alert_corte == 'margen'"
+                decoration-warning="state_alert_corte == 'alerta_faltante'" decoration-danger="state_alert_corte == 'alerta_exeso'"
+                optional="show"/>
+                <field name="state_alert_corte" optional="show"/>
+                <field name="kilogramos_ajuste" readonly="1" sum="Total" optional="show"/>
+                <field name="total_ajuste" sum="Total Ajuste" optional="show"/>
+                <field name="cuadrilla_extra" sum="SumaDeCuadrilla" optional="show"/>
+                <field name="total_importe" sum="Importe" optional="show"/>
+                <field name="cuadrilla" optional="show"/>
+                <field name="cuadrilla" readonly="1" widget="many2many_tags" optional="show"/>
+                <field name="id_lote" readonly="1" optional="show"/>
+
+
+                <field name="es_opinion" optional="hide" widget="badge" decoration-danger="es_opinion == 'VENCIDO'"
+                       decoration-success="es_opinion == 'VIGENTE'"/>
+                <field name="es_cif" optional="show" widget="badge" decoration-danger="es_cif == 'VENCIDO'"
+                       decoration-success="es_cif == 'VIGENTE'"/>
+                <field name="ine_venc" widget="badge" optional="show" decoration-success="ine_venc == 'VIGENTE'" decoration-danger="ine_venc == 'VENCIDO'"/>
+                <field name="estatus_contratos" widget="badge" decoration-success="estatus_contratos == 'VIGENTE'"
+                       decoration-danger="estatus_contratos == 'VENCIDO'" optional="show"/>
+
             </tree>
         </field>
     </record>
